@@ -18,22 +18,36 @@ from pathlib import Path
 # ---------------------------------------------------------------------------
 RSS_SOURCES = [
     # Politica italiana
-    {"name": "ANSA",           "url": "https://www.ansa.it/sito/ansait_rss.xml",                    "cat": "politica-italiana"},
-    {"name": "Corriere",       "url": "https://xml2.corrieredellasera.it/rss/homepage.xml",          "cat": "politica-italiana"},
+    {"name": "ANSA",             "url": "https://www.ansa.it/sito/ansait_rss.xml",                          "cat": "politica-italiana"},
+    {"name": "Corriere",         "url": "https://xml2.corrieredellasera.it/rss/homepage.xml",                "cat": "politica-italiana"},
+    {"name": "Il Post",          "url": "https://www.ilpost.it/feed/",                                       "cat": "politica-italiana"},
+    {"name": "Sky TG24",         "url": "https://tg24.sky.it/feed/rss.xml",                                  "cat": "politica-italiana"},
+    {"name": "AGI",              "url": "https://www.agi.it/feed/rss.xml",                                   "cat": "politica-italiana"},
+    {"name": "Pagella Politica", "url": "https://pagellapolitica.it/feed",                                   "cat": "politica-italiana"},
+    {"name": "Facta",            "url": "https://facta.news/feed/",                                          "cat": "politica-italiana"},
+    {"name": "Valigia Blu",      "url": "https://www.valigiablu.it/feed/",                                   "cat": "politica-italiana"},
     # Geopolitica
-    {"name": "BBC World",      "url": "https://feeds.bbci.co.uk/news/world/rss.xml",                 "cat": "geopolitica"},
-    {"name": "AP News",        "url": "https://apnews.com/hub/world-news?output=rss",                "cat": "geopolitica"},
+    {"name": "Limes",            "url": "https://www.limesonline.com/feed",                                  "cat": "geopolitica"},
+    {"name": "Internazionale",   "url": "https://www.internazionale.it/feed/tutto",                          "cat": "geopolitica"},
+    {"name": "BBC World",        "url": "https://feeds.bbci.co.uk/news/world/rss.xml",                       "cat": "geopolitica"},
+    {"name": "AP",               "url": "https://apnews.com/hub/world-news?output=rss",                      "cat": "geopolitica"},
+    {"name": "AFP",              "url": "https://www.afp.com/en/agency/rss-feeds",                           "cat": "geopolitica"},
+    {"name": "The Economist",    "url": "https://www.economist.com/international/rss.xml",                   "cat": "geopolitica"},
+    {"name": "El País",          "url": "https://feeds.elpais.com/mrss-s/pages/ep/site/elpais.com/portada",  "cat": "geopolitica"},
     # Conflitti
-    {"name": "Reuters",        "url": "https://feeds.reuters.com/reuters/worldNews",                 "cat": "conflitti"},
-    {"name": "Al Jazeera",     "url": "https://www.aljazeera.com/xml/rss/all.xml",                   "cat": "conflitti"},
+    {"name": "Reuters",          "url": "https://feeds.reuters.com/reuters/worldNews",                       "cat": "conflitti"},
+    {"name": "Al Jazeera",       "url": "https://www.aljazeera.com/xml/rss/all.xml",                         "cat": "conflitti"},
+    {"name": "AP conflitti",     "url": "https://apnews.com/hub/wars-and-conflicts?output=rss",              "cat": "conflitti"},
     # AI & Tech
-    {"name": "The Verge",      "url": "https://www.theverge.com/rss/index.xml",                      "cat": "ai"},
-    {"name": "Wired IT",       "url": "https://www.wired.it/feed/rss",                               "cat": "ai"},
-    {"name": "TechCrunch",     "url": "https://techcrunch.com/feed/",                                "cat": "ai"},
+    {"name": "The Verge",        "url": "https://www.theverge.com/rss/index.xml",                            "cat": "ai"},
+    {"name": "Wired IT",         "url": "https://www.wired.it/feed/rss",                                     "cat": "ai"},
+    {"name": "TechCrunch",       "url": "https://techcrunch.com/feed/",                                      "cat": "ai"},
+    {"name": "Il Post Tech",     "url": "https://www.ilpost.it/tecnologia/feed/",                            "cat": "ai"},
     # Economia tech
-    {"name": "Il Sole 24 Ore", "url": "https://www.ilsole24ore.com/rss/economia.xml",                "cat": "economia-tech"},
-    {"name": "Bloomberg Tech", "url": "https://feeds.bloomberg.com/technology/news.rss",             "cat": "economia-tech"},
-    {"name": "Financial Times","url": "https://www.ft.com/rss/home",                                 "cat": "economia-tech"},
+    {"name": "Il Sole 24 Ore",   "url": "https://www.ilsole24ore.com/rss/economia.xml",                      "cat": "economia-tech"},
+    {"name": "Bloomberg Tech",   "url": "https://feeds.bloomberg.com/technology/news.rss",                   "cat": "economia-tech"},
+    {"name": "Financial Times",  "url": "https://www.ft.com/rss/home",                                       "cat": "economia-tech"},
+    {"name": "The Economist Ec", "url": "https://www.economist.com/business/rss.xml",                        "cat": "economia-tech"},
 ]
 
 # Parole chiave per filtrare solo notizie rilevanti per categoria

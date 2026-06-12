@@ -41,7 +41,6 @@
       </div>
       <div class="hero-actions">
         <button class="hero-read-btn" id="heroReadBtn">Leggi di più</button>
-        <button class="fav-btn hero-fav" id="heroFavBtn" aria-label="Salva nei preferiti">★</button>
       </div>
     </section>
 
@@ -55,7 +54,10 @@
     <div class="modal" id="modal">
       <div class="modal-header">
         <button class="modal-close" id="modalClose">✕</button>
-        <button class="fav-btn modal-fav" id="modalFavBtn" aria-label="Salva nei preferiti">★</button>
+        <div class="modal-header-actions">
+          <button class="translate-btn" id="translateBtn" style="display:none">🌐 Traduci in italiano</button>
+          <button class="fav-btn modal-fav" id="modalFavBtn" aria-label="Salva nei preferiti">★</button>
+        </div>
       </div>
       <div class="modal-cat" id="modalCat"></div>
       <h2 class="modal-title" id="modalTitle"></h2>
