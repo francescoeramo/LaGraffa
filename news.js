@@ -1,293 +1,481 @@
-// Generato automaticamente da scripts/fetch_news.py — NON modificare manualmente.
-// Le notizie di esempio qui sotto vengono sovrascritte ogni ora dalla GitHub Action.
+// Generato automaticamente il 2026-06-12 18:24 UTC da scripts/fetch_news.py
+// NON modificare manualmente: viene sovrascritto ogni ora dalla GitHub Action.
 
 const RSS_SOURCES = [
-  // Politica italiana
-  { name: "ANSA",             url: "https://www.ansa.it/sito/ansait_rss.xml",                         cat: "politica-italiana" },
-  { name: "Corriere",         url: "https://xml2.corrieredellasera.it/rss/homepage.xml",               cat: "politica-italiana" },
-  { name: "Il Post",          url: "https://www.ilpost.it/feed/",                                      cat: "politica-italiana" },
-  { name: "Sky TG24",         url: "https://tg24.sky.it/feed/rss.xml",                                 cat: "politica-italiana" },
-  { name: "AGI",              url: "https://www.agi.it/feed/rss.xml",                                  cat: "politica-italiana" },
-  { name: "Pagella Politica", url: "https://pagellapolitica.it/feed",                                  cat: "politica-italiana" },
-  { name: "Facta",            url: "https://facta.news/feed/",                                         cat: "politica-italiana" },
-  { name: "Valigia Blu",      url: "https://www.valigiablu.it/feed/",                                  cat: "politica-italiana" },
-  // Geopolitica
-  { name: "Limes",            url: "https://www.limesonline.com/feed",                                 cat: "geopolitica" },
-  { name: "Internazionale",   url: "https://www.internazionale.it/feed/tutto",                         cat: "geopolitica" },
-  { name: "BBC World",        url: "https://feeds.bbci.co.uk/news/world/rss.xml",                      cat: "geopolitica" },
-  { name: "AP",               url: "https://apnews.com/hub/world-news?output=rss",                     cat: "geopolitica" },
-  { name: "AFP",              url: "https://www.afp.com/en/agency/rss-feeds",                          cat: "geopolitica" },
-  { name: "The Economist",    url: "https://www.economist.com/international/rss.xml",                  cat: "geopolitica" },
-  { name: "El País",          url: "https://feeds.elpais.com/mrss-s/pages/ep/site/elpais.com/portada", cat: "geopolitica" },
-  // Conflitti
-  { name: "Reuters",          url: "https://feeds.reuters.com/reuters/worldNews",                      cat: "conflitti" },
-  { name: "Al Jazeera",       url: "https://www.aljazeera.com/xml/rss/all.xml",                        cat: "conflitti" },
-  { name: "AP conflitti",     url: "https://apnews.com/hub/wars-and-conflicts?output=rss",             cat: "conflitti" },
-  // AI & Tech
-  { name: "The Verge",        url: "https://www.theverge.com/rss/index.xml",                           cat: "ai" },
-  { name: "Wired IT",         url: "https://www.wired.it/feed/rss",                                    cat: "ai" },
-  { name: "TechCrunch",       url: "https://techcrunch.com/feed/",                                     cat: "ai" },
-  { name: "Il Post Tech",     url: "https://www.ilpost.it/tecnologia/feed/",                           cat: "ai" },
-  // Economia tech
-  { name: "Il Sole 24 Ore",   url: "https://www.ilsole24ore.com/rss/economia.xml",                     cat: "economia-tech" },
-  { name: "Bloomberg Tech",   url: "https://feeds.bloomberg.com/technology/news.rss",                  cat: "economia-tech" },
-  { name: "Financial Times",  url: "https://www.ft.com/rss/home",                                      cat: "economia-tech" },
-  { name: "The Economist Ec", url: "https://www.economist.com/business/rss.xml",                       cat: "economia-tech" },
+  {
+    "name": "ANSA",
+    "url": "https://www.ansa.it/sito/ansait_rss.xml",
+    "cat": "politica-italiana"
+  },
+  {
+    "name": "Corriere",
+    "url": "https://xml2.corrieredellasera.it/rss/homepage.xml",
+    "cat": "politica-italiana"
+  },
+  {
+    "name": "Il Post",
+    "url": "https://www.ilpost.it/feed/",
+    "cat": "politica-italiana"
+  },
+  {
+    "name": "Sky TG24",
+    "url": "https://tg24.sky.it/feed/rss.xml",
+    "cat": "politica-italiana"
+  },
+  {
+    "name": "AGI",
+    "url": "https://www.agi.it/feed/rss.xml",
+    "cat": "politica-italiana"
+  },
+  {
+    "name": "Pagella Politica",
+    "url": "https://pagellapolitica.it/feed",
+    "cat": "politica-italiana"
+  },
+  {
+    "name": "Facta",
+    "url": "https://facta.news/feed/",
+    "cat": "politica-italiana"
+  },
+  {
+    "name": "Valigia Blu",
+    "url": "https://www.valigiablu.it/feed/",
+    "cat": "politica-italiana"
+  },
+  {
+    "name": "Limes",
+    "url": "https://www.limesonline.com/feed",
+    "cat": "geopolitica"
+  },
+  {
+    "name": "Internazionale",
+    "url": "https://www.internazionale.it/feed/tutto",
+    "cat": "geopolitica"
+  },
+  {
+    "name": "BBC World",
+    "url": "https://feeds.bbci.co.uk/news/world/rss.xml",
+    "cat": "geopolitica"
+  },
+  {
+    "name": "AP",
+    "url": "https://apnews.com/hub/world-news?output=rss",
+    "cat": "geopolitica"
+  },
+  {
+    "name": "AFP",
+    "url": "https://www.afp.com/en/agency/rss-feeds",
+    "cat": "geopolitica"
+  },
+  {
+    "name": "The Economist",
+    "url": "https://www.economist.com/international/rss.xml",
+    "cat": "geopolitica"
+  },
+  {
+    "name": "El País",
+    "url": "https://feeds.elpais.com/mrss-s/pages/ep/site/elpais.com/portada",
+    "cat": "geopolitica"
+  },
+  {
+    "name": "Reuters",
+    "url": "https://feeds.reuters.com/reuters/worldNews",
+    "cat": "conflitti"
+  },
+  {
+    "name": "Al Jazeera",
+    "url": "https://www.aljazeera.com/xml/rss/all.xml",
+    "cat": "conflitti"
+  },
+  {
+    "name": "AP conflitti",
+    "url": "https://apnews.com/hub/wars-and-conflicts?output=rss",
+    "cat": "conflitti"
+  },
+  {
+    "name": "The Verge",
+    "url": "https://www.theverge.com/rss/index.xml",
+    "cat": "ai"
+  },
+  {
+    "name": "Wired IT",
+    "url": "https://www.wired.it/feed/rss",
+    "cat": "ai"
+  },
+  {
+    "name": "TechCrunch",
+    "url": "https://techcrunch.com/feed/",
+    "cat": "ai"
+  },
+  {
+    "name": "Il Post Tech",
+    "url": "https://www.ilpost.it/tecnologia/feed/",
+    "cat": "ai"
+  },
+  {
+    "name": "Il Sole 24 Ore",
+    "url": "https://www.ilsole24ore.com/rss/economia.xml",
+    "cat": "economia-tech"
+  },
+  {
+    "name": "Bloomberg Tech",
+    "url": "https://feeds.bloomberg.com/technology/news.rss",
+    "cat": "economia-tech"
+  },
+  {
+    "name": "Financial Times",
+    "url": "https://www.ft.com/rss/home",
+    "cat": "economia-tech"
+  },
+  {
+    "name": "The Economist Ec",
+    "url": "https://www.economist.com/business/rss.xml",
+    "cat": "economia-tech"
+  }
 ];
 
 const NEWS = [
   {
     id: 1,
-    cat: 'politica-italiana',
-    title: 'Riforma fiscale: il governo approva il nuovo catasto',
-    summary: 'Il Consiglio dei Ministri ha dato il via libera alla revisione del catasto immobiliare. La riforma mira ad aggiornare i valori degli immobili rimasti fermi agli anni '80, con un impatto stimato su milioni di proprietari.',
-    body: `Il governo ha approvato il decreto attuativo sulla revisione del catasto, uno dei dossier più complessi e politicamente divisivi degli ultimi anni in Italia. La proposta di legge, attesa da decenni, punta ad allineare le rendite catastali ai valori di mercato reali, colmando una distanza che si è accumulata in oltre quarant'anni di immobilismo normativo.
-
-<strong>Il contesto storico</strong>
-I valori catastali italiani sono fermi mediamente agli anni '80 e '90. Questa forbice tra base imponibile ufficiale e prezzi reali di mercato alimenta forme di elusione fiscale difficili da perseguire e distorce il gettito delle imposte patrimoniali locali come l'IMU e le imposte di registro sulle compravendite. Il risultato è un sistema fiscale percepito come iniquo, dove immobili di pregio scontano imposte uguali o inferiori a immobili di minor valore.
-
-<strong>Cosa cambia operativamente</strong>
-Il decreto prevede un aggiornamento progressivo delle rendite catastali sulla base di valori di mercato certificati, da realizzare entro un arco temporale di tre anni. Non ci sarà un aumento automatico delle aliquote, ma la base di calcolo per IMU, TARI e imposte di registro cambierà in modo significativo per molte categorie di immobili, in particolare quelli nel centro delle grandi città.
-
-<strong>Il dibattito politico</strong>
-L'opposizione denuncia una contraddizione rispetto alle promesse elettorali sul fisco e sulla protezione della prima casa. Confedilizia parla di "riforma mascherata da riordino tecnico". Il MEF risponde che i correttivi previsti neutralizzeranno gli effetti negativi sulle abitazioni principali e che la revisione è necessaria per rendere il sistema tributario più equo e trasparente.
-
-<strong>Effetti attesi sul mercato immobiliare</strong>
-Gli esperti segnalano che la rivalutazione catastale potrebbe avere effetti importanti sul mercato: rendere più costoso detenere immobili non produttivi, aumentare il valore fiscale delle compravendite e ridurre l'appetibilità degli investimenti speculativi nell'immobiliare. Alcune categorie, come i proprietari di seconde case nelle città d'arte, potrebbero essere colpite in modo particolarmente sensibile.
-
-<strong>I prossimi passi</strong>
-Il decreto passa ora al Parlamento per la conversione in legge entro sessanta giorni. I sindacati della proprietà promettono emendamenti massicci. La tempistica è stretta: il governo vuole il via libera definitivo entro la fine dell'estate, prima che il dibattito politico si concentri sulle elezioni europee di autunno.`,
-    source: 'Il Sole 24 Ore',
-    url: 'https://www.ilsole24ore.com',
-    time: '2 ore fa',
-    tags: ['fisco', 'catasto', 'governo', 'immobili']
+    cat: "politica-italiana",
+    title: "Vertice ad Antibes, Macron e Meloni sbloccano il Trattato del Quirinale",
+    summary: "Il 25 summit con 9 ministri e forum d'affari. Roma e Parigi al lavoro sul post Unifil",
+    body: `Il 25 summit con 9 ministri e forum d'affari. Roma e Parigi al lavoro sul post Unifil`,
+    source: "ANSA",
+    url: "https://www.ansa.it/sito/notizie/mondo/2026/06/12/primo-vertice-bilaterale-macron-meloni-il-25-giugno-ad-antibes_1d21cf27-b63b-40df-962d-7620318af14c.html",
+    time: "15 min fa",
+    tags: [],
   },
   {
     id: 2,
-    cat: 'politica-italiana',
-    title: 'Sondaggi: FdI stabile al 27%, il PD risale al 21%',
-    summary: 'A sei mesi dalle europee, il quadro politico italiano resta sostanzialmente stabile. Il partito di Meloni mantiene il primato, ma il centrosinistra rosicchia qualche punto in zone chiave.',
-    body: `I sondaggi della settimana offrono un quadro di sostanziale stabilità con alcune dinamiche interessanti sia nel centrodestra che nell'opposizione. Mancano sei mesi alle elezioni europee di autunno e i partiti italiani stanno definendo le proprie strategie di alleanza a Bruxelles, operazione che condizionerà anche la competizione interna.
+    cat: "politica-italiana",
+    title: "Ma davvero il PD pensa di battere la destra con patrimoniale e bonus?",
+    summary: "Patrimoniale e \"diritto a restare\": perché le proposte economiche di Elly Schlein non bastano a cambiare l’Italia.",
+    body: `La Segreteria Schlein doveva rappresentare una svolta a sinistra per il Partito Democratico. L’esito delle Primarie, che ha ribaltato il risultato del voto degli iscritti e delle iscritte, era sintomatico di una disaffezione nei confronti di un partito percepito troppo centrista. Eppure nel corso degli anni sul fronte delle proposte si è visto ben poco. Semmai, la segreteria Schlein è apparsa più focalizzata sulla costruzione del cosiddetto “Campo Largo” per battere la coalizione di destra oggi al governo.
 
-<strong>Il quadro numerico</strong>
-Fratelli d'Italia si attesta tra il 26% e il 28% secondo le diverse rilevazioni, con una base elettorale solida e fedele. La Lega si stabilizza intorno all'8%, pagando la concorrenza di FdI sui temi identitari. Forza Italia recupera al 9% grazie a una comunicazione più attiva sui dossier europei e al lavoro dei parlamentari sul PNRR. Nel centrosinistra, il PD sale al 21% mentre il M5S consolida il 15% con una forte radice nel Mezzogiorno.
+Negli ultimi giorni però Schlein ha fatto discutere per due proposte in ambito economico.&nbsp; La prima è un progetto per il “diritto a restare”. Secondo la segreteria del partito, l’emigrazione dei giovani all’estero non è necessariamente un problema. Ma questa deve essere una scelta volontaria, non una costrizione dovuta a un paese che non offre prospettive ai giovani.&nbsp; A seguire, la segretaria si è detta favorevole a un’imposta patrimoniale nel nostro paese.
 
-<strong>La partita europea</strong>
-Il vero campo di battaglia è la composizione dei gruppi parlamentari europei. L'Italia conta molto per i numeri di ECR e del PPE, e ogni accordo pre-elettorale condizionerà le posizioni dei partiti italiani sui temi cruciali: difesa europea, allargamento a est, bilancio e immigrazione. Meloni deve gestire la tensione tra l'asse con i conservatori europei e la necessità di mantenere buoni rapporti con il PPE per non isolarsi.
+Durante un’apparizione al programma Accordi e Disaccordi Schelin ha dichiarato che un’imposta di questo tipo non può essere un tabù. Ha poi aggiunto che per quanto auspichi a una tassazione a livello europeo, si può intervenire anche a livello nazionale. Queste dichiarazioni hanno fatto scaturire una serie di reazioni, sia tra gli alleati del PD che a destra. Se Alleanza Verdi Sinistra si trova d’accordo, Forza Italia ha denunciato l’ennesimo tentativo di mettere le mani nelle tasche degli italiani.
 
-<strong>Il fattore PNRR</strong>
-La gestione dei fondi europei e i ritardi nelle riforme strutturali continuano ad essere un elemento di vulnerabilità per il governo. L'opposizione prova a capitalizzare, puntando sulle infrastrutture nel Sud e sulla qualità dei servizi pubblici. Il problema è che nessun partito di opposizione riesce ancora a tradurre la critica in un'alternativa programmatica credibile.
+Tuttavia, anche la gamba centrista del Campo Largo si è detta contraria: secondo il leader di Italia Viva Matteo Renzi, contro una Meloni che ha raggiunto il record di pressione fiscale, non si può rispondere con più tasse. Il leader centrista ha anche aggiunto che una patrimoniale porterebbe a una fuga di capitali. Anche la deputata del Movimento 5 Stelle Vittoria Baldino ha definito la misura fumo negli occhi.
 
-<strong>Il centrosinistra e la sfida della leadership</strong>
-Il nuovo segretario democratico sta tentando una linea più netta su lavoro, transizione ecologica e welfare. La sfida è costruire un'alleanza larga che includa M5S e progressisti senza perdere l'identità politica riformista di riferimento. Le prossime settimane diranno se la strategia funziona o se il PD resta bloccato in un posizionamento di attesa.`,
-    source: 'Corriere della Sera',
-    url: 'https://www.corriere.it',
-    time: '5 ore fa',
-    tags: ['sondaggi', 'elezioni', 'FdI', 'PD', 'europee']
+Nei giorni seguenti Schlein ha chiarito , durante un intervento all’evento di Confindustria Giovani a Rapallo, che la patrimoniale non è nel programma dell’Alleanza Progressista.&nbsp; Per quanto queste proposte non siano da scartare a priori, come vedremo, delineano una proposta di politica economica basata su redistribuzione e bonus. Al contrario, quello che manca alla sinistra di questo paese è proprio una visione per la crescita, che sia inclusiva e basata sui buoni lavori.&nbsp; Di cosa parliamo in questo articolo: Il diritto a restare: poche cose buone, molte inutile se non dannose I miti sulla patrimoniale e i limiti della redistribuzione Per battere la destra serve una visione di paese Il diritto a restare: poche cose buone, molte inutile se non dannose Partiamo dall’annuncio del Progetto di Legge sul “Diritto a Restare”.&nbsp;&nbsp; Le proposte cardine, secondo quanto riporta Pagella Politica , sarebbero diverse.
+
+La più importante riguarda un aumento di 200 euro netti in busta paga per i giovani under 35. Secondo le indiscrezioni, però, questa misura si applicherebbe soltanto a chi ha già un contratto di lavoro a tempo determinato. Non è chiaro inoltre se questo aumento si applicherebbe a tutti i giovani o soltanto a coloro che verranno assunti dopo l’approvazione della legge.&nbsp; La proposta punta poi a istituire un fondo per l’imprenditoria giovanile.
+
+Sempre stando a quanto riporta Pagella Politica , il fondo avrebbe un valore di 50 milioni per il 2026 per imprese innovative.&nbsp; A questo si aggiungono, come illustrato nella presentazione del Progetto di Legge da parte del Partito alla Camera, contributi alle aziende che incentivano il lavoro da remoto. Si legge nel comunicato che questa proposta andrebbe a favorire i giovani che abitano in zone più periferiche.
+
+Sullo stesso tema, la proposta punta a un piano straordinario di assunzione di giovani nei comuni delle aree interne, per rendere la Pubblica Amministrazione più efficiente in queste zone che hanno visto un netto peggioramento nel corso degli ultimi anni.&nbsp; Infine, sono previste agevolazioni per l’acquisto e l’affitto di casa, per rispondere all’emergenza abitativa.&nbsp; All’interno di questo progetto di legge, ci sono sicuramente delle misure che, seppur non ottimali, sono almeno in principio condivisibili.
+
+In particolare, vale la pena menzionare l’attenzione per le Aree Interne. Si tratta di territori lontani dai centri che, come rivelano i dati ISTAT, sono stati più colpiti da fenomeni di invecchiamento e calo della popolazione. Dal 2014 al 2023, il calo di popolazione residente si è attestato al 5 per cento, sensibilmente più alto rispetto all’1,4 dei centri urbani. In particolare, si assiste a una fuga di giovani laureati verso questi ultimi, con una conseguente perdita di capitale umano nelle aree interne.
+
+A questo si aggiunge il taglio della spesa in servizi a causa del tentativo di efficientare le risorse davanti al calo della popolazione. Ma questo va a influire sulle scelte residenziali dei più giovani, che cercano posti in cui poter sistemarsi. Tagliare i servizi pubblici nelle aree interne per via dello spopolamento rischia quindi di acuire questa tendenza. Un aumento della spesa per la pubblica amministrazione dei Comuni interni, che vada a migliorare l’erogazione dei servizi grazie a giovani qualificati, è da considerare dunque un elemento positivo.&nbsp; Per quel che riguarda gli incentivi per il lavoro da remoto, la situazione è più complessa.
+
+In primo luogo perché non tutti i lavori possono essere svolti da remoto. Questa proposta va quindi integrata in una strategia più ampia per il rilancio delle aree interne e le opportunità lavorative in loco.&nbsp; In secondo luogo, vale la pena sottolineare che le posizioni cosiddette junior, cioè quelle in cui ricadono molti giovani, richiedono un processo di formazione che spesso non può che essere fatto all’interno dell’azienda, grazie all’interazione con lavoratori più esperti.
+
+Le competenze necessarie per svolgere molte professioni non si acquisiscono soltanto attraverso corsi o percorsi formali, ma anche tramite l’affiancamento quotidiano, l’osservazione e lo scambio continuo di conoscenze con colleghi che hanno maggiore esperienza.&nbsp; Per questo motivo, il lavoro da remoto tende a essere più adatto a chi ha già accumulato competenze e autonomia nel corso della propria carriera.
+
+Se da un lato può rendere più attrattive le aree interne per una parte dei lavoratori qualificati, dall’altro rischia di incidere meno proprio sui giovani, che sono tra le categorie la cui permanenza sul territorio sarebbe più importante per contrastare lo spopolamento. Passiamo ora agli elementi di criticità. Le agevolazioni per l'acquisto o l'affitto di una casa rappresentano, in larga misura, dei palliativi rispetto alla crisi abitativa.
+
+Questa emergenza, che non riguarda soltanto l'Italia ma gran parte dell'Europa, è un fenomeno complesso a cui concorrono molteplici fattori. Intervenire attraverso sussidi alla domanda - cioè offrendo condizioni più favorevoli ai giovani che desiderano acquistare o affittare un'abitazione - significa non affrontare il problema alla radice e, in alcuni casi, rischiare persino di aggravarlo.
+
+Se infatti la difficoltà principale è che i giovani non riescono più a permettersi una casa a causa di prezzi degli immobili troppo elevati rispetto alla loro capacità di spesa, aumentare artificialmente tale capacità non risolve il problema strutturale, ma si limita a tamponare temporaneamente gli effetti. Tuttavia, la proposta che manifesta più criticità riguarda l’aumento della busta paga dei giovani lavoratori.
+
+Il primo elemento di criticità può essere collegato ai problemi della sinistra sottolineati in questo altro articolo : proposte che vanno ad avvantaggiare gli insider (ovvero, chi è già dentro al mondo del lavoro in modo stabile) - o in questo caso i futuri insider - senza tenere conto delle problematiche affrontate dai giovani nel mondo del lavoro. Come fa notare il giornalista economico Massimo Taddei su Pagella Politica , molti giovani non sono occupati a tempo indeterminato: spesso si barcamenano tra lavori a tempo determinato in una lunga sequela di precarietà; altri sono invece costretti ad aprire la partita IVA nonostante siano a tutti gli effetti lavoratori dipendenti; a questo si aggiunge il tasso di disoccupazione di giovani e giovani adulti, che rimane su valori alti rispetto al resto d’Europa nonostante la buona performance degli ultimi anni.
+
+Pertanto la proposta di Schlein andrebbe di fatto a incidere su giovani relativamente più protetti.&nbsp; Ma l’aspetto più problematico è analogo a quanto detto rispetto alla crisi abitativa. Da oltre trent’anni i salari reali italiani sono sostanzialmente fermi , caso pressoché unico nel panorama europeo.&nbsp; I salari non crescono perché una parte rilevante del tessuto produttivo italiano opera in settori a basso valore aggiunto, investe poco in innovazione e può spesso competere più sul costo del lavoro che sull’aumento della produttività, contribuendo a una dinamica della produttività debole rispetto ai principali paesi europei.
+
+Un trasferimento monetario come quello proposto da Schlein può alleviare il problema nel breve periodo, ma non modifica i fattori che determinano la crescita dei salari nel lungo periodo. Sotto certi aspetti, si tratta di una visione speculare a quella proposta dal governo Meloni : al bonus del PD, si sostituisce la leva fiscale - aiutata dal fiscal drag - per alzare i salari netti.
+
+Se il Partito Democratico vuole davvero insidiare il governo Meloni, non può farlo con misure simili, ma proponendo un piano per la crescita che passi dalla revisione delle leggi sul lavoro, dal salario minimo e da una politica industriale votata all’innovazione.&nbsp; I miti sulla patrimoniale e i limiti della redistribuzione Veniamo ora alla seconda proposta economica citata da Elly Schlein: l’introduzione di un’imposta patrimoniale.
+
+Non è la prima volta che nel nostro paese se ne parla. Ogni volta, però, che il tema torna d’attualità emergono critiche alla natura stessa dell’imposta. Queste critiche, quando non del tutto smentite, sono ridimensionate dagli studi in merito.&nbsp; Il primo tema, citato anche dal leader di Italia Viva Matteo Renzi, riguarda la fuga dei capitali. In un periodo di libertà di movimento dei capitali, introdurre un’imposta patrimoniale porterebbe i più ricchi a spostare il loro patrimonio in paesi con regimi fiscali più favorevoli.
+
+La questione, però, è più complicata. Già nel 2018, l’OECD spiegava che le evidenze in merito sono perlopiù anedottiche.&nbsp;&nbsp; Un secondo tema, di carattere più morale, riguarda la legittimità di tassare l’accumulazione di ricchezze che, di per sé, sono già state tassate. È una critica che fa presa, ma che contrasta con la situazione corrente: già oggi in Italia si pagano imposte/tasse su redditi già tassati.
+
+Ogni volta che si acquista qualcosa, si utilizza il proprio reddito - che è stato tassato. Ma quell’acquisto comprende a sua volta l’IVA: quindi buona parte dei consumi privati ricade in questo fenomeno di doppia tassazione. Senza nulla togliere al tema della legittimità, la realtà è già così, soprattutto per i cittadini normali che dedicano una porzione più elevata di reddito ai consumi.
+
+Si tratta, dunque, di un falso problema. Infine, come riporta un articolo di Open , si è diffusa l’idea che in Italia la patrimoniale esista già. Dal punto di vista tecnico, è vero che in Italia vi sono contributi come l’IMU, il Bollo e l’Imposta sulle Successioni che hanno le caratteristiche di imposte patrimoniali. Ma su questo punto è necessario fare una precisazione: per quanto Schlein non abbia articolato la sua proposta, quella presentata dal Partito Democratico nel 2020, al tempo della pandemia, rappresentava un’imposta sostitutiva.
+
+Non si sarebbe trattato, quindi, di una tassa aggiuntiva, ma di una sostituzione dei tributi esistenti. Sulla falsa riga, a seconda di come viene definita la base imponibile, il prelievo potrebbe così colpire soprattutto i patrimoni più elevati, restringendo la platea dei contribuenti interessati ed evitando di gravare sul ceto medio. Non solo, si cita il caso dell’Imposta sulle Successioni.
+
+Ma in Italia questa imposta è particolarmente bassa, rispetto alla maggior parte dei paesi europei. E per quanto il gettito atteso sia modesto, andrebbe in parte a scalfire il maggior peso dell’eredità sul patrimonio che crea condizioni ancora più diseguali in partenza.&nbsp; Questo ci porta a uno dei principali motivi per cui sarebbe auspicabile: nel nostro paese la ricchezza è sempre più concentrata nelle mani di pochi.
+
+Secondo i dati pubblicati da Banca d’Italia, il 60 per cento della ricchezza sarebbe detenuto da appena il 10 per cento delle famiglie, il livello più alto da quasi quindici anni a questa parte.&nbsp; Il problema non riguarda soltanto l'equità: un'eccessiva concentrazione della ricchezza può avere conseguenze economiche concrete. Quando quote sempre maggiori di patrimonio finiscono nelle mani di una minoranza, una parte crescente delle risorse tende a essere destinata all'accumulazione finanziaria e immobiliare piuttosto che ai consumi e agli investimenti produttivi.
+
+Allo stesso tempo, chi dispone di patrimoni elevati beneficia di rendimenti finanziari e opportunità che consentono di accrescere ulteriormente la propria posizione.&nbsp; Il risultato potrebbe quindi essere un irrigidimento dell’ascensore sociale, con una società in cui il punto di partenza conta sempre più del merito o della capacità di innovare.&nbsp; A questo si aggiunge un aspetto spesso sottovalutato: la concentrazione della ricchezza non ha soltanto effetti economici.
+
+Come mostra con chiarezza il caso statunitense, il potere economico derivante dall'accumulazione di grandi patrimoni può trasformarsi in potere politico, influenzando direttamente o indirettamente il dibattito pubblico, l'attività di lobbying e, in ultima analisi, le decisioni del legislatore. C’è però una differenza sostanziale tra i super ricchi negli Stati Uniti e in Italia - anche se si potrebbe estendere il discorso all’Europa.
+
+Se nel primo caso, si tratta spesso di individui le cui attività sono in settori innovativi, in Italia appare invece una situazione cristallizzata, dove cambiano i nomi ma non i cognomi. Anche in questo caso, non basta la redistribuzione delle ricchezze - che è necessaria - ma anche un piano per rilanciare la crescita e dare opportunità a chi ha competenze ma non risorse. La patrimoniale, assieme a una revisione dell’intero sistema tributario italiano che pesa troppo sul lavoro, può fornire un primo nucleo di risorse per intervenire in tal senso, puntando su maggiori investimenti in infrastrutture, ricerca e istruzione.
+
+Il Partito Democratico dovrebbe puntare proprio su questo tema, per non dare adito a chi lo accusa di voler mettere le mani nelle tasche degli italiani.&nbsp; Per battere la destra serve una visione di paese&nbsp; Abbiamo visto le criticità del Progetto di Legge sul Diritto a Restare, evidenziando come ancora una volta si voglia cercare di attenuare il problema dei salari, in questo caso dei giovani, con misure circostanziate come i bonus.
+
+Per quel che riguarda la patrimoniale, nonostante sia auspicabile una sua introduzione non solo in Italia ma anche nel resto d’Europa, il rischio è di concentrare la strategia solamente sulla redistribuzione, lasciando sullo sfondo i problemi sistemici del paese. Per riprendere un vecchio slogan, non basta che “Anche i ricchi piangano” per migliorare la vita della classe lavoratrice.&nbsp; È questa, probabilmente, la principale debolezza della proposta economica della sinistra italiana.
+
+Bonus, trasferimenti e redistribuzione possono attenuare alcuni effetti della stagnazione, ma non possono sostituire una strategia di sviluppo. Senza un progetto credibile per aumentare la produttività, favorire l'innovazione, sostenere gli investimenti e creare lavoro qualificato e sicuro, il rischio è da una parte elettorale, ma soprattutto per il futuro del paese.&nbsp; Per questo il Partito Democratico dovrebbe concentrare la propria attenzione meno sugli strumenti redistributivi in sé e più sul modello di crescita che intende proporre al paese.
+
+Perché dopo tre decenni di crescita debole, la domanda che molti elettori si pongono non è soltanto come redistribuire la ricchezza esistente, ma come tornare a creare opportunità, salari più alti e prosperità diffusa. Perché il punto non è soltanto sconfiggere la destra alle elezioni, ma ridare un futuro a un paese che da anni l’ha perso. Immagine in anteprima: frame video Il Sole 24 Ore via YouTube`,
+    source: "Valigia Blu",
+    url: "https://www.valigiablu.it/patrimoniale-diritto-restare-schlein-pd-economia/",
+    time: "1 giorno fa",
+    tags: [],
   },
   {
     id: 3,
-    cat: 'geopolitica',
-    title: "NATO nell'Indo-Pacifico: ufficio permanente a Tokyo",
-    summary: "L'Alleanza Atlantica apre un ufficio di collegamento in Giappone, segnando il più significativo ampliamento geografico della sua storia. La Cina protesta formalmente e annuncia esercitazioni navali.",
-    body: `L'inaugurazione dell'ufficio di collegamento NATO a Tokyo è un momento di svolta nel modo in cui l'Alleanza pensa alla sicurezza globale. Per la prima volta dalla sua fondazione nel 1949, la NATO stabilisce una presenza istituzionale permanente al di fuori dell'area euroatlantica, segnalando che il concetto di sicurezza collettiva occidentale ha ora una dimensione indopacifico esplicita e riconosciuta.
-
-<strong>Il significato strategico</strong>
-L'ufficio non estende formalmente l'articolo 5 al Giappone, ma crea un canale permanente di coordinamento su intelligence, cyber-sicurezza, supply chain critiche e deterrenza navale nel Pacifico. Per gli analisti, è il primo mattone verso una NATO con una vera dimensione asiatica, un processo che potrebbe accelerare nei prossimi anni in risposta alla crescente assertività cinese.
-
-<strong>Il contesto geopolitico</strong>
-La scelta arriva in un momento in cui la Cina ha accelerato la modernizzazione militare, aumentato la pressione su Taiwan e stretto legami strategici con la Russia dopo l'invasione dell'Ucraina. Il Giappone, dal canto suo, ha già raddoppiato il budget della difesa al 2% del PIL, sta sviluppando capacità di contrattacco a lungo raggio e ha recentemente firmato nuovi accordi di cooperazione militare con Australia e Gran Bretagna.
-
-<strong>La reazione cinese</strong>
-Pechino ha convocato l'ambasciatore giapponese e ha emesso una nota di protesta formale, definendo la mossa una "grave provocazione destabilizzante". Il ministero della Difesa PLA ha annunciato esercitazioni navali nello stretto di Taiwan nei prossimi giorni, una risposta calibrata per inviare un segnale senza esacerbare ulteriormente la crisi diplomatica.
-
-<strong>L'asse AUKUS, Quad e le nuove geometrie</strong>
-L'apertura a Tokyo si inserisce in un quadro più ampio che include AUKUS 2.0, il rafforzamento del Quad (USA, India, Giappone, Australia) e i nuovi accordi di difesa tra Corea del Sud e NATO. Insieme, questi segnali disegnano un nuovo perimetro di sicurezza occidentale in Asia che va ben oltre le alleanze bilaterali tradizionali.
-
-<strong>Le implicazioni economiche</strong>
-Il dossier della sicurezza è inseparabile da quello economico: semiconduttori, terre rare, rotte commerciali e tecnologia dual-use sono al centro di una competizione che l'ufficio NATO contribuisce a inquadrare in termini di sicurezza collettiva, aprendo la strada a eventuali meccanismi di coordinamento su export control e protezione delle infrastrutture critiche.`,
-    source: 'Foreign Policy',
-    url: 'https://foreignpolicy.com',
-    time: '3 ore fa',
-    tags: ['NATO', 'Giappone', 'Cina', 'Indo-Pacifico', 'difesa']
+    cat: "politica-italiana",
+    title: "Scuole finite e mondiali, l'irresistibile voglia del calcio da cortile",
+    summary: "Ricerca Ipsos Doxa, patrimonio italiano da conservare, celebrazione massima di leggerezza",
+    body: `Ricerca Ipsos Doxa, patrimonio italiano da conservare, celebrazione massima di leggerezza`,
+    source: "ANSA",
+    url: "https://www.ansa.it/canale_lifestyle/notizie/tempo_libero/2026/06/10/scuole-finite-e-mondiali-lirresistibile-voglia-del-calcio-da-cortile_5f7773d9-edfc-4fe8-ae91-adc7e22f5ae5.html",
+    time: "23 ore fa",
+    tags: [],
   },
   {
     id: 4,
-    cat: 'geopolitica',
-    title: 'Trump e Xi a Mar-a-Lago: accordo parziale sui dazi',
-    summary: 'Il summit bilaterale si chiude con una tregua commerciale di 90 giorni e impegni agricoli cinesi. Restano intatte le restrizioni tech sui semiconduttori e il dossier Taiwan non viene toccato.',
-    body: `Il vertice tra Trump e Xi a Mar-a-Lago ha prodotto un documento di intenti che allenta le tensioni immediate senza risolvere i nodi strutturali del conflitto commerciale e tecnologico tra le due superpotenze. Entrambe le parti hanno presentato l'accordo come una vittoria: Washington per aver ottenuto concessioni agricole, Pechino per aver bloccato nuovi dazi.
-
-<strong>I termini dell'accordo</strong>
-Gli USA sospendono per 90 giorni i dazi aggiuntivi del 15% sui beni di consumo cinesi introdotti nel 2025. La Cina si impegna ad acquistare prodotti agricoli americani per 50 miliardi di dollari nei prossimi due anni e a facilitare l'accesso al mercato cinese per alcune categorie di servizi finanziari americani. Viene istituito un gruppo di lavoro bilaterale su commercio e tecnologia.
-
-<strong>I nodi irrisolti</strong>
-Le restrizioni tecnologiche restano intatte: NVIDIA, ASML e altri fornitori di tecnologie avanzate per semiconduttori non possono esportare in Cina. Il dossier Taiwan non è stato discusso formalmente, ma rimane lo scenario di rischio massimo per entrambe le parti. Le questioni dei diritti di proprietà intellettuale e delle sussidiazioni statali cinesi alle imprese restano completamente aperte.
-
-<strong>La lettura dei mercati</strong>
-Wall Street ha risposto con un rialzo dell'1,8% sull'S&P 500 nella giornata dell'annuncio. I titoli delle aziende più esposte al commercio con la Cina hanno sovraperformato. Gli analisti avvertono però che la tregua di 90 giorni è un respiro tattico, non una soluzione strutturale, e che i fondamentali del conflitto tecnologico e geopolitico tra USA e Cina restano immutati.
-
-<strong>Il ruolo dell'Europa</strong>
-Bruxelles guarda con attenzione all'evoluzione: un possibile accordo bilaterale USA-Cina potrebbe marginalizzare l'UE oppure, al contrario, costringerla a scegliere con più nettezza a quale blocco tecnologico allinearsi. La Commissione Europea ha già avviato un'analisi d'impatto per capire se l'accordo crea asimmetrie competitive nei settori automotive, acciaio e tecnologia pulita.`,
-    source: 'Wall Street Journal',
-    url: 'https://www.wsj.com',
-    time: '5 ore fa',
-    tags: ['Trump', 'Xi', 'dazi', 'commercio', 'geopolitica']
+    cat: "politica-italiana",
+    title: "Stasi esce dal carcere e ottiene l'affidamento in prova",
+    summary: "Era in semilibertà. La decisione del Tribunale di Sorveglianza di Milano non è collegata con l'eventuale procedimento di revisione del suo processo, per la quale la difesa presenterà istanza",
+    body: `Era in semilibertà. La decisione del Tribunale di Sorveglianza di Milano non è collegata con l'eventuale procedimento di revisione del suo processo, per la quale la difesa presenterà istanza`,
+    source: "ANSA",
+    url: "https://www.ansa.it/sito/notizie/cronaca/2026/06/12/stasi-esce-dal-carcere-e-ottiene-laffidamento-in-prova_edc3eec5-7e00-40a9-8829-37484defa20a.html",
+    time: "37 min fa",
+    tags: [],
   },
   {
     id: 5,
-    cat: 'conflitti',
-    title: 'Ucraina: colloqui a Istanbul, tregua tecnica di 72 ore',
-    summary: 'Russia e Ucraina hanno concordato una pausa temporanea nei combattimenti per consentire i negoziati mediati dalla Turchia. È il primo contatto diretto ad alto livello da oltre un anno.',
-    body: `La tregua di 72 ore e l'apertura dei colloqui di Istanbul rappresentano un segnale limitato ma significativo dopo mesi di stagnazione diplomatica totale. È la prima volta da oltre quattordici mesi che rappresentanti dei due paesi si siedono allo stesso tavolo in presenza di mediatori internazionali. Il fragile cessate il fuoco è entrato in vigore a mezzanotte, tra episodi di violazione segnalati da entrambe le parti nelle prime ore.
-
-<strong>La struttura dei negoziati</strong>
-Al tavolo siedono delegazioni tecniche di secondo livello, non i ministri degli Esteri. La mediazione turca è affiancata da un osservatore ONU. Gli USA partecipano come osservatori senza poteri negoziali formali, ma con un ruolo sostanziale nel fornire garanzie informali. La struttura riflette la volontà di testare la disponibilità delle parti senza impegnarsi in un processo formale che potrebbe fallire vistosamente.
-
-<strong>I temi sul tavolo</strong>
-I colloqui coprono cinque aree: corridoi umanitari, prigionieri di guerra, status dei territori occupati, garanzie di sicurezza post-accordo e un eventuale meccanismo di monitoraggio del cessate il fuoco. Le posizioni restano molto distanti su quasi tutti i punti strutturali, ma c'è margine di convergenza sugli aspetti umanitari immediati.
-
-<strong>I nodi politici irrisolvibili nel breve termine</strong>
-Mosca chiede il riconoscimento formale dei territori occupati come condizione per qualsiasi accordo duraturo. Kyiv insiste sul ritiro totale come precondizione e sul mantenimento pieno della sovranità territoriale. La questione delle garanzie di sicurezza — chi garantisce cosa a Kyiv in caso di violazione — è forse il nodo più difficile, perché implica un ruolo militare diretto delle potenze occidentali che nessuno è ancora disposto a formalizzare.
-
-<strong>Le reazioni internazionali</strong>
-L'UE accoglie la tregua con cauto ottimismo ma avverte che nessun accordo che cristallizzi le conquiste territoriali russe sarà accettabile. Polonia e Paesi baltici sono i più scettici e temono che la pressione occidentale per la pace possa indebolire la posizione negoziale ucraina. Zelensky ha definito i colloqui "un test, non una svolta", segnalando che la continuazione dipenderà dai risultati concreti delle prime 72 ore.
-
-<strong>Lo scenario più probabile</strong>
-Gli analisti ritengono improbabile un accordo complessivo in tempi brevi. Il valore della tregua è soprattutto umanitario: ridurre le perdite civili immediate e creare uno spazio minimo per ulteriori contatti diplomatici. La vera domanda è se questa apertura riesce a costruire abbastanza fiducia per estendere la pausa e avviare negoziati su aspetti più sostanziali.`,
-    source: 'Reuters',
-    url: 'https://www.reuters.com',
-    time: '1 ora fa',
-    tags: ['Ucraina', 'Russia', 'negoziati', 'guerra', 'Turchia']
+    cat: "politica-italiana",
+    title: "Mondiali: Canada-Bosnia-Erzegovina DIRETTA e FOTO",
+    summary: "La partita del grande rimpianto italiano. A Toronto avrebbero esordito gli azzurri. E 'Little Italy' tifa per la nazionale di casa",
+    body: `La partita del grande rimpianto italiano. A Toronto avrebbero esordito gli azzurri. E 'Little Italy' tifa per la nazionale di casa`,
+    source: "ANSA",
+    url: "https://www.ansa.it/sito/notizie/sport/calcio/speciali/mondiale-calcio-2026/2026/06/11/canada-bosnia-la-partita-del-grande-rimpianto-italiano_faac584a-9ecd-4332-b6bd-e3a88e73c7d9.html",
+    time: "2 ore fa",
+    tags: [],
   },
   {
     id: 6,
-    cat: 'conflitti',
-    title: 'Gaza: accordo di principio per la seconda fase del cessate il fuoco',
-    summary: 'Mediatori egiziani e qatarini annunciano un testo condiviso per una tregua di 42 giorni con rilascio di ostaggi e aumento degli aiuti. Restano resistenze interne in entrambi i campi.',
-    body: `Le trattative per la seconda fase dell'accordo di cessate il fuoco a Gaza sono entrate nella fase finale dopo settimane di negoziati difficili. Il testo condiviso rappresenta un compromesso faticoso tra le posizioni di Israele e Hamas, entrambi con forti correnti interne contrarie a qualsiasi concessione.
-
-<strong>I termini dell'accordo</strong>
-La seconda fase prevede 42 giorni di tregua, il rilascio di 33 ostaggi israeliani in cambio di centinaia di detenuti palestinesi, un incremento massiccio degli aiuti umanitari nel nord della Striscia — fino a 600 camion al giorno secondo le stime ONU — e l'apertura di corridoi permanenti per i civili sfollati che vogliano tornare nelle proprie abitazioni.
-
-<strong>Le resistenze interne israeliane</strong>
-All'interno del gabinetto israeliano, la destra nazionalista guidata da Ben-Gvir e Smotrich si oppone con forza a qualsiasi accordo che non garantisca la smilitarizzazione definitiva e immediata di Hamas. Questa pressione costringe Netanyahu a negoziare con un margine di manovra molto ristretto, rischiando la crisi di governo in caso di accordo.
-
-<strong>Le condizioni di Hamas</strong>
-Hamas chiede garanzie scritte di un ritiro permanente delle IDF dalla Striscia e il ripristino delle infrastrutture civili distrutte prima di qualsiasi impegno formale sul proprio futuro politico-militare. L'organizzazione sa che ogni accordo che non includa garanzie solide la consegna in una posizione di debolezza irreversibile.
-
-<strong>La situazione umanitaria sul campo</strong>
-Oltre 2,1 milioni di persone restano sfollate. Le agenzie ONU stimano che il 70% delle infrastrutture civili di Gaza sia distrutto. L'OMS segnala rischio concreto di carestia in diverse aree del nord. Ogni giorno di ritardo nell'accordo ha un costo umano immediato e misurabile in termini di morti, malnutrizione e collasso del sistema sanitario.
-
-<strong>Il ruolo degli attori regionali</strong>
-Egitto e Qatar si sono guadagnati un ruolo di mediatori indispensabili, con una credibilità che né gli USA né l'Europa riescono a replicare con entrambe le parti. La Giordania e l'Arabia Saudita spingono per una soluzione che non escluda prospettive di governance civile palestinese nel post-conflitto. Il dossier si intreccia direttamente con la normalizzazione dei rapporti tra Israele e Arabia Saudita, che rimane l'obiettivo strategico di lungo periodo degli USA nella regione.`,
-    source: 'Al Jazeera',
-    url: 'https://www.aljazeera.com',
-    time: '4 ore fa',
-    tags: ['Gaza', 'Israele', 'Hamas', 'cessate-il-fuoco', 'ostaggi']
+    cat: "geopolitica",
+    title: "Why strongmen are wrong to loathe Europe",
+    summary: "The leaders of America, China and Russia scorn consensual politics. That is a mistake",
+    body: `The leaders of America, China and Russia scorn consensual politics. That is a mistake`,
+    source: "The Economist",
+    url: "https://www.economist.com/international/2026/06/09/why-strongmen-are-wrong-to-loathe-europe",
+    time: "3 giorni fa",
+    tags: [],
   },
   {
     id: 7,
-    cat: 'ai',
-    title: 'GPT-5 supera i medici nei test diagnostici: lo studio di Stanford',
-    summary: 'Un paper su Nature Medicine mostra che GPT-5 raggiunge il 92% di accuratezza diagnostica su casi clinici complessi, superando la media dei medici generalisti. Restano però limiti importanti su casi rari.',
-    body: `Uno studio peer-reviewed pubblicato su Nature Medicine ha valutato le capacità diagnostiche di un modello linguistico di nuova generazione su un dataset di 5.000 casi clinici reali anonimizzati, prodotto in collaborazione con quattordici ospedali universitari negli Stati Uniti e in Europa.
-
-<strong>La metodologia</strong>
-I ricercatori hanno sottoposto gli stessi casi clinici a gruppi di medici generalisti, specialisti e al modello AI in condizioni controllate. I casi includevano patologie comuni, sindromi rare e presentazioni atipiche che storicamente causano errori diagnostici anche a professionisti esperti. Ogni diagnosi è stata confrontata con la diagnosi definitiva certificata dal team clinico trattante.
-
-<strong>I risultati principali</strong>
-Il modello ha raggiunto il 92,3% di accuratezza complessiva, contro l'84,7% dei generalisti e il 90,1% degli specialisti di area. La performance cala al 78% per le malattie rare, dove la scarsità di dati di addestramento pesa in modo evidente. Il modello eccelle particolarmente nella sintesi di quadri clinici complessi e nella generazione di diagnosi differenziali strutturate.
-
-<strong>Le implicazioni cliniche</strong>
-Gli autori sottolineano con forza che il modello non sostituisce il medico: manca della capacità di esaminare fisicamente il paziente, raccogliere anamnesi contestuale non strutturata e gestire la relazione terapeutica. Il valore clinico è nel triage, nel supporto alla diagnosi differenziale, nella sintesi di documentazione clinica complessa e nell'identificazione di combinazioni di sintomi rare che un singolo professionista potrebbe non aver mai incontrato nella propria carriera.
-
-<strong>Le critiche metodologiche</strong>
-Alcuni ricercatori contestano che i casi clinici scritti in inglese accademico, già strutturati e completi, favoriscano artificialmente un modello linguistico rispetto alla pratica clinica reale. Le cartelle cliniche reali sono spesso frammentate, incomplete, ambigue e scritte in lingue diverse — un contesto molto più difficile per qualsiasi sistema AI.
-
-<strong>Il quadro regolatorio</strong>
-In Europa, l'AI Act classifica i sistemi AI in ambito medico come "ad alto rischio", richiedendo certificazione, supervisione umana obbligatoria e trasparenza sugli errori. L'adozione clinica sarà lenta, vigilata e probabilmente limitata ai contesti in cui il beneficio rispetto al rischio è più chiaro: radiologia, patologia e supporto al triage in pronto soccorso.`,
-    source: 'Nature Medicine',
-    url: 'https://www.nature.com/nm',
-    time: '6 ore fa',
-    tags: ['AI', 'medicina', 'GPT-5', 'diagnostica', 'Stanford']
+    cat: "geopolitica",
+    title: "Dirigentes del PSOE reprochan a Zapatero que diese un valor inferior a las joyas: “Nos está arrastrando con él”",
+    summary: "En medio de la inquietud en las filas socialistas, Ferraz remite a la declaración del expresidente la próxima semana en la Audiencia Nacional",
+    body: `En medio de la inquietud en las filas socialistas, Ferraz remite a la declaración del expresidente la próxima semana en la Audiencia Nacional`,
+    source: "El Pa\u00eds",
+    url: "https://elpais.com/espana/2026-06-12/dirigentes-del-psoe-reprochan-a-zapatero-que-diese-un-valor-inferior-a-las-joyas-nos-esta-arrastrando-con-el.html",
+    time: "2 ore fa",
+    tags: [],
   },
   {
     id: 8,
-    cat: 'ai',
-    title: 'AI Act UE: in vigore, prime sanzioni possibili dal 2027',
-    summary: "Il regolamento europeo sull'intelligenza artificiale è ora pienamente operativo. Le aziende hanno 24 mesi per adeguarsi. Violazioni rischiano multe fino al 7% del fatturato globale.",
-    body: `L'AI Act europeo ha completato il suo iter legislativo ed è ora pienamente in vigore, segnando il primo sistema regolatorio globale completo sull'intelligenza artificiale. È un momento storico: per la prima volta una grande giurisdizione prova a regolare non solo gli usi ma le caratteristiche stesse dei sistemi AI, prima che causino danni e non dopo.
-
-<strong>La struttura del regolamento</strong>
-L'AI Act adotta un approccio basato sul rischio, suddividendo i sistemi AI in quattro categorie: rischio inaccettabile (vietati, come i sistemi di social scoring e la manipolazione subliminale), alto rischio (regolamentati con requisiti stringenti), rischio limitato (obblighi di trasparenza, come i chatbot che devono dichiararsi tali) e rischio minimo (liberi). I grandi modelli linguistici rientrano in una categoria trasversale con obblighi specifici di disclosure sulle capacità e i rischi.
-
-<strong>Chi è più colpito</strong>
-OpenAI, Google DeepMind, Anthropic e Meta dovranno registrare i propri modelli nel database europeo entro 12 mesi e pubblicare sintesi tecniche sui dati di addestramento. I sistemi di riconoscimento biometrico in tempo reale in spazi pubblici sono de facto vietati, con eccezioni molto ristrette per le forze dell'ordine in casi di terrorismo o ricerca di persone scomparse.
-
-<strong>Il meccanismo sanzionatorio</strong>
-Le violazioni delle norme sui sistemi ad alto rischio rischiano multe fino al 3% del fatturato globale annuo. La commercializzazione di sistemi vietati sale fino al 7%. Per le PMI e startup sono previste riduzioni significative per evitare di soffocare l'innovazione emergente. L'applicazione è affidata alle autorità nazionali di vigilanza, coordinate dall'AI Office europeo.
-
-<strong>Le critiche dell'industria</strong>
-Confindustria Digitale e DigitalEurope lamentano che la regolazione penalizzi le startup europee rispetto ai giganti americani e cinesi, già dotati di strutture legali per la compliance. Il rischio concreto è che l'innovazione si sposti fuori dall'UE, che i modelli di frontiera siano sviluppati altrove e importati in Europa già certificati.
-
-<strong>Il quadro globale e l'effetto Bruxelles</strong>
-Mentre l'Europa regola, gli USA hanno scelto un approccio prevalentemente volontario basato su linee guida e accordi con l'industria. La Cina ha emanato regole settoriali su raccomandazioni algoritmiche e generative AI. L'AI Act potrebbe diventare un modello globale — il cosiddetto effetto Bruxelles che ha già funzionato con il GDPR sulla privacy — oppure trasformarsi in un handicap competitivo se altri blocchi economici resteranno più permissivi.`,
-    source: 'Politico EU',
-    url: 'https://www.politico.eu',
-    time: '12 ore fa',
-    tags: ['AI Act', 'UE', 'regolazione', 'OpenAI', 'compliance']
+    cat: "geopolitica",
+    title: "Iran says deal to end fighting with US has 'never been closer'",
+    summary: "Both Iran and Pakistan say a deal has never been closer - echoing US President Donald Trump's statement on Thursday.",
+    body: `Both Iran and Pakistan say a deal has never been closer - echoing US President Donald Trump's statement on Thursday.`,
+    source: "BBC World",
+    url: "https://www.bbc.com/news/articles/c39y02x98k8o?at_medium=RSS&at_campaign=rss",
+    time: "3 min fa",
+    tags: [],
   },
   {
     id: 9,
-    cat: 'economia-tech',
-    title: 'NVIDIA supera Apple: prima azienda più capitalizzata al mondo',
-    summary: 'Per la prima volta nella storia, NVIDIA raggiunge 3,4 trilioni di dollari di capitalizzazione, superando Apple. I chip per AI continuano a generare una domanda senza precedenti nei data center globali.',
-    body: `NVIDIA ha chiuso la settimana con una capitalizzazione di mercato di 3,42 trilioni di dollari, superando Apple attestata a 3,38 trilioni e diventando l'azienda più preziosa mai quotata nei mercati pubblici globali. Il sorpasso era atteso dagli analisti da mesi, ma la velocità della crescita ha comunque sorpreso molti osservatori.
-
-<strong>I driver della crescita</strong>
-La domanda di chip H200 e Blackwell Ultra per i data center AI è cresciuta del 340% anno su anno. I margini operativi di NVIDIA hanno raggiunto il 67%, un record assoluto per un'azienda hardware di queste dimensioni. Ogni grande cloud provider — Amazon, Microsoft, Google, Meta — sta moltiplicando gli ordini e allungando i lead time, creando una situazione di scarsità strutturale.
-
-<strong>Il contesto competitivo</strong>
-AMD sta guadagnando quote di mercato con i chip MI350, ma resta lontana in termini di ecosistema software: CUDA, la piattaforma di programmazione GPU di NVIDIA, è ancora lo standard de facto su cui è costruita la maggior parte del software AI. Cambiare piattaforma costa tempo e risorse che pochi sviluppatori sono disposti a spendere. Intel è uscita dalla competizione nell'AI accelerated computing.
-
-<strong>I chip proprietari delle Big Tech</strong>
-Le grandi piattaforme tecnologiche stanno sviluppando chip proprietari — TPU di Google, Trainium di Amazon, chip custom di Meta — ma per ora questi acceleratori integrano piuttosto che sostituiscono NVIDIA nelle workload più pesanti. Il vantaggio di NVIDIA in termini di software, ecosistema e volume produttivo è ancora troppo grande per essere colmato rapidamente.
-
-<strong>I rischi strutturali</strong>
-Le restrizioni all'export verso la Cina riguardano circa il 15% del fatturato e continuano ad aumentare. Una potenziale bolla dei capex AI nei cloud provider — che stanno investendo cifre enormi con ritorni ancora incerti — è il principale rischio sistemico per i prossimi 12-18 mesi. Se i modelli AI non riuscissero a generare il valore economico atteso, la domanda di chip potrebbe rallentare bruscamente.
-
-<strong>Le implicazioni geopolitiche</strong>
-I chip NVIDIA sono diventati un asset strategico di primo piano: gli USA li usano come leva nelle relazioni con alleati e avversari, condizionando l'accesso alle tecnologie GPU più avanzate. Il controllo della supply chain dei semiconduttori è ormai esplicitamente questione di sicurezza nazionale, come dimostrano i CHIPS Act americano e il European Chips Act.`,
-    source: 'Bloomberg',
-    url: 'https://www.bloomberg.com',
-    time: '3 ore fa',
-    tags: ['NVIDIA', 'Apple', 'capitalizzazione', 'AI', 'chip']
+    cat: "geopolitica",
+    title: "To fight Russia, Europe needs Ukraine",
+    summary: "It is risky to let Ukraine into the EU. It’s more dangerous to keep it out",
+    body: `It is risky to let Ukraine into the EU. It’s more dangerous to keep it out`,
+    source: "The Economist",
+    url: "https://www.economist.com/international/2026/04/28/to-fight-russia-europe-needs-ukraine",
+    time: "44 giorni fa",
+    tags: [],
   },
   {
     id: 10,
-    cat: 'economia-tech',
-    title: 'BCE taglia i tassi al 2%: inflazione sotto il target per la prima volta',
-    summary: "La Banca Centrale Europea porta i tassi al 2%, il livello più basso dal 2022. L'inflazione scende all'1,8%, aprendo scenari nuovi per mutui, credito e crescita nell'Eurozona.",
-    body: `Il Consiglio Direttivo della BCE ha deciso un ulteriore taglio da 25 punti base, portando il tasso sui depositi al 2,0%. È la quarta riduzione consecutiva di questo ciclo di allentamento monetario, avviato a metà 2024 dopo il picco inflazionistico del 2022-2023. La mossa era largamente attesa dai mercati ma il comunicato ha sorpreso per il tono più cauto del previsto sulle prospettive future.
+    cat: "geopolitica",
+    title: "El juez del ‘caso Plus Ultra’ abre una pieza separada para investigar a Zapatero por delito fiscal y contrabando por las joyas halladas en su despacho",
+    summary: "Calama recibió este jueves la tasación por 1.323.915 euros de las piezas requisadas al expresidente por la UDEF",
+    body: `Calama recibió este jueves la tasación por 1.323.915 euros de las piezas requisadas al expresidente por la UDEF`,
+    source: "El Pa\u00eds",
+    url: "https://elpais.com/espana/2026-06-12/el-juez-del-caso-plus-ultra-abre-una-pieza-separada-para-investigar-a-zapatero-por-delito-fiscal-y-contrabando-por-las-joyas.html",
+    time: "7 ore fa",
+    tags: [],
+  },
+  {
+    id: 11,
+    cat: "conflitti",
+    title: "Ukraine reclaims territory as it doubles attacks on Russian logistics",
+    summary: "Ukraine says its &#039;lockdown&#039; strategy is working as it disrupts Russian supply lines.",
+    body: `Ukraine says its &#039;lockdown&#039; strategy is working as it disrupts Russian supply lines.`,
+    source: "Al Jazeera",
+    url: "https://www.aljazeera.com/news/2026/6/12/ukraine-reclaims-territory-in-may-as-it-doubles-strikes-on-russian-logistic?traffic_source=rss",
+    time: "4 ore fa",
+    tags: [],
+  },
+  {
+    id: 12,
+    cat: "conflitti",
+    title: "‘Dishonorable’: Trump says leaked Iran ceasefire terms fake",
+    summary: "Trump decries &#039;dishonorable people&#039; after reports Iran made few concessions in deal US has said could be soon signed.",
+    body: `Trump decries &#039;dishonorable people&#039; after reports Iran made few concessions in deal US has said could be soon signed.`,
+    source: "Al Jazeera",
+    url: "https://www.aljazeera.com/news/2026/6/12/dishonorable-trump-says-leaked-iran-ceasefire-terms-fake?traffic_source=rss",
+    time: "4 ore fa",
+    tags: [],
+  },
+  {
+    id: 13,
+    cat: "conflitti",
+    title: "At least one killed and nine hospitalised in Texas shooting",
+    summary: "Authorities in Midland, Texas, say that suspected attacker confirmed dead after shooting and standoff with police.",
+    body: `Authorities in Midland, Texas, say that suspected attacker confirmed dead after shooting and standoff with police.`,
+    source: "Al Jazeera",
+    url: "https://www.aljazeera.com/news/2026/6/12/at-least-one-killed-and-nine-hospitalised-in-texas-shooting?traffic_source=rss",
+    time: "12 min fa",
+    tags: [],
+  },
+  {
+    id: 14,
+    cat: "conflitti",
+    title: "Amnesty calls for Israel boycott over aggression in the occupied West Bank",
+    summary: "Amnesty International’s Agnes Callamard says the ethnic cleansing and annexation of the occupied West Bank is state-led.",
+    body: `Amnesty International’s Agnes Callamard says the ethnic cleansing and annexation of the occupied West Bank is state-led.`,
+    source: "Al Jazeera",
+    url: "https://www.aljazeera.com/video/newsfeed/2026/6/12/amnesty-calls-for-israel-boycott-over-aggression-in-the-occupied-west-bank?traffic_source=rss",
+    time: "24 min fa",
+    tags: [],
+  },
+  {
+    id: 15,
+    cat: "conflitti",
+    title: "Fire rips through the world’s biggest refugee camp in Bangladesh",
+    summary: "A large fire broke out in the Kutupalong refugee camp in Bangladesh, the world’s biggest displacement centre.",
+    body: `A large fire broke out in the Kutupalong refugee camp in Bangladesh, the world’s biggest displacement centre.`,
+    source: "Al Jazeera",
+    url: "https://www.aljazeera.com/video/newsfeed/2026/6/12/fire-rips-through-the-worlds-biggest-refugee-camp-in-bangladesh?traffic_source=rss",
+    time: "39 min fa",
+    tags: [],
+  },
+  {
+    id: 16,
+    cat: "ai",
+    title: "Anthropic ha infine reso disponibile una versione di Mythos",
+    summary: "Cioè il modello di intelligenza artificiale che ad aprile aveva messo in allerta aziende e istituzioni, ma con delle limitazioni",
+    body: `Cioè il modello di intelligenza artificiale che ad aprile aveva messo in allerta aziende e istituzioni, ma con delle limitazioni`,
+    source: "Il Post Tech",
+    url: "https://www.ilpost.it/2026/06/10/prima-versione-mythos-aperta-a-tutti/",
+    time: "2 giorni fa",
+    tags: [],
+  },
+  {
+    id: 17,
+    cat: "ai",
+    title: "SpaceX, Anthropic, and OpenAI’s hot IPO summer",
+    summary: "The IPO market is back, and&#160;it&#8217;s&#160;not the same&#160;companies&#160;leading the charge. FAANG had a good run, but a&#160;new acronym is taking over: MANGOS&#160;— Meta (or Microsoft, depending on who you ask), Anthropic, Nvidia, Google, OpenAI, and SpaceX.…",
+    body: `The IPO market is back, and&#160;it&#8217;s&#160;not the same&#160;companies&#160;leading the charge. FAANG had a good run, but a&#160;new acronym is taking over: MANGOS&#160;— Meta (or Microsoft, depending on who you ask), Anthropic, Nvidia, Google, OpenAI, and SpaceX. Half&#160;of that&#160;bunch is heading to public markets in the same window,&#160;and&#160;it&#8217;s&#160;a stress test for investors, for valuations, and for [&#8230;]`,
+    source: "TechCrunch",
+    url: "https://techcrunch.com/video/spacex-anthropic-and-openais-hot-ipo-summer/",
+    time: "2 ore fa",
+    tags: [],
+  },
+  {
+    id: 18,
+    cat: "ai",
+    title: "L'Italia inizia a fare sul serio e approva i decreti sulla AI, ecco cosa cambia per lavoratori, scuola e sicurezza",
+    summary: "Via libera preliminare a due provvedimenti in Consiglio dei ministri: dalle tutele nei rapporti di lavoro al riconoscimento facciale, ecco i punti principali dell'applicazione dell'AI Act europeo in Italia",
+    body: `Via libera preliminare a due provvedimenti in Consiglio dei ministri: dalle tutele nei rapporti di lavoro al riconoscimento facciale, ecco i punti principali dell'applicazione dell'AI Act europeo in Italia`,
+    source: "Wired IT",
+    url: "https://www.wired.it/article/italia-ai-approvazione-decreti-cosa-cambia-lavoro-scuola-sicurezza/",
+    time: "11 ore fa",
+    tags: [],
+  },
+  {
+    id: 19,
+    cat: "ai",
+    title: "Google sues alleged Chinese cybercrime operation that used AI to send scam texts",
+    summary: "The tech giant said a group called \"Outsider Enterprise\" used AI to scam hundreds of thousands of victims, sending 2.5 million text messages over a span of two weeks.",
+    body: `The tech giant said a group called "Outsider Enterprise" used AI to scam hundreds of thousands of victims, sending 2.5 million text messages over a span of two weeks.`,
+    source: "TechCrunch",
+    url: "https://techcrunch.com/2026/06/12/google-sues-alleged-chinese-cybercrime-operation-that-used-ai-to-send-scam-texts/",
+    time: "57 min fa",
+    tags: [],
+  },
+  {
+    id: 20,
+    cat: "ai",
+    title: "Cheaper, faster, and culturally aware, Avataar’s video AI is built for India’s scale",
+    summary: "Avataar AI's distilled video model is priced at $0.005 for every second of generation.",
+    body: `Avataar AI's distilled video model is priced at $0.005 for every second of generation.`,
+    source: "TechCrunch",
+    url: "https://techcrunch.com/2026/06/11/cheaper-faster-and-culturally-aware-avataars-video-ai-is-built-for-indias-scale/",
+    time: "13 ore fa",
+    tags: [],
+  },
+  {
+    id: 21,
+    cat: "economia-tech",
+    title: "SpaceX Makes History With Biggest-Ever IPO | Bloomberg Tech 6/12/2026",
+    summary: "Bloomberg’s Caroline Hyde and Ed Ludlow break down SpaceX's big debut in the public markets as shares start trading on the Nasdaq. They are joined by 137 Ventures Partner Christian Garrett, Pegasus Tech Ventures Founder Anis Uzzaman, Laffer Tengler Investments CEO & CIO Nancy…",
+    body: `Bloomberg’s Caroline Hyde and Ed Ludlow break down SpaceX's big debut in the public markets as shares start trading on the Nasdaq. They are joined by 137 Ventures Partner Christian Garrett, Pegasus Tech Ventures Founder Anis Uzzaman, Laffer Tengler Investments CEO & CIO Nancy Tengler, and Tesla retail investor Alexandra Merz to discuss what it means for investors, the space economy, and the AI IPO pipeline.
 
-<strong>Il contesto macro</strong>
-L'inflazione core nell'Eurozona è scesa all'1,8%, sotto il target del 2% per la prima volta dal 2021. La crescita del PIL dell'area euro rimane debole: 0,4% nel Q1 2026, con la Germania ancora in territorio di stagnazione tecnica. Il mercato del lavoro resta sorprendentemente solido, con la disoccupazione al 6,2%, il livello più basso degli ultimi vent'anni.
+(Source: Bloomberg)`,
+    source: "Bloomberg Tech",
+    url: "https://www.bloomberg.com/news/videos/2026-06-12/bloomberg-tech-6-12-2026-video",
+    time: "33 min fa",
+    tags: [],
+  },
+  {
+    id: 22,
+    cat: "economia-tech",
+    title: "Duke's Harvey on Why SpaceX’s IPO Could Distort Passive Flows",
+    summary: "Shares of SpaceX appear ready to jump when they start trading on Friday after Elon Musk’s company made history with a $75 billion IPO that instantly turned it into one of the biggest public companies in the world. Early indications of buying interest on Nasdaq pointed to a…",
+    body: `Shares of SpaceX appear ready to jump when they start trading on Friday after Elon Musk’s company made history with a $75 billion IPO that instantly turned it into one of the biggest public companies in the world. Early indications of buying interest on Nasdaq pointed to a roughly 30% jump from the shares’ offering price of $135. The stock is expected to officially start trading later Friday under the ticker SPCX.
 
-<strong>Effetti su mutui e credito</strong>
-I tassi sui mutui a tasso variabile scenderanno nelle prossime settimane seguendo il calo dell'Euribor. L'Euribor 3 mesi è già al 2,1%. Per un mutuo medio italiano da 200.000 euro a 20 anni, la riduzione mensile della rata è stimata in circa 65 euro rispetto ai livelli di un anno fa, con un risparmio annuo di circa 800 euro. Chi ha mutui a tasso fisso non beneficia direttamente, ma le nuove erogazioni saranno più convenienti.
-
-<strong>Implicazioni per le imprese tech</strong>
-Il costo del capitale più basso facilita il finanziamento dei data center e dei progetti di espansione AI in Europa. Le startup tech europee potrebbero trovare condizioni di funding più favorevoli nel secondo semestre 2026, dopo due anni di venture capital molto selettivo. Il private equity torna a guardare con interesse alle acquisizioni nel settore software.
-
-<strong>Il rischio di deflazione e i limiti della politica monetaria</strong>
-Alcuni membri del board hanno espresso cautela: con il tasso reale vicino allo zero, la BCE ha meno spazio di manovra in caso di nuovi shock esogeni — energetici, geopolitici o finanziari. Lagarde ha esplicitamente segnalato che le prossime decisioni dipenderanno in modo cruciale dai dati di inflazione e occupazione di maggio.
-
-<strong>La risposta dei mercati</strong>
-I titoli bancari europei hanno perso terreno nella giornata del comunicato, poiché tassi più bassi comprimono i margini di interesse netti. I BTP italiani si sono apprezzati con un calo dello spread BTP-Bund verso i 110 punti base. L'euro si è leggermente indebolito sul dollaro, riflettendo l'attesa che la Fed mantenga i tassi più alti più a lungo rispetto alla BCE.`,
-    source: 'Financial Times',
-    url: 'https://www.ft.com',
-    time: '7 ore fa',
-    tags: ['BCE', 'tassi', 'inflazione', 'mutui', 'Eurozona']
-  }
+Campbell Harvey, Professor of Finance at Duke University's Fuqua School of Business, breaks down why the SpaceX IPO could expose major flaws in index construction, passive fund buying and market structure, with a tiny float and accelerated benchmark inclusion set to intensify demand. (Source: Bloomberg)`,
+    source: "Bloomberg Tech",
+    url: "https://www.bloomberg.com/news/videos/2026-06-12/duke-s-harvey-on-why-spacex-ipo-could-distort-fund-flows-video",
+    time: "3 ore fa",
+    tags: [],
+  },
+  {
+    id: 23,
+    cat: "economia-tech",
+    title: "SpaceX Begins Trading on the Nasdaq After Record IPO",
+    summary: "SpaceX is now trading. The stock sold for $150 in its opening trade on Nasdaq at 11:46 a.m. in New York, 11% above its $135 offering price, and climbed as high as $168.75 in the first few minutes. Ed Ludlow and Caroline Hyde report. (Source: Bloomberg)",
+    body: `SpaceX is now trading. The stock sold for $150 in its opening trade on Nasdaq at 11:46 a.m. in New York, 11% above its $135 offering price, and climbed as high as $168.75 in the first few minutes. Ed Ludlow and Caroline Hyde report. (Source: Bloomberg)`,
+    source: "Bloomberg Tech",
+    url: "https://www.bloomberg.com/news/videos/2026-06-12/spacex-begins-trading-on-the-nasdaq-after-record-ipo-video",
+    time: "2 ore fa",
+    tags: [],
+  },
+  {
+    id: 24,
+    cat: "economia-tech",
+    title: "SpaceX Should Triple Revenue in Two Years, Kennedy Says",
+    summary: "Matt Kennedy, Senior IPO Market Strategist at Renaissance Capital, expects SpaceX to more than triple revenue in the next two years. He speaks before SpaceX begins trading for the first time on \"Bloomberg Surveillance.\" (Source: Bloomberg)",
+    body: `Matt Kennedy, Senior IPO Market Strategist at Renaissance Capital, expects SpaceX to more than triple revenue in the next two years. He speaks before SpaceX begins trading for the first time on "Bloomberg Surveillance." (Source: Bloomberg)`,
+    source: "Bloomberg Tech",
+    url: "https://www.bloomberg.com/news/videos/2026-06-12/spacex-will-triple-revenue-in-two-years-kennedy-says-video",
+    time: "4 ore fa",
+    tags: [],
+  },
+  {
+    id: 25,
+    cat: "economia-tech",
+    title: "Trading firm DRW suffered sharp loss on power market as prices gyrated",
+    summary: "Group took $176mn hit and parted ways with its head electricity and gas trader as winter volatility battered positions",
+    body: `Group took $176mn hit and parted ways with its head electricity and gas trader as winter volatility battered positions`,
+    source: "Financial Times",
+    url: "https://www.ft.com/content/58558368-a938-4194-ba0d-cb10f3a0915d",
+    time: "14 ore fa",
+    tags: [],
+  },
 ];
