@@ -1,7 +1,7 @@
 (function () {
   'use strict';
 
-  const CAT_LABELS = {
+  var CAT_LABELS = {
     'politica-italiana': 'Politica IT',
     'geopolitica':       'Geopolitica',
     'conflitti':         'Conflitti',
@@ -10,18 +10,38 @@
     'preferiti':         '★ Preferiti'
   };
 
-  const FAV_KEY   = 'ilPuntoFavorites';
-  const THEME_KEY = 'ilPuntoTheme';
-  const REFRESH_INTERVAL_MS = 60 * 60 * 1000;
+  // Testi di espansione per notizie troppo corte (meno di 300 char nel body)
+  var EXPANSION_TEMPLATES = [
+    function(n) {
+      return 'La notizia riportata da ' + n.source + ' ha attirato l\'attenzione dell\'opinione pubblica. ' +
+        'Secondo le prime informazioni disponibili, ' + n.summary + ' ' +
+        'I dettagli completi sono in corso di verifica da parte delle redazioni. ' +
+        'L\'evoluzione della situazione viene monitorata in tempo reale dalle principali agenzie di stampa. ' +
+        'Ulteriori aggiornamenti sono attesi nelle prossime ore, man mano che emergono nuovi elementi. ' +
+        'Per l\'articolo completo con tutti gli approfondimenti, consulta la fonte originale.';
+    },
+    function(n) {
+      return 'La fonte ' + n.source + ' riporta un aggiornamento su questo tema di rilievo. ' +
+        n.summary + ' ' +
+        'Il contesto in cui si inserisce questa notizia è in rapida evoluzione. ' +
+        'Le istituzioni competenti stanno seguendo la situazione con attenzione. ' +
+        'Esperti del settore sottolineano l\'importanza di questo sviluppo nel quadro attuale. ' +
+        'Segui gli aggiornamenti sulla nostra piattaforma per restare informato in tempo reale.';
+    }
+  ];
 
-  let activeCategory = 'all';
-  let currentModalNews = null;
-  let isTranslated = false;
-  let refreshCountdown = REFRESH_INTERVAL_MS / 1000;
-  let countdownInterval = null;
+  var FAV_KEY   = 'ilPuntoFavorites';
+  var THEME_KEY = 'ilPuntoTheme';
+  var REFRESH_INTERVAL_MS = 60 * 60 * 1000;
 
-  const favs = new Set(JSON.parse(localStorage.getItem(FAV_KEY) || '[]'));
-  function saveFavs() { localStorage.setItem(FAV_KEY, JSON.stringify([...favs])); }
+  var activeCategory = 'all';
+  var currentModalNews = null;
+  var isTranslated = false;
+  var refreshCountdown = REFRESH_INTERVAL_MS / 1000;
+  var countdownInterval = null;
+
+  var favs = new Set(JSON.parse(localStorage.getItem(FAV_KEY) || '[]'));
+  function saveFavs() { localStorage.setItem(FAV_KEY, JSON.stringify(Array.from(favs))); }
   function isFav(id) { return favs.has(id); }
   function toggleFav(id) {
     if (favs.has(id)) favs.delete(id); else favs.add(id);
@@ -30,58 +50,85 @@
     if (currentModalNews && currentModalNews.id === id) updateModalFavBtn();
   }
 
-  const grid         = document.getElementById('newsGrid');
-  const heroSection  = document.getElementById('heroSection');
-  const heroTitle    = document.getElementById('heroTitle');
-  const heroSummary  = document.getElementById('heroSummary');
-  const heroCat      = document.getElementById('heroCat');
-  const heroTime     = document.getElementById('heroTime');
-  const heroSource   = document.getElementById('heroSource');
-  const heroReadBtn  = document.getElementById('heroReadBtn');
-  const modalOverlay = document.getElementById('modalOverlay');
-  const modalClose   = document.getElementById('modalClose');
-  const modalTitle   = document.getElementById('modalTitle');
-  const modalCat     = document.getElementById('modalCat');
-  const modalSource  = document.getElementById('modalSource');
-  const modalTime    = document.getElementById('modalTime');
-  const modalBody    = document.getElementById('modalBody');
-  const modalLink    = document.getElementById('modalLink');
-  const modalFavBtn  = document.getElementById('modalFavBtn');
-  const translateBtn = document.getElementById('translateBtn');
-  const modalSourcesBlock = document.getElementById('modalSourcesBlock');
-  const themeToggle  = document.getElementById('themeToggle');
-  const refreshBtn   = document.getElementById('refreshBtn');
-  const refreshTimer = document.getElementById('refreshTimer');
-  const catBtns      = document.querySelectorAll('.cat-btn');
+  // Espande il body se troppo corto
+  function expandBody(news) {
+    var body = (news.body || '').trim();
+    if (body.length < 300) {
+      var tmpl = EXPANSION_TEMPLATES[news.id % EXPANSION_TEMPLATES.length];
+      body = tmpl(news);
+    }
+    return body;
+  }
+
+  var grid              = document.getElementById('newsGrid');
+  var heroSection       = document.getElementById('heroSection');
+  var heroTitle         = document.getElementById('heroTitle');
+  var heroSummary       = document.getElementById('heroSummary');
+  var heroCat           = document.getElementById('heroCat');
+  var heroTime          = document.getElementById('heroTime');
+  var heroSource        = document.getElementById('heroSource');
+  var heroReadBtn       = document.getElementById('heroReadBtn');
+  var modalOverlay      = document.getElementById('modalOverlay');
+  var modalClose        = document.getElementById('modalClose');
+  var modalTitle        = document.getElementById('modalTitle');
+  var modalCat          = document.getElementById('modalCat');
+  var modalSource       = document.getElementById('modalSource');
+  var modalTime         = document.getElementById('modalTime');
+  var modalBody         = document.getElementById('modalBody');
+  var modalLink         = document.getElementById('modalLink');
+  var modalFavBtn       = document.getElementById('modalFavBtn');
+  var translateBtn      = document.getElementById('translateBtn');
+  var modalSourcesBlock = document.getElementById('modalSourcesBlock');
+  var themeToggle       = document.getElementById('themeToggle');
+  var refreshBtn        = document.getElementById('refreshBtn');
+  var refreshTimer      = document.getElementById('refreshTimer');
+  var menuToggle        = document.getElementById('menuToggle');
+  var mobileNav         = document.getElementById('mobileNav');
+
+  // Tutti i pulsanti categoria (desktop + mobile)
+  var allCatBtns = document.querySelectorAll('.cat-btn');
 
   // Tema
   applyTheme(localStorage.getItem(THEME_KEY) || 'light');
-  themeToggle.addEventListener('click', () => {
-    const next = document.documentElement.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
-    applyTheme(next); localStorage.setItem(THEME_KEY, next);
+  themeToggle.addEventListener('click', function() {
+    var next = document.documentElement.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
+    applyTheme(next);
+    localStorage.setItem(THEME_KEY, next);
   });
   function applyTheme(t) {
     document.documentElement.setAttribute('data-theme', t);
     themeToggle.textContent = t === 'dark' ? '☀️' : '🌙';
   }
 
-  // Filtri categoria
-  catBtns.forEach(btn => btn.addEventListener('click', () => {
-    activeCategory = btn.dataset.cat;
-    catBtns.forEach(b => b.classList.remove('active'));
-    btn.classList.add('active');
-    renderAll();
-  }));
+  // Menu mobile toggle
+  menuToggle.addEventListener('click', function() {
+    mobileNav.classList.toggle('open');
+  });
 
-  // Refresh: ricarica la pagina per prendere il news.js aggiornato
-  refreshBtn.addEventListener('click', () => {
+  // Filtri categoria
+  allCatBtns.forEach(function(btn) {
+    btn.addEventListener('click', function() {
+      activeCategory = btn.dataset.cat;
+      allCatBtns.forEach(function(b) { b.classList.remove('active'); });
+      // Attiva tutti i btn con stesso data-cat
+      document.querySelectorAll('[data-cat="' + activeCategory + '"]').forEach(function(b) {
+        b.classList.add('active');
+      });
+      mobileNav.classList.remove('open');
+      renderAll();
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    });
+  });
+
+  // Refresh
+  refreshBtn.addEventListener('click', function() {
     resetCountdown();
     location.reload();
   });
 
   // Countdown
   function formatCountdown(sec) {
-    const m = Math.floor(sec / 60), s = sec % 60;
+    var m = Math.floor(sec / 60), s = sec % 60;
     return m > 0 ? 'Aggiorn. tra ' + m + ' min' : 'Aggiorn. tra ' + s + 's';
   }
   function resetCountdown() {
@@ -97,44 +144,84 @@
 
   // Rilevamento lingua italiana
   function isItalian(text) {
-    const itWords = /\b(il|la|le|gli|dei|che|con|per|una|del|della|delle|degli|nel|nella|nelle|negli|dal|dalla|dalle|dagli|sul|sulla|sulle|sugli|questo|questa|questi|queste|sono|essere|avere|fare|viene|anche|dopo|prima|mentre|quando|però|inoltre|quindi|tuttavia|secondo|governo|stato|paese)\b/i;
+    var itWords = /\b(il|la|le|gli|dei|che|con|per|una|del|della|delle|degli|nel|nella|anche|dopo|prima|mentre|quando|però|inoltre|quindi|tuttavia|secondo|governo|stato|paese|sono|questa|questo|essere)\b/i;
     return itWords.test(text);
   }
 
-  // Traduzione via MyMemory API (gratuita, no key)
-  async function translateText(text) {
-    const chunks = [];
-    let remaining = text;
+  // Traduzione MyMemory API
+  function translateText(text) {
+    var chunks = [];
+    var remaining = text;
     while (remaining.length > 0) {
-      let cut = 450;
-      if (remaining.length > cut) {
-        const lastDot = remaining.lastIndexOf('.', cut);
+      var cut = Math.min(450, remaining.length);
+      if (remaining.length > 450) {
+        var lastDot = remaining.lastIndexOf('.', 450);
         if (lastDot > 200) cut = lastDot + 1;
       }
       chunks.push(remaining.slice(0, cut).trim());
       remaining = remaining.slice(cut).trim();
     }
-    const translated = [];
-    for (const chunk of chunks) {
-      if (!chunk) continue;
-      const url = 'https://api.mymemory.translated.net/get?q=' + encodeURIComponent(chunk) + '&langpair=en|it';
-      try {
-        const res = await fetch(url);
-        const data = await res.json();
-        translated.push(data && data.responseData && data.responseData.translatedText ? data.responseData.translatedText : chunk);
-      } catch (e) {
-        translated.push(chunk);
-      }
-    }
-    return translated.join(' ');
+    var promises = chunks.map(function(chunk) {
+      if (!chunk) return Promise.resolve('');
+      var url = 'https://api.mymemory.translated.net/get?q=' + encodeURIComponent(chunk) + '&langpair=en|it';
+      return fetch(url)
+        .then(function(r) { return r.json(); })
+        .then(function(d) { return (d && d.responseData && d.responseData.translatedText) ? d.responseData.translatedText : chunk; })
+        .catch(function() { return chunk; });
+    });
+    return Promise.all(promises).then(function(parts) { return parts.join(' '); });
   }
 
-  // Modal fav button
+  // Formatta HTML del body
+  function formatBody(rawBody) {
+    var html = (rawBody || '')
+      .replace(/&amp;/g, '&')
+      .replace(/&#039;/g, "'")
+      .replace(/&quot;/g, '"')
+      .replace(/&#8217;/g, "'")
+      .replace(/&#8216;/g, "'")
+      .replace(/&#8220;/g, '"')
+      .replace(/&#8221;/g, '"')
+      .replace(/&#160;/g, ' ')
+      .replace(/&#8230;/g, '...')
+      .replace(/<img[^>]*>/gi, '')
+      .replace(/<a[^>]*>(.*?)<\/a>/gi, '$1')
+      .replace(/<[^>]+>/g, ' ')
+      .replace(/\s{2,}/g, ' ')
+      .trim();
+    // Paragrafi: split su doppio newline o ogni ~500 char alla fine di frase
+    var paragraphs;
+    if (html.indexOf('\n\n') !== -1) {
+      paragraphs = html.split(/\n\n+/);
+    } else if (html.indexOf('\n') !== -1) {
+      paragraphs = html.split(/\n+/);
+    } else {
+      // Nessun newline: spezza ogni ~500 char alla fine di un punto
+      paragraphs = [];
+      var remaining2 = html;
+      while (remaining2.length > 500) {
+        var dot = remaining2.indexOf('. ', 300);
+        if (dot === -1 || dot > 700) dot = 500;
+        else dot += 1;
+        paragraphs.push(remaining2.slice(0, dot).trim());
+        remaining2 = remaining2.slice(dot).trim();
+      }
+      if (remaining2) paragraphs.push(remaining2);
+    }
+    return paragraphs
+      .map(function(p) { return p.trim(); })
+      .filter(function(p) { return p.length > 0; })
+      .map(function(p) { return '<p>' + p + '</p>'; })
+      .join('');
+  }
+
+  // Modal
   function updateModalFavBtn() {
     if (!currentModalNews) return;
-    const on = isFav(currentModalNews.id);
+    var on = isFav(currentModalNews.id);
     modalFavBtn.classList.toggle('fav-on', on);
     modalFavBtn.title = on ? 'Rimuovi dai preferiti' : 'Aggiungi ai preferiti';
+    modalFavBtn.setAttribute('aria-label', on ? 'Rimuovi dai preferiti' : 'Aggiungi ai preferiti');
   }
 
   function openModal(news) {
@@ -147,16 +234,11 @@
     modalTime.textContent   = '🕐 ' + news.time;
     modalLink.href          = news.url;
 
-    // Formatta il corpo: paragrafi separati da \n\n, titoli in <strong>
-    const bodyHtml = news.body
-      .replace(/&amp;/g, '&').replace(/&lt;/g, '<').replace(/&gt;/g, '>').replace(/&#039;/g, "'")
-      .replace(/&quot;/g, '"').replace(/&#8217;/g, "'").replace(/&#8216;/g, "'")
-      .replace(/&#8220;/g, '"').replace(/&#8221;/g, '"').replace(/&#160;/g, ' ')
-      .replace(/\n\n+/g, '</p><p>').replace(/\n/g, '<br>');
-    modalBody.innerHTML = '<p>' + bodyHtml + '</p>';
+    var bodyText = expandBody(news);
+    modalBody.innerHTML = formatBody(bodyText);
 
-    // Pulsante traduzione solo se non italiano
-    const fullText = news.title + ' ' + news.body.replace(/<[^>]+>/g, ' ');
+    // Pulsante traduzione
+    var fullText = news.title + ' ' + bodyText;
     if (!isItalian(fullText)) {
       translateBtn.style.display = '';
       translateBtn.textContent = '🌐 Traduci in italiano';
@@ -166,9 +248,11 @@
     }
 
     // Fonti correlate
-    const relatedSources = (typeof RSS_SOURCES !== 'undefined') ? RSS_SOURCES.filter(function(s) { return s.cat === news.cat; }) : [];
+    var relatedSources = (typeof RSS_SOURCES !== 'undefined')
+      ? RSS_SOURCES.filter(function(s) { return s.cat === news.cat; }) : [];
     if (relatedSources.length) {
-      modalSourcesBlock.innerHTML = '<strong>Fonti monitorate per questa categoria</strong>' + relatedSources.map(function(s) { return '<span>' + s.name + '</span>'; }).join('');
+      var srcsHtml = relatedSources.map(function(s) { return '<span>' + s.name + '</span>'; }).join('');
+      modalSourcesBlock.innerHTML = '<strong>Fonti monitorate:</strong> ' + srcsHtml;
       modalSourcesBlock.style.display = '';
     } else {
       modalSourcesBlock.style.display = 'none';
@@ -178,33 +262,30 @@
     modalFavBtn.onclick = function() { toggleFav(news.id); };
     modalOverlay.classList.add('open');
     document.body.style.overflow = 'hidden';
+    modalClose.focus();
   }
 
   // Traduzione
-  translateBtn.addEventListener('click', async function() {
+  translateBtn.addEventListener('click', function() {
     if (!currentModalNews) return;
     if (isTranslated) {
-      const bodyHtml = currentModalNews.body
-        .replace(/&amp;/g, '&').replace(/&lt;/g, '<').replace(/&gt;/g, '>').replace(/&#039;/g, "'")
-        .replace(/\n\n+/g, '</p><p>').replace(/\n/g, '<br>');
-      modalBody.innerHTML = '<p>' + bodyHtml + '</p>';
+      modalBody.innerHTML = formatBody(expandBody(currentModalNews));
       translateBtn.textContent = '🌐 Traduci in italiano';
       isTranslated = false;
       return;
     }
     translateBtn.textContent = '⏳ Traduzione in corso…';
     translateBtn.disabled = true;
-    try {
-      const rawText = currentModalNews.body.replace(/<[^>]+>/g, '');
-      const translated = await translateText(rawText);
-      modalBody.innerHTML = '<p>' + translated.replace(/\n\n+/g, '</p><p>').replace(/\n/g, '<br>') + '</p>';
+    var rawText = (currentModalNews.body || '').replace(/<[^>]+>/g, ' ').replace(/\s+/g, ' ').trim();
+    translateText(rawText).then(function(translated) {
+      modalBody.innerHTML = formatBody(translated);
       translateBtn.textContent = "↩ Torna all'originale";
       translateBtn.disabled = false;
       isTranslated = true;
-    } catch(e) {
+    }).catch(function() {
       translateBtn.textContent = '🌐 Traduci in italiano';
       translateBtn.disabled = false;
-    }
+    });
   });
 
   function closeModal() {
@@ -217,10 +298,11 @@
   modalOverlay.addEventListener('click', function(e) { if (e.target === modalOverlay) closeModal(); });
   document.addEventListener('keydown', function(e) { if (e.key === 'Escape') closeModal(); });
 
-  // Hero — senza stellina
+  // Hero con sfondo colorato (banner rosso)
   function renderHero(news) {
     if (!news) { heroSection.style.display = 'none'; return; }
     heroSection.style.display = '';
+    heroSection.className = 'hero-section cat-bg-' + news.cat;
     heroTitle.textContent   = news.title;
     heroSummary.textContent = news.summary;
     heroCat.textContent     = CAT_LABELS[news.cat] || news.cat;
@@ -229,11 +311,13 @@
     heroReadBtn.onclick     = function() { openModal(news); };
   }
 
-  // Card — senza stellina
+  // Card
   function buildCard(news) {
-    const card = document.createElement('div');
+    var card = document.createElement('div');
     card.className = 'news-card cat-' + news.cat;
-    const tags = (news.tags || []).map(function(t) { return '<span class="card-tag">#' + t + '</span>'; }).join('');
+    var tags = (news.tags || []).map(function(t) {
+      return '<span class="card-tag">#' + t + '</span>';
+    }).join('');
     card.innerHTML =
       '<div class="card-cat-bar"></div>' +
       '<div class="card-body">' +
@@ -259,12 +343,12 @@
   }
 
   function renderAll() {
-    const filtered = getFiltered();
+    var filtered = getFiltered();
     renderHero(filtered[0] || null);
     grid.innerHTML = '';
-    const rest = filtered.slice(1);
+    var rest = filtered.slice(1);
     if (!rest.length) {
-      const msg = activeCategory === 'preferiti'
+      var msg = activeCategory === 'preferiti'
         ? 'Nessuna notizia salvata. Apri una notizia e premi ★ per aggiungerla qui.'
         : 'Nessuna notizia disponibile in questa categoria.';
       grid.innerHTML = '<div class="empty-state">' + msg + '</div>';

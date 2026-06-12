@@ -3,7 +3,11 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Notizie — Il Punto</title>
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; style-src 'self' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; script-src 'self'; connect-src https://api.mymemory.translated.net; img-src 'self' data:;" />
+  <meta http-equiv="X-Content-Type-Options" content="nosniff" />
+  <meta http-equiv="X-Frame-Options" content="DENY" />
+  <meta name="referrer" content="no-referrer" />
+  <title>Il Punto — Notizie</title>
   <link rel="stylesheet" href="style.css" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:wght@700&display=swap" rel="stylesheet" />
@@ -12,7 +16,7 @@
   <header class="header">
     <div class="header-inner">
       <div class="logo">Il Punto</div>
-      <nav class="nav-cats">
+      <nav class="nav-cats" id="navCats">
         <button class="cat-btn active" data-cat="all">Tutto</button>
         <button class="cat-btn" data-cat="politica-italiana">Politica IT</button>
         <button class="cat-btn" data-cat="geopolitica">Geopolitica</button>
@@ -24,23 +28,36 @@
       <div class="header-right">
         <span class="refresh-timer" id="refreshTimer">Aggiorn. tra 60 min</span>
         <button class="refresh-btn" id="refreshBtn" title="Aggiorna ora">↻</button>
-        <button class="theme-toggle" id="themeToggle" aria-label="Toggle theme">🌙</button>
+        <button class="theme-toggle" id="themeToggle" aria-label="Cambia tema">🌙</button>
+        <button class="menu-toggle" id="menuToggle" aria-label="Menu categorie">☰</button>
       </div>
+    </div>
+    <!-- Menu mobile categorie -->
+    <div class="mobile-nav" id="mobileNav">
+      <button class="cat-btn active" data-cat="all">Tutto</button>
+      <button class="cat-btn" data-cat="politica-italiana">Politica IT</button>
+      <button class="cat-btn" data-cat="geopolitica">Geopolitica</button>
+      <button class="cat-btn" data-cat="conflitti">Conflitti</button>
+      <button class="cat-btn" data-cat="ai">AI &amp; Tech</button>
+      <button class="cat-btn" data-cat="economia-tech">Economia</button>
+      <button class="cat-btn" data-cat="preferiti">★ Preferiti</button>
     </div>
   </header>
 
   <main>
     <section class="hero-section" id="heroSection">
-      <div class="hero-label">Top Story</div>
-      <h1 class="hero-title" id="heroTitle"></h1>
-      <p class="hero-summary" id="heroSummary"></p>
-      <div class="hero-meta">
-        <span class="hero-cat" id="heroCat"></span>
-        <span class="hero-time" id="heroTime"></span>
-        <span class="hero-source" id="heroSource"></span>
-      </div>
-      <div class="hero-actions">
-        <button class="hero-read-btn" id="heroReadBtn">Leggi di più</button>
+      <div class="hero-inner">
+        <div class="hero-label">Top Story</div>
+        <h1 class="hero-title" id="heroTitle"></h1>
+        <p class="hero-summary" id="heroSummary"></p>
+        <div class="hero-meta">
+          <span class="hero-cat" id="heroCat"></span>
+          <span class="hero-time" id="heroTime"></span>
+          <span class="hero-source" id="heroSource"></span>
+        </div>
+        <div class="hero-actions">
+          <button class="hero-read-btn" id="heroReadBtn">Leggi di più</button>
+        </div>
       </div>
     </section>
 
@@ -50,13 +67,13 @@
   </main>
 
   <!-- Modal -->
-  <div class="modal-overlay" id="modalOverlay">
+  <div class="modal-overlay" id="modalOverlay" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
     <div class="modal" id="modal">
       <div class="modal-header">
-        <button class="modal-close" id="modalClose">✕</button>
+        <button class="modal-close" id="modalClose" aria-label="Chiudi">✕</button>
         <div class="modal-header-actions">
           <button class="translate-btn" id="translateBtn" style="display:none">🌐 Traduci in italiano</button>
-          <button class="fav-btn modal-fav" id="modalFavBtn" aria-label="Salva nei preferiti">★</button>
+          <button class="fav-btn" id="modalFavBtn" aria-label="Aggiungi ai preferiti">★</button>
         </div>
       </div>
       <div class="modal-cat" id="modalCat"></div>
@@ -67,7 +84,7 @@
       </div>
       <div class="modal-body" id="modalBody"></div>
       <div class="modal-sources-block" id="modalSourcesBlock"></div>
-      <a class="modal-link" id="modalLink" href="#" target="_blank" rel="noopener">Leggi l'articolo originale →</a>
+      <a class="modal-link" id="modalLink" href="#" target="_blank" rel="noopener noreferrer">Leggi l'articolo originale →</a>
     </div>
   </div>
 
