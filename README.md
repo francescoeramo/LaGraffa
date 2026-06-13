@@ -2,7 +2,7 @@
 
 **Il Punto** è una web app di news aggregation personalizzata, accessibile all’indirizzo:
 
-## 🔗 [(https://ilpunto.francescoeramo4.workers.dev/webAppNotizie/)]
+## 🔗 https://ilpunto.francescoeramo4.workers.dev/webAppNotizie/
 
 ---
 
