@@ -8,6 +8,8 @@
   --accent: #c0392b;
   --accent2: #2980b9;
   --fav-color: #e6b800;
+  --later-color: #2980b9;
+  --read-color: #2980b9;
   --font-head: 'Playfair Display', Georgia, serif;
   --font-body: 'Inter', system-ui, sans-serif;
   --radius: 10px;
@@ -110,17 +112,17 @@ body {
 }
 .refresh-btn:hover { border-color: var(--accent); color: var(--accent); transform: rotate(180deg); }
 .theme-toggle:hover, .menu-toggle:hover { border-color: var(--accent); color: var(--accent); }
-
-/* Menu mobile (hamburger) */
 .menu-toggle { display: none; }
+
+/* Mobile nav */
 .mobile-nav {
   display: none;
-  max-height: 0;
   overflow: hidden;
-  transition: max-height .3s ease;
   background: var(--surface);
   border-top: 1px solid var(--border);
   padding: 0 16px;
+  max-height: 0;
+  transition: max-height .3s ease, padding .3s ease;
 }
 .mobile-nav.open {
   display: flex;
@@ -141,16 +143,28 @@ body {
   content: '';
   position: absolute;
   inset: 0;
-  background: linear-gradient(135deg, rgba(0,0,0,.18) 0%, transparent 60%);
+  background: linear-gradient(135deg, rgba(0,0,0,.2) 0%, transparent 60%);
   pointer-events: none;
 }
-/* Colori per categoria */
 .hero-section.cat-bg-politica-italiana { background: var(--cat-politica); }
 .hero-section.cat-bg-geopolitica       { background: var(--cat-geopolitica); }
 .hero-section.cat-bg-conflitti         { background: var(--cat-conflitti); }
 .hero-section.cat-bg-ai                { background: var(--cat-ai); }
 .hero-section.cat-bg-economia-tech     { background: var(--cat-economia); }
-
+/* Hero letto: leggermente desaturato */
+.hero-section.hero-read::after {
+  content: '\2714 Gi\00e0 letta';
+  position: absolute;
+  top: 14px; right: 18px;
+  background: rgba(255,255,255,.22);
+  color: #fff;
+  font-size: .72rem;
+  font-weight: 700;
+  padding: 3px 10px;
+  border-radius: 12px;
+  letter-spacing: .5px;
+  backdrop-filter: blur(4px);
+}
 .hero-inner {
   max-width: 1280px;
   margin: 0 auto;
@@ -246,20 +260,27 @@ body {
   transition: transform .2s, box-shadow .2s;
   border: 1px solid var(--border);
   -webkit-tap-highlight-color: transparent;
+  position: relative;
 }
 .news-card:hover { transform: translateY(-3px); box-shadow: 0 6px 24px rgba(0,0,0,.12); }
+/* Card letta: leggermente opaca */
+.news-card.card-read { opacity: .82; }
+.news-card.card-read .card-title { color: var(--text-muted); }
+
 .card-cat-bar { height: 4px; background: var(--accent); }
 .cat-politica-italiana .card-cat-bar { background: var(--cat-politica); }
 .cat-geopolitica .card-cat-bar       { background: var(--cat-geopolitica); }
 .cat-conflitti .card-cat-bar         { background: var(--cat-conflitti); }
 .cat-ai .card-cat-bar                { background: var(--cat-ai); }
 .cat-economia-tech .card-cat-bar     { background: var(--cat-economia); }
+
 .card-body { padding: 16px 16px 10px; flex: 1; }
 .card-topline {
   display: flex;
-  justify-content: flex-start;
+  justify-content: space-between;
   align-items: center;
   margin-bottom: 8px;
+  gap: 6px;
 }
 .card-cat-badge {
   font-size: .67rem;
@@ -273,12 +294,28 @@ body {
 .cat-conflitti .card-cat-badge         { color: var(--cat-conflitti); }
 .cat-ai .card-cat-badge                { color: var(--cat-ai); }
 .cat-economia-tech .card-cat-badge     { color: var(--cat-economia); }
+
+/* Spunta "letto" blu */
+.card-read-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 18px; height: 18px;
+  background: var(--read-color);
+  color: #fff;
+  border-radius: 50%;
+  font-size: .65rem;
+  font-weight: 700;
+  flex-shrink: 0;
+  line-height: 1;
+}
 .card-title {
   font-family: var(--font-head);
   font-size: 1rem;
   font-weight: 700;
   line-height: 1.35;
   margin-bottom: 8px;
+  transition: color .2s;
 }
 .card-summary {
   font-size: .82rem;
@@ -338,7 +375,7 @@ body {
 .modal-header-actions {
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: 8px;
   flex-shrink: 0;
 }
 .modal-close {
@@ -369,11 +406,28 @@ body {
 }
 .translate-btn:hover { border-color: var(--accent2); color: var(--accent2); }
 .translate-btn:disabled { opacity: .6; cursor: wait; }
+
+/* Pulsante orologio (leggi dopo) */
+.later-btn {
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 1.3rem;
+  color: #ccc;
+  transition: color .2s, transform .2s;
+  line-height: 1;
+  padding: 2px 4px;
+  flex-shrink: 0;
+}
+.later-btn:hover { color: var(--later-color); transform: scale(1.2); }
+.later-btn.later-on { color: var(--later-color); }
+
+/* Pulsante stella (preferiti) */
 .fav-btn {
   background: none;
   border: none;
   cursor: pointer;
-  font-size: 1.5rem;
+  font-size: 1.4rem;
   color: #ccc;
   transition: color .2s, transform .2s;
   line-height: 1;
@@ -382,6 +436,7 @@ body {
 }
 .fav-btn:hover { color: var(--fav-color); transform: scale(1.2); }
 .fav-btn.fav-on { color: var(--fav-color); }
+
 .modal-cat {
   font-size: .7rem;
   font-weight: 700;
@@ -410,9 +465,7 @@ body {
   color: var(--text);
   margin-bottom: 28px;
 }
-.modal-body p {
-  margin-bottom: 1em;
-}
+.modal-body p { margin-bottom: 1em; }
 .modal-sources-block {
   background: var(--surface2);
   border-radius: 8px;
@@ -448,7 +501,6 @@ body {
   .nav-cats { display: none; }
   .menu-toggle { display: flex; }
   .refresh-timer { display: none; }
-
   .header-inner { padding: 10px 16px; }
   .logo { font-size: 1.3rem; }
 
@@ -472,7 +524,6 @@ body {
   .modal-body { font-size: .9rem; }
   .translate-btn { font-size: .72rem; padding: 5px 10px; }
 }
-
 @media (max-width: 480px) {
   .hero-title { font-size: 1.2rem; }
   .card-title { font-size: .95rem; }
