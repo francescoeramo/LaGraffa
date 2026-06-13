@@ -7,7 +7,7 @@
   <meta http-equiv="X-Content-Type-Options" content="nosniff" />
   <meta http-equiv="X-Frame-Options" content="DENY" />
   <meta name="referrer" content="no-referrer" />
-  <title>Il Punto — Notizie</title>
+  <title>Il Punto &mdash; Notizie</title>
   <link rel="stylesheet" href="style.css" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:wght@700&display=swap" rel="stylesheet" />
@@ -23,14 +23,14 @@
         <button class="cat-btn" data-cat="conflitti">Conflitti</button>
         <button class="cat-btn" data-cat="ai">AI &amp; Tech</button>
         <button class="cat-btn" data-cat="economia-tech">Economia</button>
-        <button class="cat-btn" data-cat="preferiti">★ Preferiti</button>
-        <button class="cat-btn" data-cat="leggi-dopo">⏰ Leggi dopo</button>
+        <button class="cat-btn" data-cat="preferiti">&#9733; Preferiti</button>
+        <button class="cat-btn" data-cat="leggi-dopo">&#9200; Leggi dopo</button>
       </nav>
       <div class="header-right">
         <span class="refresh-timer" id="refreshTimer">Aggiorn. tra 60 min</span>
-        <button class="refresh-btn" id="refreshBtn" title="Aggiorna ora">↻</button>
-        <button class="theme-toggle" id="themeToggle" aria-label="Cambia tema">🌙</button>
-        <button class="menu-toggle" id="menuToggle" aria-label="Menu categorie">☰</button>
+        <button class="refresh-btn" id="refreshBtn" title="Aggiorna ora">&#8635;</button>
+        <button class="theme-toggle" id="themeToggle" aria-label="Cambia tema">&#127769;</button>
+        <button class="menu-toggle" id="menuToggle" aria-label="Menu categorie">&#9776;</button>
       </div>
     </div>
     <div class="mobile-nav" id="mobileNav">
@@ -40,8 +40,8 @@
       <button class="cat-btn" data-cat="conflitti">Conflitti</button>
       <button class="cat-btn" data-cat="ai">AI &amp; Tech</button>
       <button class="cat-btn" data-cat="economia-tech">Economia</button>
-      <button class="cat-btn" data-cat="preferiti">★ Preferiti</button>
-      <button class="cat-btn" data-cat="leggi-dopo">⏰ Leggi dopo</button>
+      <button class="cat-btn" data-cat="preferiti">&#9733; Preferiti</button>
+      <button class="cat-btn" data-cat="leggi-dopo">&#9200; Leggi dopo</button>
     </div>
   </header>
 
@@ -57,8 +57,12 @@
           <span class="hero-source" id="heroSource"></span>
         </div>
         <div class="hero-actions">
-          <button class="hero-read-btn" id="heroReadBtn">Leggi di più</button>
+          <button class="hero-read-btn" id="heroReadBtn">Leggi di pi&ugrave;</button>
         </div>
+      </div>
+      <!-- Badge "già letta" iniettato via JS per evitare problemi CSS content -->
+      <div class="hero-read-indicator" id="heroReadIndicator" style="display:none">
+        <span class="check-circle">&#10003;</span> Gi&agrave; letta
       </div>
     </section>
 
@@ -71,11 +75,11 @@
   <div class="modal-overlay" id="modalOverlay" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
     <div class="modal" id="modal">
       <div class="modal-header">
-        <button class="modal-close" id="modalClose" aria-label="Chiudi">✕</button>
+        <button class="modal-close" id="modalClose" aria-label="Chiudi">&#10005;</button>
         <div class="modal-header-actions">
-          <button class="translate-btn" id="translateBtn" style="display:none">🌐 Traduci in italiano</button>
-          <button class="later-btn" id="modalLaterBtn" aria-label="Leggi dopo" title="Leggi dopo">⏰</button>
-          <button class="fav-btn" id="modalFavBtn" aria-label="Aggiungi ai preferiti" title="Aggiungi ai preferiti">★</button>
+          <button class="translate-btn" id="translateBtn" style="display:none">&#127760; Traduci in italiano</button>
+          <button class="later-btn" id="modalLaterBtn" aria-label="Leggi dopo" title="Leggi dopo">&#9200;</button>
+          <button class="fav-btn" id="modalFavBtn" aria-label="Aggiungi ai preferiti" title="Aggiungi ai preferiti">&#9733;</button>
         </div>
       </div>
       <div class="modal-cat" id="modalCat"></div>
@@ -86,7 +90,7 @@
       </div>
       <div class="modal-body" id="modalBody"></div>
       <div class="modal-sources-block" id="modalSourcesBlock"></div>
-      <a class="modal-link" id="modalLink" href="#" target="_blank" rel="noopener noreferrer">Leggi l'articolo originale →</a>
+      <a class="modal-link" id="modalLink" href="#" target="_blank" rel="noopener noreferrer">Leggi l&rsquo;articolo originale &rarr;</a>
     </div>
   </div>
 

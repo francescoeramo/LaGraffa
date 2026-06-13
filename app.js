@@ -11,7 +11,9 @@
     'leggi-dopo':        '\u23f0 Leggi dopo'
   };
 
-  // Template di espansione IN ITALIANO (usati solo quando il body originale è troppo corto)
+  // Categorie che NON mostrano l'hero (tutto in grid)
+  var NO_HERO_CATS = { 'leggi-dopo': true, 'preferiti': true };
+
   var EXPANSION_TEMPLATES = [
     function(n) {
       return 'La notizia riportata da ' + n.source + ' ha attirato l\'attenzione dell\'opinione pubblica. ' +
@@ -31,7 +33,6 @@
     }
   ];
 
-  // Template di espansione IN INGLESE (usati per tradurre notizie inglesi corte)
   var EXPANSION_TEMPLATES_EN = [
     function(n) {
       return 'This story reported by ' + n.source + ' has drawn significant public attention. ' +
@@ -51,7 +52,6 @@
     }
   ];
 
-  // Template di espansione IN SPAGNOLO
   var EXPANSION_TEMPLATES_ES = [
     function(n) {
       return 'Esta noticia reportada por ' + n.source + ' ha captado la atenci\u00f3n p\u00fablica. ' +
@@ -110,38 +110,28 @@
   function refreshCard(id) {
     if (activeCategory === 'leggi-dopo' && !isLater(id)) { renderAll(); return; }
     if (activeCategory === 'preferiti'  && !isFav(id))   { renderAll(); return; }
-    var cards = grid.querySelectorAll('.news-card');
-    cards.forEach(function(card) {
-      if (card._newsId === id) {
-        card.classList.toggle('card-read', isRead(id));
-      }
+    grid.querySelectorAll('.news-card').forEach(function(card) {
+      if (card._newsId === id) card.classList.toggle('card-read', isRead(id));
     });
   }
 
-  // --- Espansione body per la VISUALIZZAZIONE (con template nella lingua corretta) ---
-  // lang: 'it' | 'en' | 'es'  — determina quale template usare
+  // Espansione nella lingua originale (per visualizzazione e per traduzione)
   function expandBodyForLang(news, lang) {
     var body = (news.body || '').replace(/<[^>]+>/g, ' ').replace(/\s+/g, ' ').trim();
-    if (body.length >= 200) return body; // body originale sufficientemente lungo
+    if (body.length >= 200) return body;
     var idx = news.id % 2;
     if (lang === 'en') return EXPANSION_TEMPLATES_EN[idx](news);
     if (lang === 'es') return EXPANSION_TEMPLATES_ES[idx](news);
-    // italiano (default per la visualizzazione normale)
     return EXPANSION_TEMPLATES[idx](news);
   }
 
-  // Versione italiana per il modal (visualizzazione normale)
-  function expandBodyIT(news) {
-    return expandBodyForLang(news, 'it');
-  }
-
-  // --- Rilevamento lingua sul testo ORIGINALE ---
+  // Rilevamento lingua sul testo originale
   var IT_RE = /\b(il|la|le|gli|dei|che|con|per|una|del|della|delle|degli|nel|nella|nelle|negli|anche|dopo|prima|mentre|quando|per\u00f2|inoltre|quindi|tuttavia|secondo|governo|stato|paese|sono|questa|questo|essere|aveva|hanno|viene|venire|loro|come|dove|tutto|tutti|tutte|ogni|molto|anni|anno|parte|caso|modo|volta|sempre|ancora|pi\u00f9|gi\u00e0|solo|fare|fatto|dire|detto|nuovo|grande|primo|italiano|italiana|italiani|italiane|nazionale|ministro|parlamento|regione|comune|impresa|azienda|lavoro|economia|politica|guerra|pace|accordo|legge|decreto|riforma|elezioni|partito|coalizione|sinistra|destra|centro|euro|milioni|miliardi)\b/gi;
-  var ES_RE = /\b(el|los|las|del|de|en|con|por|para|que|una|un|es|son|ha|han|ser|estar|tiene|tienen|este|esta|estos|estas|pero|como|cuando|donde|todo|todos|todas|sobre|entre|cada|muy|bien|m\u00e1s|tambi\u00e9n|a\u00f1o|pa\u00eds|gobierno|partido|espa\u00f1a|madrid|barcelona|seg\u00fan|tras|durante|fue|sus|siendo|su|sus|al|ni|o\u00f3)\b/gi;
-  var EN_RE = /\b(the|and|for|are|but|not|you|all|can|had|her|was|one|our|out|has|him|his|how|its|may|new|now|old|see|two|way|who|said|have|that|from|they|this|will|with|been|into|more|also|when|your|time|than|then|them|some|would|could|about|which|their|there|these|those|where|while|being|after|under|since|before|between|through|during|however|because|therefore|government|minister|president|country|national|political|military|economic|according|reported|official|sources|amid|push|deal|talks|says|ceasefire|frozen|unlock|why|wrong|loathe|leaders|scorn|mistake|strongmen)\b/gi;
+  var ES_RE = /\b(el|los|las|del|de|en|con|por|para|que|una|un|es|son|ha|han|ser|estar|tiene|tienen|este|esta|estos|estas|pero|como|cuando|donde|todo|todos|todas|sobre|entre|cada|muy|bien|m\u00e1s|tambi\u00e9n|a\u00f1o|pa\u00eds|gobierno|partido|espa\u00f1a|madrid|barcelona|seg\u00fan|tras|durante|fue|sus|siendo|su|al)\b/gi;
+  var EN_RE = /\b(the|and|for|are|but|not|you|all|can|had|her|was|one|our|out|has|him|his|how|its|may|new|now|old|see|two|way|who|said|have|that|from|they|this|will|with|been|into|more|also|when|your|time|than|then|them|some|would|could|about|which|their|there|these|those|where|while|being|after|under|since|before|between|through|during|however|because|therefore|government|minister|president|country|national|political|military|economic|according|reported|official|sources|amid|push|deal|talks|says|ceasefire|frozen|unlock|why|wrong|leaders|scorn|strongmen)\b/gi;
 
-  var IT_SOURCES = ['ansa','corriere','repubblica','stampa','sole 24','wired it','sky tg','agi ','internazionale','limes','il post','valigia','pagella','facta','fanpage','open '];
-  var ES_SOURCES = ['pa\u00eds','pais','el mundo','abc ','vanguardia','expansi\u00f3n','expansion','cinco d\u00edas','lavanguardia'];
+  var IT_SOURCES = ['ansa','corriere','repubblica','stampa','sole 24','wired it','sky tg','agi','internazionale','limes','il post','valigia','pagella','facta','fanpage','open'];
+  var ES_SOURCES = ['pa\u00eds','pais','el mundo','abc','vanguardia','expansi\u00f3n','expansion','lavanguardia'];
 
   function detectLangRaw(news) {
     var raw = ((news.title || '') + ' ' + (news.body || '') + ' ' + (news.summary || '')).slice(0, 1500);
@@ -149,53 +139,37 @@
     var esC = (raw.match(ES_RE) || []).length;
     var enC = (raw.match(EN_RE) || []).length;
     var tot = itC + esC + enC;
-
     if (tot < 5) {
-      // Testo troppo corto: usa la fonte come fallback
       var src = (news.source || '').toLowerCase();
-      for (var i = 0; i < IT_SOURCES.length; i++) {
-        if (src.indexOf(IT_SOURCES[i]) !== -1) return 'it';
-      }
-      for (var j = 0; j < ES_SOURCES.length; j++) {
-        if (src.indexOf(ES_SOURCES[j]) !== -1) return 'es';
-      }
+      for (var i = 0; i < IT_SOURCES.length; i++) if (src.indexOf(IT_SOURCES[i]) !== -1) return 'it';
+      for (var j = 0; j < ES_SOURCES.length; j++) if (src.indexOf(ES_SOURCES[j]) !== -1) return 'es';
       return 'en';
     }
-
-    var itRatio = itC / tot;
-    if (itRatio >= 0.35) return 'it';
+    if (itC / tot >= 0.35) return 'it';
     if (esC > enC * 1.2 && esC > 3) return 'es';
     return 'en';
   }
 
-  // --- Traduzione MyMemory ---
+  // Traduzione MyMemory
   function translateText(text, sl) {
     var langpair = (sl || 'en') + '|it';
-    var chunks = [];
-    var rem = text;
+    var chunks = [], rem = text;
     while (rem.length > 0) {
       var cut = Math.min(480, rem.length);
-      if (rem.length > 480) {
-        var ld = rem.lastIndexOf('. ', 480);
-        if (ld > 150) cut = ld + 2;
-      }
+      if (rem.length > 480) { var ld = rem.lastIndexOf('. ', 480); if (ld > 150) cut = ld + 2; }
       chunks.push(rem.slice(0, cut).trim());
       rem = rem.slice(cut).trim();
     }
     return Promise.all(chunks.map(function(chunk) {
       if (!chunk) return Promise.resolve('');
-      var url = 'https://api.mymemory.translated.net/get?q='
-        + encodeURIComponent(chunk) + '&langpair=' + encodeURIComponent(langpair);
-      return fetch(url)
+      return fetch('https://api.mymemory.translated.net/get?q=' + encodeURIComponent(chunk) + '&langpair=' + encodeURIComponent(langpair))
         .then(function(r) { return r.json(); })
-        .then(function(d) {
-          return (d && d.responseData && d.responseData.translatedText) ? d.responseData.translatedText : chunk;
-        })
+        .then(function(d) { return (d && d.responseData && d.responseData.translatedText) ? d.responseData.translatedText : chunk; })
         .catch(function() { return chunk; });
     })).then(function(parts) { return parts.join(' '); });
   }
 
-  // --- Formattazione HTML body ---
+  // Formattazione HTML
   function formatBody(raw) {
     var html = (raw || '')
       .replace(/&amp;/g,'&').replace(/&#039;/g,"'").replace(/&quot;/g,'"')
@@ -205,18 +179,14 @@
       .replace(/<img[^>]*>/gi,'').replace(/<a[^>]*>(.*?)<\/a>/gi,'$1')
       .replace(/<[^>]+>/g,' ').replace(/\s{2,}/g,' ').trim();
     var paras;
-    if (html.indexOf('\n\n') !== -1) {
-      paras = html.split(/\n\n+/);
-    } else if (html.indexOf('\n') !== -1) {
-      paras = html.split(/\n+/);
-    } else {
-      paras = [];
-      var r = html;
+    if (html.indexOf('\n\n') !== -1) paras = html.split(/\n\n+/);
+    else if (html.indexOf('\n') !== -1) paras = html.split(/\n+/);
+    else {
+      paras = []; var r = html;
       while (r.length > 500) {
         var dot = r.indexOf('. ', 300);
         if (dot === -1 || dot > 700) dot = 500; else dot += 1;
-        paras.push(r.slice(0, dot).trim());
-        r = r.slice(dot).trim();
+        paras.push(r.slice(0, dot).trim()); r = r.slice(dot).trim();
       }
       if (r) paras.push(r);
     }
@@ -225,7 +195,7 @@
       .map(function(p){return '<p>'+p+'</p>';}).join('');
   }
 
-  // --- DOM refs ---
+  // DOM refs
   var grid              = document.getElementById('newsGrid');
   var heroSection       = document.getElementById('heroSection');
   var heroTitle         = document.getElementById('heroTitle');
@@ -253,7 +223,6 @@
   var mobileNav         = document.getElementById('mobileNav');
   var allCatBtns        = document.querySelectorAll('.cat-btn');
 
-  // --- Tema ---
   applyTheme(localStorage.getItem(THEME_KEY) || 'light');
   themeToggle.addEventListener('click', function() {
     var next = document.documentElement.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
@@ -270,16 +239,16 @@
     btn.addEventListener('click', function() {
       activeCategory = btn.dataset.cat;
       allCatBtns.forEach(function(b) { b.classList.remove('active'); });
-      document.querySelectorAll('[data-cat="' + activeCategory + '"]').forEach(function(b) {
-        b.classList.add('active');
-      });
+      document.querySelectorAll('[data-cat="' + activeCategory + '"]').forEach(function(b) { b.classList.add('active'); });
       mobileNav.classList.remove('open');
       renderAll();
       window.scrollTo({ top: 0, behavior: 'smooth' });
     });
   });
 
+  // Refresh: ricarica pagina (news.js aggiornato dal workflow)
   refreshBtn.addEventListener('click', function() { resetCountdown(); location.reload(); });
+
   function formatCountdown(sec) {
     var m = Math.floor(sec / 60);
     return m > 0 ? 'Aggiorn. tra ' + m + ' min' : 'Aggiorn. tra ' + sec + 's';
@@ -309,7 +278,6 @@
   function openModal(news) {
     currentModalNews = news;
     isTranslated = false;
-
     markRead(news.id);
 
     modalCat.textContent    = CAT_LABELS[news.cat] || news.cat;
@@ -318,11 +286,9 @@
     modalTime.textContent   = '\ud83d\udd50 ' + news.time;
     modalLink.href          = news.url;
 
-    // Rileva lingua sul testo ORIGINALE
     var lang = detectLangRaw(news);
     translateBtn._sl = lang;
 
-    // Visualizza il body espanso nella lingua originale (non tradotta)
     var displayBody = expandBodyForLang(news, lang);
     modalBody.innerHTML = formatBody(displayBody);
 
@@ -347,33 +313,24 @@
     modalFavBtn.onclick   = function(e) { e.stopPropagation(); toggleFav(news.id); };
     modalLaterBtn.onclick = function(e) { e.stopPropagation(); toggleLater(news.id); };
     updateModalButtons();
-
     modalOverlay.classList.add('open');
     document.body.style.overflow = 'hidden';
     modalClose.focus();
   }
 
-  // --- Traduzione ---
   translateBtn.addEventListener('click', function() {
     if (!currentModalNews) return;
     var news = currentModalNews;
     var sl = translateBtn._sl || 'en';
-
     if (isTranslated) {
-      // Torna all'originale (nella lingua originale)
-      var origBody = expandBodyForLang(news, sl);
-      modalBody.innerHTML = formatBody(origBody);
+      modalBody.innerHTML = formatBody(expandBodyForLang(news, sl));
       translateBtn.textContent = '\ud83c\udf10 Traduci in italiano';
       isTranslated = false;
       return;
     }
-
     translateBtn.textContent = '\u23f3 Traduzione in corso\u2026';
     translateBtn.disabled = true;
-
-    // Testo da tradurre: titolo + body espanso nella lingua originale
     var textToTranslate = news.title + '. ' + expandBodyForLang(news, sl);
-
     translateText(textToTranslate, sl).then(function(translated) {
       modalBody.innerHTML = formatBody(translated);
       translateBtn.textContent = "\u21a9 Torna all'originale";
@@ -410,14 +367,10 @@
 
   function buildCard(news) {
     var card = document.createElement('div');
-    var readCls = isRead(news.id) ? ' card-read' : '';
-    card.className = 'news-card cat-' + news.cat + readCls;
+    card.className = 'news-card cat-' + news.cat + (isRead(news.id) ? ' card-read' : '');
     card._newsId = news.id;
-    var tags = (news.tags || []).map(function(t) {
-      return '<span class="card-tag">#' + t + '</span>';
-    }).join('');
-    var readBadge = isRead(news.id)
-      ? '<span class="card-read-badge" title="Gi\u00e0 letta">\u2714</span>' : '';
+    var tags = (news.tags || []).map(function(t) { return '<span class="card-tag">#' + t + '</span>'; }).join('');
+    var readBadge = isRead(news.id) ? '<span class="card-read-badge" title="Gi\u00e0 letta">\u2714</span>' : '';
     card.innerHTML =
       '<div class="card-cat-bar"></div>' +
       '<div class="card-body">' +
@@ -446,15 +399,30 @@
 
   function renderAll() {
     var filtered = getFiltered();
+    var noHero = !!NO_HERO_CATS[activeCategory];
+
+    // Sezioni senza hero: nascondi banner e mostra tutto in grid
+    if (noHero) {
+      heroSection.style.display = 'none';
+      grid.innerHTML = '';
+      if (!filtered.length) {
+        var msgs = {
+          'preferiti':  'Nessuna notizia salvata. Apri una notizia e premi \u2605 per aggiungerla qui.',
+          'leggi-dopo': 'Nessuna notizia in coda. Apri una notizia e premi \u23f0 per aggiungerla qui.'
+        };
+        grid.innerHTML = '<div class="empty-state">' + (msgs[activeCategory] || 'Nessuna notizia disponibile.') + '</div>';
+        return;
+      }
+      filtered.forEach(function(n) { grid.appendChild(buildCard(n)); });
+      return;
+    }
+
+    // Sezioni normali: prima notizia come hero, resto in grid
     renderHero(filtered[0] || null);
     grid.innerHTML = '';
     var rest = filtered.slice(1);
     if (!rest.length) {
-      var msgs = {
-        'preferiti':  'Nessuna notizia salvata. Apri una notizia e premi \u2605 per aggiungerla qui.',
-        'leggi-dopo': 'Nessuna notizia in coda. Apri una notizia e premi \u23f0 per aggiungerla qui.'
-      };
-      grid.innerHTML = '<div class="empty-state">' + (msgs[activeCategory] || 'Nessuna notizia disponibile.') + '</div>';
+      grid.innerHTML = '<div class="empty-state">Nessuna notizia disponibile in questa categoria.</div>';
       return;
     }
     rest.forEach(function(n) { grid.appendChild(buildCard(n)); });

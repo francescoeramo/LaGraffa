@@ -1,12 +1,13 @@
 #!/usr/bin/env python3
 """
-fetch_news.py — scarica RSS, genera news.js con articoli lunghi (10-15 righe min).
+fetch_news.py — scarica RSS, genera news.js con articoli recenti e rilevanti.
+Notizie più vecchie di 48 ore vengono scartate.
 """
 
 import feedparser
 import json
 import re
-from datetime import datetime, timezone
+from datetime import datetime, timezone, timedelta
 from pathlib import Path
 
 RSS_SOURCES = [
@@ -24,7 +25,6 @@ RSS_SOURCES = [
     {"name": "Internazionale",   "url": "https://www.internazionale.it/feed/tutto",                          "cat": "geopolitica"},
     {"name": "BBC World",        "url": "https://feeds.bbci.co.uk/news/world/rss.xml",                       "cat": "geopolitica"},
     {"name": "AP",               "url": "https://apnews.com/hub/world-news?output=rss",                      "cat": "geopolitica"},
-    {"name": "AFP",              "url": "https://www.afp.com/en/agency/rss-feeds",                           "cat": "geopolitica"},
     {"name": "The Economist",    "url": "https://www.economist.com/international/rss.xml",                   "cat": "geopolitica"},
     {"name": "El Pais",          "url": "https://feeds.elpais.com/mrss-s/pages/ep/site/elpais.com/portada",  "cat": "geopolitica"},
     # Conflitti
@@ -36,7 +36,7 @@ RSS_SOURCES = [
     {"name": "Wired IT",         "url": "https://www.wired.it/feed/rss",                                     "cat": "ai"},
     {"name": "TechCrunch",       "url": "https://techcrunch.com/feed/",                                      "cat": "ai"},
     {"name": "Il Post Tech",     "url": "https://www.ilpost.it/tecnologia/feed/",                            "cat": "ai"},
-    # Economia tech
+    # Economia
     {"name": "Il Sole 24 Ore",   "url": "https://www.ilsole24ore.com/rss/economia.xml",                      "cat": "economia-tech"},
     {"name": "Bloomberg Tech",   "url": "https://feeds.bloomberg.com/technology/news.rss",                   "cat": "economia-tech"},
     {"name": "Financial Times",  "url": "https://www.ft.com/rss/home",                                       "cat": "economia-tech"},
@@ -51,15 +51,15 @@ KEYWORDS = {
     "economia-tech": ["economia","economy","market","mercato","stock","borsa","bce","fed","inflation","inflazione","rate","tasso","startup","investment","gdp","pil","trade","semiconductor","energy","crypto","bitcoin","fintech","ipo"],
 }
 
-MAX_PER_CAT = 5
-MIN_BODY_CHARS = 800  # minimo per considerare il corpo "lungo"
+MAX_PER_CAT   = 10   # max notizie per categoria
+MAX_AGE_HOURS = 48   # scarta notizie più vecchie di 48 ore
+MIN_BODY_CHARS = 800
 ROOT = Path(__file__).parent.parent
 
 
 def clean_html(text):
     text = re.sub(r"<[^>]+>", " ", text or "")
-    text = re.sub(r"\s+", " ", text).strip()
-    return text
+    return re.sub(r"\s+", " ", text).strip()
 
 
 def truncate(text, max_chars=300):
@@ -68,22 +68,28 @@ def truncate(text, max_chars=300):
     return text[:max_chars].rsplit(" ", 1)[0] + "\u2026"
 
 
-def relative_time(entry):
+def get_pub_dt(entry):
+    """Restituisce datetime UTC o None."""
+    parsed = entry.get("published_parsed") or entry.get("updated_parsed")
+    if not parsed:
+        return None
     try:
-        published = entry.get("published_parsed") or entry.get("updated_parsed")
-        if not published:
-            return "poco fa"
-        ts = datetime(*published[:6], tzinfo=timezone.utc)
-        delta = datetime.now(timezone.utc) - ts
-        minutes = int(delta.total_seconds() / 60)
-        if minutes < 2:   return "poco fa"
-        if minutes < 60:  return f"{minutes} min fa"
-        hours = minutes // 60
-        if hours < 24:    return f"{hours} {'ora' if hours == 1 else 'ore'} fa"
-        days = hours // 24
-        return f"{days} {'giorno' if days == 1 else 'giorni'} fa"
+        return datetime(*parsed[:6], tzinfo=timezone.utc)
     except Exception:
-        return "recente"
+        return None
+
+
+def relative_time(dt):
+    if dt is None:
+        return "poco fa"
+    delta = datetime.now(timezone.utc) - dt
+    minutes = int(delta.total_seconds() / 60)
+    if minutes < 2:   return "poco fa"
+    if minutes < 60:  return f"{minutes} min fa"
+    hours = minutes // 60
+    if hours < 24:    return f"{hours} {'ora' if hours == 1 else 'ore'} fa"
+    days = hours // 24
+    return f"{days} {'giorno' if days == 1 else 'giorni'} fa"
 
 
 def score_entry(entry, cat):
@@ -92,7 +98,6 @@ def score_entry(entry, cat):
 
 
 def build_body(entry):
-    """Estrae il corpo piu' lungo possibile dall'entry."""
     summary = clean_html(entry.get("summary", "") or entry.get("description", ""))
     content_list = entry.get("content", [])
     full = ""
@@ -101,14 +106,10 @@ def build_body(entry):
         if len(candidate) > len(full):
             full = candidate
     body = full if len(full) > len(summary) + 50 else summary
-    # Suddividi in paragrafi ogni ~400 caratteri alla fine di una frase
     if len(body) < MIN_BODY_CHARS:
-        # corpo troppo corto: teniamolo com'e', verra' espanso nell'HTML
         return body
     words = body.split()
-    paragraphs = []
-    current = []
-    count = 0
+    paragraphs, current, count = [], [], 0
     for w in words:
         current.append(w)
         count += len(w) + 1
@@ -122,23 +123,33 @@ def build_body(entry):
 
 def fetch_all():
     buckets = {cat: [] for cat in KEYWORDS}
+    cutoff = datetime.now(timezone.utc) - timedelta(hours=MAX_AGE_HOURS)
+
     for source in RSS_SOURCES:
         cat = source["cat"]
         print(f"  Fetching {source['name']}...")
         try:
             feed = feedparser.parse(source["url"])
-            entries = feed.entries[:20]
+            entries = feed.entries[:30]  # considera più entry per fonte
         except Exception as e:
             print(f"    ERRORE: {e}")
             continue
+
         for entry in entries:
+            # Filtra per età
+            pub_dt = get_pub_dt(entry)
+            if pub_dt and pub_dt < cutoff:
+                continue  # troppo vecchia
+
             score = score_entry(entry, cat)
             if score == 0 and cat not in ("ai", "economia-tech"):
                 continue
+
             title   = clean_html(entry.get("title", "")).strip()
             summary = clean_html(entry.get("summary", "") or entry.get("description", ""))
             if not title or len(summary) < 30:
                 continue
+
             body = build_body(entry)
             buckets[cat].append({
                 "title":   title,
@@ -146,14 +157,18 @@ def fetch_all():
                 "body":    body,
                 "source":  source["name"],
                 "url":     entry.get("link", source["url"]),
-                "time":    relative_time(entry),
+                "time":    relative_time(pub_dt),
+                "pub_dt":  pub_dt.isoformat() if pub_dt else "",
                 "score":   score,
             })
+
     result = {}
     for cat, items in buckets.items():
         seen = set()
         unique = []
-        for item in sorted(items, key=lambda x: -x["score"]):
+        # Ordina: score decrescente, poi data decrescente
+        for item in sorted(items, key=lambda x: (-x["score"], x["pub_dt"] or ""), reverse=False):
+            # reverse=False perché il sort key già nega lo score
             norm = re.sub(r"[^a-z0-9]", "", item["title"].lower())[:60]
             if norm not in seen:
                 seen.add(norm)
@@ -163,7 +178,6 @@ def fetch_all():
 
 
 def js_string(s):
-    """Serializza una stringa come JSON string JS-safe."""
     return json.dumps(s, ensure_ascii=False)
 
 
@@ -182,7 +196,6 @@ def generate_news_js(buckets):
     news_id = 1
     for cat, items in buckets.items():
         for item in items:
-            # Usa JSON string normale (no template literal) per evitare problemi di escape
             lines.append("  {")
             lines.append(f"    id: {news_id},")
             lines.append(f"    cat: {js_string(cat)},")

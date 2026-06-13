@@ -33,10 +33,8 @@
 html { font-size: 16px; scroll-behavior: smooth; }
 body {
   font-family: var(--font-body);
-  background: var(--bg);
-  color: var(--text);
-  line-height: 1.6;
-  transition: background .3s, color .3s;
+  background: var(--bg); color: var(--text);
+  line-height: 1.6; transition: background .3s, color .3s;
 }
 
 /* HEADER */
@@ -52,21 +50,14 @@ body {
   display: flex; align-items: center; gap: 16px;
 }
 .logo {
-  font-family: var(--font-head);
-  font-size: 1.5rem; font-weight: 700;
-  color: var(--accent);
-  letter-spacing: -.5px;
-  white-space: nowrap; flex-shrink: 0;
+  font-family: var(--font-head); font-size: 1.5rem; font-weight: 700;
+  color: var(--accent); letter-spacing: -.5px; white-space: nowrap; flex-shrink: 0;
 }
 .nav-cats { display: flex; gap: 6px; flex-wrap: wrap; flex: 1; }
 .cat-btn {
-  background: none;
-  border: 1.5px solid var(--border);
-  border-radius: 20px;
-  padding: 5px 13px;
-  font-size: .78rem; font-weight: 600;
-  cursor: pointer; color: var(--text-muted);
-  font-family: var(--font-body);
+  background: none; border: 1.5px solid var(--border); border-radius: 20px;
+  padding: 5px 13px; font-size: .78rem; font-weight: 600;
+  cursor: pointer; color: var(--text-muted); font-family: var(--font-body);
   transition: all .2s; white-space: nowrap;
 }
 .cat-btn:hover, .cat-btn.active {
@@ -75,12 +66,9 @@ body {
 .header-right { display: flex; align-items: center; gap: 8px; flex-shrink: 0; }
 .refresh-timer { font-size: .72rem; color: var(--text-muted); white-space: nowrap; }
 .refresh-btn, .theme-toggle, .menu-toggle {
-  background: none;
-  border: 1.5px solid var(--border); border-radius: 50%;
-  width: 32px; height: 32px;
-  cursor: pointer; font-size: .95rem; color: var(--text-muted);
-  transition: all .2s;
-  display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+  background: none; border: 1.5px solid var(--border); border-radius: 50%;
+  width: 32px; height: 32px; cursor: pointer; font-size: .95rem; color: var(--text-muted);
+  transition: all .2s; display: flex; align-items: center; justify-content: center; flex-shrink: 0;
 }
 .refresh-btn:hover { border-color: var(--accent); color: var(--accent); transform: rotate(180deg); }
 .theme-toggle:hover, .menu-toggle:hover { border-color: var(--accent); color: var(--accent); }
@@ -113,30 +101,39 @@ body {
 .hero-section.cat-bg-conflitti         { background: var(--cat-conflitti); }
 .hero-section.cat-bg-ai                { background: var(--cat-ai); }
 .hero-section.cat-bg-economia-tech     { background: var(--cat-economia); }
+
+/* Badge "Già letta" sull'hero — testo ASCII semplice, nessun unicode problematico */
 .hero-section.hero-read::after {
-  content: '\2714 Gi\00e0 letta';
+  content: 'Gia\0027 letta';
   position: absolute; top: 14px; right: 18px;
   background: rgba(255,255,255,.22); color: #fff;
   font-size: .72rem; font-weight: 700;
   padding: 3px 10px; border-radius: 12px;
   letter-spacing: .5px; backdrop-filter: blur(4px);
+  display: flex; align-items: center; gap: 4px;
 }
+/* Piccolo cerchio blu con spunta prima del testo */
+.hero-section.hero-read::before {
+  /* sovrascrive il gradiente: usiamo un pseudo separato via outline su ::after */
+  content: ''; position: absolute; inset: 0;
+  background: linear-gradient(135deg, rgba(0,0,0,.2) 0%, transparent 60%);
+  pointer-events: none;
+}
+
 .hero-inner {
   max-width: 1280px; margin: 0 auto;
   padding: 48px 24px 52px;
   position: relative; z-index: 1;
 }
 .hero-label {
-  font-size: .72rem; font-weight: 700;
-  letter-spacing: 2.5px; text-transform: uppercase;
-  color: rgba(255,255,255,.8); margin-bottom: 14px;
+  font-size: .72rem; font-weight: 700; letter-spacing: 2.5px;
+  text-transform: uppercase; color: rgba(255,255,255,.8); margin-bottom: 14px;
 }
 .hero-title {
   font-family: var(--font-head);
   font-size: clamp(1.5rem, 3.5vw, 2.6rem);
-  line-height: 1.2; margin-bottom: 16px;
-  max-width: 760px; color: #fff;
-  text-shadow: 0 1px 4px rgba(0,0,0,.2);
+  line-height: 1.2; margin-bottom: 16px; max-width: 760px;
+  color: #fff; text-shadow: 0 1px 4px rgba(0,0,0,.2);
 }
 .hero-summary {
   font-size: 1rem; color: rgba(255,255,255,.88);
@@ -163,6 +160,22 @@ body {
 }
 .hero-read-btn:hover { background: rgba(255,255,255,.35); transform: translateY(-1px); }
 
+/* Indicatore "già letta" sull'hero come elemento HTML (più affidabile del CSS content) */
+.hero-read-indicator {
+  position: absolute; top: 14px; right: 18px; z-index: 2;
+  background: rgba(255,255,255,.22); color: #fff;
+  font-size: .72rem; font-weight: 700;
+  padding: 3px 10px; border-radius: 12px;
+  letter-spacing: .5px; backdrop-filter: blur(4px);
+  display: flex; align-items: center; gap: 5px;
+}
+.hero-read-indicator .check-circle {
+  width: 14px; height: 14px;
+  background: var(--read-color); border-radius: 50%;
+  display: inline-flex; align-items: center; justify-content: center;
+  font-size: .6rem; color: #fff; flex-shrink: 0;
+}
+
 /* GRID */
 .news-grid-section { max-width: 1280px; margin: 0 auto; padding: 32px 24px 60px; }
 .news-grid {
@@ -177,8 +190,7 @@ body {
 
 /* CARD */
 .news-card {
-  background: var(--surface);
-  border-radius: var(--radius); box-shadow: var(--shadow);
+  background: var(--surface); border-radius: var(--radius); box-shadow: var(--shadow);
   overflow: hidden; display: flex; flex-direction: column;
   cursor: pointer; border: 1px solid var(--border);
   transition: transform .2s, box-shadow .2s, opacity .2s;
@@ -201,8 +213,8 @@ body {
   align-items: center; margin-bottom: 8px; gap: 6px;
 }
 .card-cat-badge {
-  font-size: .67rem; font-weight: 700;
-  letter-spacing: .5px; text-transform: uppercase; color: var(--accent);
+  font-size: .67rem; font-weight: 700; letter-spacing: .5px;
+  text-transform: uppercase; color: var(--accent);
 }
 .cat-politica-italiana .card-cat-badge { color: var(--cat-politica); }
 .cat-geopolitica .card-cat-badge       { color: var(--cat-geopolitica); }
@@ -210,7 +222,6 @@ body {
 .cat-ai .card-cat-badge                { color: var(--cat-ai); }
 .cat-economia-tech .card-cat-badge     { color: var(--cat-economia); }
 
-/* Spunta blu letto */
 .card-read-badge {
   display: inline-flex; align-items: center; justify-content: center;
   width: 18px; height: 18px;
@@ -220,8 +231,7 @@ body {
 }
 .card-title {
   font-family: var(--font-head); font-size: 1rem;
-  font-weight: 700; line-height: 1.35; margin-bottom: 8px;
-  transition: color .2s;
+  font-weight: 700; line-height: 1.35; margin-bottom: 8px; transition: color .2s;
 }
 .card-summary {
   font-size: .82rem; color: var(--text-muted); line-height: 1.55;
@@ -234,9 +244,8 @@ body {
   border-radius: 10px; padding: 2px 8px; color: var(--text-muted);
 }
 .card-footer {
-  padding: 8px 16px 14px; display: flex;
-  justify-content: space-between; font-size: .72rem;
-  color: var(--text-muted); border-top: 1px solid var(--border);
+  padding: 8px 16px 14px; display: flex; justify-content: space-between;
+  font-size: .72rem; color: var(--text-muted); border-top: 1px solid var(--border);
 }
 .card-source { font-weight: 600; }
 
@@ -260,55 +269,36 @@ body {
 .modal-header-actions { display: flex; align-items: center; gap: 8px; flex-shrink: 0; }
 .modal-close {
   background: none; border: 1.5px solid var(--border); border-radius: 50%;
-  width: 34px; height: 34px; cursor: pointer; font-size: .9rem;
-  color: var(--text-muted); transition: all .2s;
-  display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+  width: 34px; height: 34px; cursor: pointer; font-size: .9rem; color: var(--text-muted);
+  transition: all .2s; display: flex; align-items: center; justify-content: center; flex-shrink: 0;
 }
 .modal-close:hover { border-color: var(--accent); color: var(--accent); }
-
-/* Pulsante Traduci */
 .translate-btn {
-  background: var(--surface2); border: 1.5px solid var(--border);
-  border-radius: 8px; padding: 6px 12px;
-  font-size: .78rem; font-weight: 600;
+  background: var(--surface2); border: 1.5px solid var(--border); border-radius: 8px;
+  padding: 6px 12px; font-size: .78rem; font-weight: 600;
   cursor: pointer; color: var(--text); font-family: var(--font-body);
   transition: all .2s; white-space: nowrap;
 }
 .translate-btn:hover { border-color: var(--accent2); color: var(--accent2); }
 .translate-btn:disabled { opacity: .6; cursor: wait; }
-
-/* Pulsante orologio Leggi dopo */
 .later-btn {
   background: none; border: 1.5px solid var(--border); border-radius: 50%;
-  width: 34px; height: 34px;
-  cursor: pointer; font-size: 1rem; line-height: 1;
+  width: 34px; height: 34px; cursor: pointer; font-size: 1rem; line-height: 1;
   color: var(--text-muted);
   display: flex; align-items: center; justify-content: center;
-  transition: all .2s; flex-shrink: 0;
-  padding: 0;
+  transition: all .2s; flex-shrink: 0; padding: 0;
 }
 .later-btn:hover { border-color: var(--later-color); color: var(--later-color); transform: scale(1.1); }
-.later-btn.later-on {
-  background: var(--later-color); border-color: var(--later-color);
-  color: #fff;
-}
-
-/* Pulsante stella Preferiti */
+.later-btn.later-on { background: var(--later-color); border-color: var(--later-color); color: #fff; }
 .fav-btn {
   background: none; border: 1.5px solid var(--border); border-radius: 50%;
-  width: 34px; height: 34px;
-  cursor: pointer; font-size: 1rem; line-height: 1;
+  width: 34px; height: 34px; cursor: pointer; font-size: 1rem; line-height: 1;
   color: var(--text-muted);
   display: flex; align-items: center; justify-content: center;
-  transition: all .2s; flex-shrink: 0;
-  padding: 0;
+  transition: all .2s; flex-shrink: 0; padding: 0;
 }
 .fav-btn:hover { border-color: var(--fav-color); color: var(--fav-color); transform: scale(1.1); }
-.fav-btn.fav-on {
-  background: var(--fav-color); border-color: var(--fav-color);
-  color: #fff;
-}
-
+.fav-btn.fav-on { background: var(--fav-color); border-color: var(--fav-color); color: #fff; }
 .modal-cat {
   font-size: .7rem; font-weight: 700; text-transform: uppercase;
   letter-spacing: 1px; color: var(--accent); margin-bottom: 10px;
@@ -342,7 +332,7 @@ body {
 }
 .modal-link:hover { opacity: .75; }
 
-/* RESPONSIVE MOBILE */
+/* RESPONSIVE */
 @media (max-width: 768px) {
   .nav-cats { display: none; }
   .menu-toggle { display: flex; }
