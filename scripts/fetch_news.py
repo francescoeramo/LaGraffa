@@ -5,8 +5,10 @@ e aggiorna index.html con cache-bust timestamp.
 """
 
 import feedparser
+import html
 import json
 import re
+import unicodedata
 from datetime import datetime, timezone, timedelta
 from pathlib import Path
 
@@ -43,12 +45,21 @@ RSS_SOURCES = [
 ITALIAN_SOURCES = {"ANSA", "Corriere", "Il Post", "Sky TG24", "AGI", "Pagella Politica", "Facta", "Valigia Blu", "Limes", "Internazionale", "Wired IT", "Il Post Tech", "Il Sole 24 Ore"}
 
 KEYWORDS = {
-    "politica-italiana": ["italia","governo","meloni","parlamento","senato","camera","ministro","pd","fdi","lega","forza italia","m5s","decreto","riforma","quirinale","premier","elezioni","regione","comune","sindaco"],
-    "geopolitica": ["nato","geopolitics","geopolitica","summit","diplomacy","diplomazia","us","usa","china","cina","russia","europe","europa","trump","xi","un ","onu","g7","g20","sanctions","treaty","election","president","presidente"],
-    "conflitti": ["war","guerra","conflict","conflitto","ukraine","ucraina","russia","gaza","israel","israele","hamas","attack","attacco","missile","troops","ceasefire","military","militare","nato","bombing","refugee","iran","syria"],
-    "ai": ["artificial intelligence","intelligenza artificiale","ai","machine learning","openai","chatgpt","gpt","gemini","claude","anthropic","deepmind","llm","neural","model","robot","automation","chip","nvidia","tech","technology","software","algorithm"],
-    "economia-tech": ["economia","economy","market","mercato","stock","borsa","bce","fed","inflation","inflazione","rate","tasso","startup","investment","gdp","pil","trade","semiconductor","energy","crypto","bitcoin","fintech","ipo"],
+    "politica-italiana": ["governo", "parlamento", "senato", "camera", "ministro", "ministero", "meloni", "quirinale", "presidente della repubblica", "elezioni", "referendum", "decreto", "riforma", "legge", "bilancio", "partito", "coalizione", "regione", "comune", "sindaco", "politica italiana"],
+    "geopolitica": ["geopolitica", "diplomazia", "diplomacy", "nato", "onu", "united nations", "unione europea", "european union", "g7", "g20", "sanzioni", "sanctions", "trattato", "treaty", "summit", "elezioni", "election", "presidente", "president", "governo", "government", "cina", "china", "russia", "usa", "iran"],
+    "conflitti": ["guerra", "war", "conflitto", "conflict", "ucraina", "ukraine", "gaza", "israele", "israel", "hamas", "iran", "siria", "syria", "attacco", "attack", "missile", "truppe", "troops", "cessate il fuoco", "ceasefire", "militare", "military", "bombardamento", "bombing", "rifugiati", "refugees"],
+    "ai": ["intelligenza artificiale", "artificial intelligence", "machine learning", "generative ai", "openai", "chatgpt", "gpt", "gemini", "claude", "anthropic", "deepmind", "deepseek", "llm", "modello linguistico", "language model", "robotica", "robotics", "semiconduttori", "semiconductors", "chip", "nvidia", "cybersecurity", "sicurezza informatica", "privacy", "antitrust", "algoritmo", "algorithm", "data center", "startup", "ricerca", "research"],
+    "economia-tech": ["economia", "economy", "mercato", "markets", "borsa", "stock market", "bce", "ecb", "fed", "inflazione", "inflation", "tassi", "interest rates", "startup", "investimenti", "investment", "pil", "gdp", "commercio", "trade", "semiconduttori", "semiconductors", "energia", "energy", "fintech", "ipo", "occupazione", "employment"],
 }
+
+# Contenuti promozionali, gossip e consumer news non coerenti con la linea editoriale.
+LOW_VALUE_PATTERNS = [
+    r"\b(sconto|sconti|offerta|offerte|coupon|codice sconto|in saldo|prezzo più basso)\b",
+    r"\b(discount|discounts|coupon|price drop|percent off|where to buy|buy now)\b",
+    r"\b(gossip|vip|celebrity|red carpet|oroscopo|royal family|reality show)\b",
+    r"\b(bundle|accessori per smartphone|phone accessories|fight stick|gaming controller)\b",
+    r"\b(recensione|review)\b.{0,80}\b(cuffie|earbuds|smartwatch|smart ring|console|smartphone)\b",
+]
 
 # Frasi boilerplate da rimuovere dal corpo degli articoli
 BOILERPLATE_PATTERNS = [
@@ -84,7 +95,19 @@ ROOT = Path(__file__).parent.parent
 
 
 def clean_html(text):
-    text = re.sub(r"<[^>]+>", " ", text or "")
+    text = str(text or "")
+    # Alcuni feed annidano le entità (es. &amp;#039;): due passaggi le risolvono.
+    text = html.unescape(html.unescape(text))
+    text = re.sub(r"<[^>]+>", " ", text)
+    text = unicodedata.normalize("NFC", text)
+    # Ripara il mojibake UTF-8 interpretato come latin-1, senza alterare testo valido.
+    if any(marker in text for marker in ("Ã", "Â", "â€", "â€™", "â€œ", "â€")):
+        try:
+            repaired = text.encode("latin-1").decode("utf-8")
+            if sum(text.count(m) for m in ("Ã", "Â", "â")) > sum(repaired.count(m) for m in ("Ã", "Â", "â")):
+                text = repaired
+        except (UnicodeEncodeError, UnicodeDecodeError):
+            pass
     return re.sub(r"\s+", " ", text).strip()
 
 def remove_boilerplate(text):
@@ -121,8 +144,12 @@ def relative_time(dt):
     return f"{days} {'giorno' if days == 1 else 'giorni'} fa"
 
 def score_entry(entry, cat):
-    text = (entry.get("title", "") + " " + clean_html(entry.get("summary", ""))).lower()
-    return sum(1 for kw in KEYWORDS.get(cat, []) if kw in text)
+    text = (clean_html(entry.get("title", "")) + " " + clean_html(entry.get("summary", ""))).lower()
+    return sum(1 for kw in KEYWORDS.get(cat, []) if re.search(rf"(?<!\w){re.escape(kw)}(?!\w)", text))
+
+def is_low_value(title, summary):
+    text = f"{title} {summary}".lower()
+    return any(re.search(pattern, text, re.IGNORECASE) for pattern in LOW_VALUE_PATTERNS)
 
 def build_body(entry):
     """Estrae il corpo completo dell'articolo, pulisce boilerplate, struttura in paragrafi."""
@@ -180,13 +207,13 @@ def fetch_all():
             if pub_dt and pub_dt < cutoff:
                 continue
 
-            score = score_entry(entry, cat)
-            if score == 0 and cat not in ("ai", "economia-tech"):
+            title   = clean_html(entry.get("title", "")).strip()
+            summary = remove_boilerplate(clean_html(entry.get("summary", "") or entry.get("description", "")))
+            if not title or len(summary) < 20:
                 continue
 
-            title   = clean_html(entry.get("title", "")).strip()
-            summary = clean_html(entry.get("summary", "") or entry.get("description", ""))
-            if not title or len(summary) < 20:
+            score = score_entry(entry, cat)
+            if score == 0 or is_low_value(title, summary):
                 continue
 
             pub_ts = int(pub_dt.timestamp()) if pub_dt else 0

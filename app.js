@@ -16,17 +16,20 @@
   var FAV_KEY = 'lagraffaFavorites', LATER_KEY = 'lagraffaReadLater', READ_KEY = 'lagraffaRead', THEME_KEY = 'lagraffaTheme';
   var REFRESH_MS = 60 * 60 * 1000;
   var activeCategory = 'all', currentModalNews = null, aiContent = null, showingAi = false;
-  var SORTED_NEWS = (typeof NEWS === 'undefined' ? [] : NEWS).slice().sort(function (a, b) { return (b.pub_ts || 0) - (a.pub_ts || 0); });
+  var LOW_VALUE_NEWS_RE = /\b(sconto|sconti|offerta|offerte|coupon|in saldo|discount|discounts|price drop|percent off|where to buy|buy now|gossip|vip|celebrity|red carpet|oroscopo|reality show|phone accessories|fight stick|gaming controller)\b/i;
+  function isLowValueNews(news) { return LOW_VALUE_NEWS_RE.test((news.title || '') + ' ' + (news.summary || '')); }
+  var SORTED_NEWS = (typeof NEWS === 'undefined' ? [] : NEWS).filter(function (news) { return !isLowValueNews(news); }).sort(function (a, b) { return (b.pub_ts || 0) - (a.pub_ts || 0); });
   var favs = readSet(FAV_KEY), later = readSet(LATER_KEY), read = readSet(READ_KEY);
 
   function readSet(key) { try { return new Set(JSON.parse(localStorage.getItem(key) || '[]')); } catch (_) { return new Set(); } }
   function saveSet(key, value) { localStorage.setItem(key, JSON.stringify(Array.from(value))); }
-  function escapeHTML(value) { var d = document.createElement('div'); d.textContent = String(value || ''); return d.innerHTML; }
+  function decodeEntities(value) { var area = document.createElement('textarea'), text = String(value || ''); area.innerHTML = text; text = area.value; area.innerHTML = text; return area.value; }
+  function escapeHTML(value) { var d = document.createElement('div'); d.textContent = decodeEntities(value); return d.innerHTML; }
   function isFav(id) { return favs.has(id); } function isLater(id) { return later.has(id); } function isRead(id) { return read.has(id); }
   function toggleFav(id) { isFav(id) ? favs.delete(id) : favs.add(id); saveSet(FAV_KEY, favs); updateModalButtons(); renderAll(); }
   function toggleLater(id) { isLater(id) ? later.delete(id) : later.add(id); saveSet(LATER_KEY, later); updateModalButtons(); renderAll(); }
   function markRead(id) { if (!isRead(id)) { read.add(id); saveSet(READ_KEY, read); } }
-  function cleanText(text) { return String(text || '').replace(/<[^>]+>/g, ' ').replace(/\s+/g, ' ').trim(); }
+  function cleanText(text) { return decodeEntities(text).replace(/<[^>]+>/g, ' ').replace(/\s+/g, ' ').trim(); }
   function detectLang(news) {
     var text = (news.title + ' ' + news.summary).toLowerCase();
     if (/\b(il|la|di|che|con|per|notizie|italia|secondo|una|sono)\b/.test(text)) return 'it';
@@ -50,7 +53,7 @@
   setInterval(function () { var seconds = Math.max(0, Math.round((nextRefreshAt - Date.now()) / 1000)); refreshTimer.textContent = seconds > 60 ? 'Aggiorn. tra ' + Math.ceil(seconds / 60) + ' min' : 'Aggiornamento imminente'; if (!seconds) location.replace(location.pathname + '?t=' + Date.now()); }, 1000);
 
   function updateModalButtons() { if (!currentModalNews) return; modalFavBtn.classList.toggle('fav-on', isFav(currentModalNews.id)); modalLaterBtn.classList.toggle('later-on', isLater(currentModalNews.id)); }
-  function setModalContent(news, content) { modalTitle.textContent = content && content.title || news.title; modalBody.innerHTML = formatBody(content && content.summary || news.body || news.summary); }
+  function setModalContent(news, content) { modalTitle.textContent = decodeEntities(content && content.title || news.title); modalBody.innerHTML = formatBody(content && content.summary || news.body || news.summary); }
   function openModal(news) {
     currentModalNews = news; aiContent = null; showingAi = false; markRead(news.id); modalCat.textContent = CAT_LABELS[news.cat] || news.cat; modalSource.textContent = '📰 ' + news.source; modalTime.textContent = '🕐 ' + news.time; modalLink.href = news.url; setModalContent(news);
     var cached; try { cached = JSON.parse(localStorage.getItem(cacheKey(news)) || 'null'); } catch (_) { cached = null; }
@@ -72,7 +75,7 @@
   function closeModal() { modalOverlay.classList.remove('open'); document.body.style.overflow = ''; currentModalNews = null; renderAll(); }
   modalClose.addEventListener('click', closeModal); modalOverlay.addEventListener('click', function (event) { if (event.target === modalOverlay) closeModal(); }); document.addEventListener('keydown', function (event) { if (event.key === 'Escape') closeModal(); });
 
-  function renderHero(news) { if (!news) { heroSection.style.display = 'none'; return; } heroSection.style.display = ''; heroSection.className = 'hero-section cat-bg-' + news.cat; heroTitle.textContent = news.title; heroSummary.textContent = news.summary; heroCat.textContent = CAT_LABELS[news.cat] || news.cat; heroTime.textContent = news.time; heroSource.textContent = news.source; heroReadBtn.onclick = function () { openModal(news); }; heroReadIndicator.style.display = isRead(news.id) ? 'flex' : 'none'; }
+  function renderHero(news) { if (!news) { heroSection.style.display = 'none'; return; } heroSection.style.display = ''; heroSection.className = 'hero-section cat-bg-' + news.cat; heroTitle.textContent = decodeEntities(news.title); heroSummary.textContent = decodeEntities(news.summary); heroCat.textContent = CAT_LABELS[news.cat] || news.cat; heroTime.textContent = news.time; heroSource.textContent = news.source; heroReadBtn.onclick = function () { openModal(news); }; heroReadIndicator.style.display = isRead(news.id) ? 'flex' : 'none'; }
   function buildCard(news) {
     var card = document.createElement('article'), wasRead = isRead(news.id); card.className = 'news-card cat-' + news.cat + (wasRead ? ' card-read' : ''); card.tabIndex = 0;
     card.innerHTML = '<div class="card-cat-bar"></div><div class="card-body"><div class="card-topline"><span class="card-cat-badge">' + escapeHTML(CAT_LABELS[news.cat] || news.cat) + '</span><span class="card-read-badge" style="display:' + (wasRead ? 'inline-flex' : 'none') + '">✔</span></div><h3 class="card-title">' + escapeHTML(news.title) + '</h3><p class="card-summary">' + escapeHTML(news.summary) + '</p></div><div class="card-footer"><span class="card-source">' + escapeHTML(news.source) + '</span><span class="card-footer-right"><span class="card-time">' + escapeHTML(news.time) + '</span><button class="card-later-btn' + (isLater(news.id) ? ' later-on' : '') + '" aria-label="Aggiungi a Leggi dopo">⏰</button></span></div>';
