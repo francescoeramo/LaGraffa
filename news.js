@@ -1,6 +1,6 @@
-// Generato automaticamente il 2026-08-02 12:12 UTC da scripts/fetch_news.py
+// Generato automaticamente il 2026-08-02 12:14 UTC da scripts/fetch_news.py
 // NON modificare manualmente: viene sovrascritto ogni ora dalla GitHub Action.
-var NEWS_TIMESTAMP = 1785672735;
+var NEWS_TIMESTAMP = 1785672846;
 const FEED_META = {"successful_sources": 19, "failed_sources": [], "total_sources": 19, "total_articles": 34};
 
 const RSS_SOURCES = [
@@ -110,7 +110,7 @@ const NEWS = [
     body: "Corteo nel capoluogo emiliano, sfilano anche i parenti di Fakir insieme al sindaco Lepore e ai migliaia di persone",
     source: "ANSA",
     url: "https://www.ansa.it/sito/notizie/cronaca/2026/08/02/bologna-ricorda-la-strage-mattarella-strategia-neofascista.-meloni-fu-terrorismo-feroce_d040c4ef-2d4e-429b-beee-e39cc1efe837.html",
-    time: "57 min fa",
+    time: "59 min fa",
     pub_ts: 1785669283,
     published_at: "2026-08-02T11:14:43+00:00",
     language: "it",
@@ -245,18 +245,6 @@ const NEWS = [
   {
     id: "a0d1cd353bfca5052b77",
     cat: "geopolitica",
-    title: "Trump dice que suspende los ataques contra Irán a la espera de un acuerdo rápido",
-    summary: "El presidente de EE UU asegura haber tomado la decisión a petición de Teherán y de otros países de Oriente Próximo",
-    body: "Nuevo bandazo en la guerra de Irán. Tras unos días en los que Washington había vuelto a golpear con fuerza a la República Islámica, el presidente de Estados Unidos, Donald Trump, ha anunciado que congela los ataques para tratar de buscar un acuerdo. En esta ocasión, asegura que lo hace a petición de Teherán y de otros países de la región que no especifica. Y que cuenta con el beneplácito de Israel.\n\nSeguir leyendo",
-    source: "El Pais",
-    url: "https://elpais.com/internacional/2026-08-02/donald-trump-dice-que-suspende-los-ataques-contra-iran-a-la-espera-de-un-acuerdo-rapido.html",
-    time: "2 ore fa",
-    pub_ts: 1785662090,
-    tags: [],
-  },
-  {
-    id: 6,
-    cat: "geopolitica",
     title: "La crisis de Ceuta alinea a la derecha europea contra Sánchez",
     summary: "El presidente español, cada vez más solo en Europa, acusa a sus socios de falta de solidaridad, mientras PP y Vox avivan la batalla por la inmigración",
     body: "Un nuevo fantasma recorre Europa y esta vez se llama inmigración. Sobre él cabalga la rampante derechización del continente. Y ante él, Pedro Sánchez, el único socialdemócrata al mando de uno de los grandes países de los 27, se ve cada vez más solo, como ha evidenciado la crisis de Ceuta con sus imágenes de una oleada humana que han impresionado a todo el planeta . Pero, muy en su estilo, el presidente español no rehúye la batalla.\n\nComo prueba, la carta que envió este sábado a Bruselas denunciando el “egoísmo” de algunos de sus socios europeos. Seguir leyendo",
@@ -325,20 +313,6 @@ const NEWS = [
     score: 1,
   },
   {
-    id: "8d533596d762c94bb4bd",
-    cat: "conflitti",
-    title: "Israel’s influence industry in the US",
-    summary: "Abdul El-Sayed's hardline campaign exposes a party, a media ecosystem and a debate over Israel in the US.",
-    body: "Abdul El-Sayed's hardline campaign exposes a party, a media ecosystem and a debate over Israel in the US.",
-    source: "Al Jazeera",
-    url: "https://www.aljazeera.com/video/the-listening-post/2026/8/2/israels-influence-industry-in-the-us?traffic_source=rss",
-    time: "10 min fa",
-    pub_ts: 1785672124,
-    published_at: "2026-08-02T12:02:04+00:00",
-    language: "en",
-    score: 1,
-  },
-  {
     id: "58bc250dbe0aea4e1874",
     cat: "conflitti",
     title: "Trump: 'Ritiro l'attacco su richiesta di Teheran' ma l'Iran replica: 'Hormuz resta chiuso'",
@@ -346,7 +320,7 @@ const NEWS = [
     body: "Il presidente Usa: 'Ora rapido accordo su Hormuz e stop minaccia nucleare'",
     source: "ANSA",
     url: "https://www.ansa.it/sito/notizie/mondo/2026/08/02/trump-ritiro-lattacco-sulliran-su-richiesta-di-teheran-e-altri-paesi_9627b960-bbbb-43e9-891a-e77a10e8b09e.html",
-    time: "52 min fa",
+    time: "54 min fa",
     pub_ts: 1785669602,
     published_at: "2026-08-02T11:20:02+00:00",
     language: "it",
@@ -407,6 +381,20 @@ const NEWS = [
     published_at: "2026-08-02T09:05:11+00:00",
     language: "it",
     score: 1,
+  },
+  {
+    id: "4186d58d9d1db4436ae7",
+    cat: "conflitti",
+    title: "Gaza students overcome Israel’s genocide to mark Tawjihi results",
+    summary: "Students in Gaza overcome distressing conditions amid Israel's genocide to finish their Tawjihi high school exams.",
+    body: "Students in Gaza overcome distressing conditions amid Israel's genocide to finish their Tawjihi high school exams.",
+    source: "Al Jazeera",
+    url: "https://www.aljazeera.com/features/2026/8/2/gaza-students-overcome-israels-genocide-to-celebrate-tawjihi-results?traffic_source=rss",
+    time: "6 ore fa",
+    pub_ts: 1785648424,
+    published_at: "2026-08-02T05:27:04+00:00",
+    language: "en",
+    score: 2,
   },
   {
     id: "b8db47da6ab81aa76170",
