@@ -1,32 +1,52 @@
 # LaGraffa
 
-LaGraffa è una rassegna di notizie con priorità alle fonti italiane affidabili e il necessario contesto internazionale. I feed RSS vengono aggiornati ogni ora da GitHub Actions; Vercel serve il sito e una sola API server-side per le sintesi AI. Non usa Cloudflare Workers.
+LaGraffa è una rassegna di notizie italiane e internazionali aggiornata ogni ora. Aggrega feed RSS pubblici, mostra estratti attribuiti alle testate e rimanda sempre all’articolo originale. Vercel serve il sito statico e l’API server-side per le sintesi AI.
 
-## Sezioni
+## Funzioni
 
-- **Italia** — ANSA, Corriere, Il Post, Sky TG24, AGI, Pagella Politica, Facta e Valigia Blu.
-- **Mondo e conflitti** — Limes e Internazionale in primo piano, integrate con BBC, AP, Reuters, Al Jazeera ed El País.
-- **Tecnologia** — Wired Italia e Il Post Tech, con fonti internazionali di supporto.
-- **Economia** — Il Sole 24 Ore, con Bloomberg, Financial Times ed Economist per il contesto globale.
+- sezioni Italia, Mondo, Conflitti, Tecnologia ed Economia;
+- ricerca testuale, filtro per fonte e ordinamento per data o rilevanza;
+- preferiti, articoli letti e coda “Leggi dopo” salvati solo nel browser;
+- indicatore dell’ultimo aggiornamento e avviso quando i dati diventano obsoleti;
+- link diretti e condivisibili alle singole notizie;
+- sintesi o traduzione AI su richiesta, con rimando esplicito alla fonte.
 
-Il selettore RSS conserva prima la freschezza della notizia e, a parità, favorisce rilevanza e fonti italiane. Per ogni articolo la funzione “Approfondisci con AI” genera una sintesi italiana neutrale di 180–260 parole, oppure traduce e contestualizza le fonti estere. Il modello deve attenersi al testo disponibile e attribuire le informazioni alla fonte.
+## Criteri editoriali
 
-## Deploy su Vercel
+La selezione conserva prima la freschezza e poi considera pertinenza e priorità delle fonti italiane. Ogni testata ha un limite per categoria. URL canonici, similarità del testo e filtri tematici riducono duplicati, offerte commerciali, gossip e contenuti fuori linea.
 
-1. Importa il repository in [Vercel](https://vercel.com/new). Non serve un framework né un build command: il progetto è statico e `api/ai.js` diventa automaticamente una Serverless Function.
-2. Crea gratuitamente una chiave nella [Groq Console](https://console.groq.com/keys).
-3. In Vercel vai in **Project settings → Environment Variables**, crea `GROQ_API_KEY` e incolla la chiave. Applicala a Production, Preview e Development se necessario, poi effettua un redeploy.
-4. Per lo sviluppo locale copia `.env.example` in `.env` e inserisci la chiave. `.env` è ignorato da Git: non inserirlo mai nei commit.
+I feed generalisti vengono classificati dal contenuto; quelli verticali conservano la propria sezione. Gli ID derivano dall’URL o dal GUID del feed, quindi preferiti e letture restano associati alla stessa notizia dopo gli aggiornamenti.
 
-La funzione usa `llama-3.3-70b-versatile` tramite Groq, disponibile con piano gratuito soggetto ai limiti del provider. La chiave rimane solo lato server e non viene esposta nel JavaScript del browser.
+Le fonti configurate si trovano in `scripts/fetch_news.py`. Gli URL non più pubblicati o non accessibili in modo affidabile non vengono mantenuti solo per aumentarne il numero.
 
 ## Aggiornamento feed
 
-Il workflow `.github/workflows/fetch_news.yml` esegue `scripts/fetch_news.py` ogni ora e pubblica `news.js`. Vercel ridistribuisce automaticamente quando riceve il push. Il pulsante di aggiornamento nel sito ricarica l’ultima versione già pubblicata: non forza una chiamata remota né avvia workflow dall’utente.
+Il workflow `.github/workflows/fetch_news.yml` esegue `scripts/fetch_news.py` ogni ora. Ogni richiesta usa timeout, user-agent identificabile e controllo dello stato HTTP. Il file esistente non viene sovrascritto se la raccolta produce meno della soglia minima di articoli.
 
-## Sicurezza
+`news.js` include data di generazione, numero di fonti raggiunte e nomi delle fonti fallite. L’interfaccia mostra questi dati e segnala ritardi superiori alle soglie previste. Il pulsante di aggiornamento ricarica soltanto l’ultima versione pubblicata: non avvia un workflow remoto.
 
-- Chiavi e file locali esclusi con `.gitignore`.
-- Header di sicurezza configurati in `vercel.json`.
-- Input dell’API con tipo, lunghezza e metodo validati.
-- Contenuto dei feed inserito nell’interfaccia con escaping, non come HTML eseguibile.
+## Sintesi AI e sicurezza
+
+L’API accetta esclusivamente l’ID di una notizia presente nel `news.js` distribuito. Titolo, fonte e testo vengono letti lato server, impedendo l’uso dell’endpoint con testo arbitrario. Sono inoltre presenti controllo same-origin, rate limiting per IP, timeout del provider e istruzioni contro prompt injection.
+
+Il modello configurato è `llama-3.3-70b-versatile` tramite Groq. Le sintesi sono automatiche e possono sbagliare; l’articolo originale resta la fonte autorevole.
+
+## Sviluppo locale
+
+1. Crea un ambiente Python e installa le dipendenze: `pip install -r requirements.txt`.
+2. Copia `.env.example` in `.env` e inserisci `GROQ_API_KEY`.
+3. Esegui `python scripts/fetch_news.py` per aggiornare i feed.
+4. Usa `vercel dev` per provare insieme sito e API, oppure un server statico per la sola interfaccia.
+
+Controlli disponibili:
+
+```sh
+python -m unittest discover -s tests -p 'test_*.py'
+node --check app.js
+node --check api/ai.js
+node --test tests/test_api.js
+```
+
+## Deploy
+
+Importa il repository in Vercel senza build command e configura `GROQ_API_KEY` in Production, Preview e Development. Gli header di sicurezza sono definiti in `vercel.json`; la chiave non viene mai esposta al browser.

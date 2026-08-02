@@ -5,31 +5,26 @@ e aggiorna index.html con cache-bust timestamp.
 """
 
 import feedparser
+import hashlib
 import html
 import json
 import re
 import unicodedata
 from datetime import datetime, timezone, timedelta
 from pathlib import Path
+from urllib.parse import parse_qsl, urlencode, urlsplit, urlunsplit
+
+import requests
 
 RSS_SOURCES = [
     {"name": "ANSA",             "url": "https://www.ansa.it/sito/ansait_rss.xml",                          "cat": "politica-italiana"},
-    {"name": "Corriere",         "url": "https://xml2.corrieredellasera.it/rss/homepage.xml",                "cat": "politica-italiana"},
-    {"name": "Il Post",          "url": "https://www.ilpost.it/feed/",                                       "cat": "politica-italiana"},
-    {"name": "Sky TG24",         "url": "https://tg24.sky.it/feed/rss.xml",                                  "cat": "politica-italiana"},
-    {"name": "AGI",              "url": "https://www.agi.it/feed/rss.xml",                                   "cat": "politica-italiana"},
-    {"name": "Pagella Politica", "url": "https://pagellapolitica.it/feed",                                   "cat": "politica-italiana"},
-    {"name": "Facta",            "url": "https://facta.news/feed/",                                          "cat": "politica-italiana"},
+    {"name": "AGI",              "url": "https://www.agi.it/politica/rss",                                   "cat": "politica-italiana"},
     {"name": "Valigia Blu",      "url": "https://www.valigiablu.it/feed/",                                   "cat": "politica-italiana"},
-    {"name": "Limes",            "url": "https://www.limesonline.com/feed",                                  "cat": "geopolitica"},
-    {"name": "Internazionale",   "url": "https://www.internazionale.it/feed/tutto",                          "cat": "geopolitica"},
+    {"name": "Internazionale",   "url": "https://www.internazionale.it/subscribe/opinioni/",                  "cat": "geopolitica"},
     {"name": "BBC World",        "url": "https://feeds.bbci.co.uk/news/world/rss.xml",                       "cat": "geopolitica"},
-    {"name": "AP",               "url": "https://apnews.com/hub/world-news?output=rss",                      "cat": "geopolitica"},
     {"name": "The Economist",    "url": "https://www.economist.com/international/rss.xml",                   "cat": "geopolitica"},
     {"name": "El Pais",          "url": "https://feeds.elpais.com/mrss-s/pages/ep/site/elpais.com/portada",  "cat": "geopolitica"},
-    {"name": "Reuters",          "url": "https://feeds.reuters.com/reuters/worldNews",                       "cat": "conflitti"},
     {"name": "Al Jazeera",       "url": "https://www.aljazeera.com/xml/rss/all.xml",                         "cat": "conflitti"},
-    {"name": "AP conflitti",     "url": "https://apnews.com/hub/wars-and-conflicts?output=rss",              "cat": "conflitti"},
     {"name": "The Verge",        "url": "https://www.theverge.com/rss/index.xml",                            "cat": "ai"},
     {"name": "Wired IT",         "url": "https://www.wired.it/feed/rss",                                     "cat": "ai"},
     {"name": "TechCrunch",       "url": "https://techcrunch.com/feed/",                                      "cat": "ai"},
@@ -42,14 +37,22 @@ RSS_SOURCES = [
 
 # Le fonti italiane restano il punto di partenza: la priorità interviene solo
 # a parità di freschezza e rilevanza, senza nascondere il necessario contesto estero.
-ITALIAN_SOURCES = {"ANSA", "Corriere", "Il Post", "Sky TG24", "AGI", "Pagella Politica", "Facta", "Valigia Blu", "Limes", "Internazionale", "Wired IT", "Il Post Tech", "Il Sole 24 Ore"}
+ITALIAN_SOURCES = {"ANSA", "AGI", "Valigia Blu", "Internazionale", "Wired IT", "Il Post Tech", "Il Sole 24 Ore"}
+BROAD_SOURCES = {"ANSA", "AGI", "Internazionale", "BBC World", "El Pais"}
 
 KEYWORDS = {
-    "politica-italiana": ["governo", "parlamento", "senato", "camera", "ministro", "ministero", "meloni", "quirinale", "presidente della repubblica", "elezioni", "referendum", "decreto", "riforma", "legge", "bilancio", "partito", "coalizione", "regione", "comune", "sindaco", "politica italiana"],
+    "politica-italiana": ["governo", "parlamento", "senato", "camera", "ministro", "ministero", "meloni", "quirinale", "presidente della repubblica", "elezioni", "referendum", "decreto", "riforma", "legge", "bilancio", "partito", "coalizione", "regione", "comune", "sindaco", "politica italiana", "terremoto", "alluvione", "protezione civile", "strage", "mafia", "tribunale", "scuola", "sanità"],
     "geopolitica": ["geopolitica", "diplomazia", "diplomacy", "nato", "onu", "united nations", "unione europea", "european union", "g7", "g20", "sanzioni", "sanctions", "trattato", "treaty", "summit", "elezioni", "election", "presidente", "president", "governo", "government", "cina", "china", "russia", "usa", "iran"],
     "conflitti": ["guerra", "war", "conflitto", "conflict", "ucraina", "ukraine", "gaza", "israele", "israel", "hamas", "iran", "siria", "syria", "attacco", "attack", "missile", "truppe", "troops", "cessate il fuoco", "ceasefire", "militare", "military", "bombardamento", "bombing", "rifugiati", "refugees"],
     "ai": ["intelligenza artificiale", "artificial intelligence", "machine learning", "generative ai", "openai", "chatgpt", "gpt", "gemini", "claude", "anthropic", "deepmind", "deepseek", "llm", "modello linguistico", "language model", "robotica", "robotics", "semiconduttori", "semiconductors", "chip", "nvidia", "cybersecurity", "sicurezza informatica", "privacy", "antitrust", "algoritmo", "algorithm", "data center", "startup", "ricerca", "research"],
     "economia-tech": ["economia", "economy", "mercato", "markets", "borsa", "stock market", "bce", "ecb", "fed", "inflazione", "inflation", "tassi", "interest rates", "startup", "investimenti", "investment", "pil", "gdp", "commercio", "trade", "semiconduttori", "semiconductors", "energia", "energy", "fintech", "ipo", "occupazione", "employment"],
+}
+
+STRONG_CATEGORY_PATTERNS = {
+    "geopolitica": r"\b(nato|onu|g7|g20|sanzioni|sanctions|diplomazia|diplomacy|trattato|treaty)\b",
+    "conflitti": r"\b(guerra|war|conflitto|conflict|ucraina|ukraine|gaza|israele|israel|hamas|missile|raid|attacco|attacchi|bombardamento|bombing|ceasefire)\b",
+    "ai": r"\b(ai act|intelligenza artificiale|artificial intelligence|openai|chatgpt|anthropic|claude|deepmind|deepseek|cybersecurity|cyberattack|hacker|hackers)\b",
+    "economia-tech": r"\b(inflazione|inflation|tassi d.interesse|interest rates|borsa|stock market|bce|ecb|federal reserve|ipo|pil|gdp)\b",
 }
 
 # Contenuti promozionali, gossip e consumer news non coerenti con la linea editoriale.
@@ -58,6 +61,8 @@ LOW_VALUE_PATTERNS = [
     r"\b(discount|discounts|coupon|price drop|percent off|where to buy|buy now)\b",
     r"\b(gossip|vip|celebrity|red carpet|oroscopo|royal family|reality show)\b",
     r"\b(bundle|accessori per smartphone|phone accessories|fight stick|gaming controller)\b",
+    r"\b(deal|deals|starter kit|lowest price|low price|prime day|black friday)\b",
+    r"\b(fifa|world cup|champions league|football|soccer|serie a)\b",
     r"\b(recensione|review)\b.{0,80}\b(cuffie|earbuds|smartwatch|smart ring|console|smartphone)\b",
 ]
 
@@ -90,8 +95,17 @@ BOILERPLATE_PATTERNS = [
 MAX_PER_CAT    = 20
 MAX_PER_SOURCE = 3
 MAX_AGE_HOURS  = 48
-MIN_BODY_CHARS = 100  # soglia bassa: mostriamo tutto quello che c'e'
+MAX_BODY_CHARS = 3000  # mostriamo solo un estratto e rimandiamo sempre all'editore
+MIN_TOTAL_ARTICLES = 10
+REQUEST_TIMEOUT = (5, 20)
 ROOT = Path(__file__).parent.parent
+
+TRACKING_QUERY_KEYS = {"fbclid", "gclid", "mc_cid", "mc_eid", "ref", "ref_src"}
+STOPWORDS = {
+    "alla", "alle", "anche", "come", "con", "dalla", "delle", "dello", "dopo", "into",
+    "nella", "nelle", "sono", "sulla", "sulle", "the", "that", "this", "with", "from",
+    "have", "will", "your", "about", "over", "under", "para", "como", "esta", "este",
+}
 
 
 def clean_html(text):
@@ -147,12 +161,74 @@ def score_entry(entry, cat):
     text = (clean_html(entry.get("title", "")) + " " + clean_html(entry.get("summary", ""))).lower()
     return sum(1 for kw in KEYWORDS.get(cat, []) if re.search(rf"(?<!\w){re.escape(kw)}(?!\w)", text))
 
+def classify_entry(entry, source):
+    """Classifica i feed generalisti dal contenuto; conserva la sezione dei feed verticali."""
+    default_cat = source["cat"]
+    scores = {cat: score_entry(entry, cat) for cat in KEYWORDS}
+    if source["name"] not in BROAD_SOURCES:
+        return default_cat, scores[default_cat]
+    text = f"{clean_html(entry.get('title', ''))} {clean_html(entry.get('summary', ''))}".casefold()
+    strong_candidates = [cat for cat, pattern in STRONG_CATEGORY_PATTERNS.items() if re.search(pattern, text, re.IGNORECASE)]
+    if strong_candidates:
+        specificity = {"conflitti": 5, "ai": 4, "economia-tech": 3, "geopolitica": 2}
+        selected = max(strong_candidates, key=lambda cat: (scores[cat], specificity[cat]))
+        return selected, max(1, scores[selected])
+    return default_cat, scores[default_cat]
+
+def canonical_url(value):
+    try:
+        parts = urlsplit(str(value or "").strip())
+        query = urlencode([
+            (key, val) for key, val in parse_qsl(parts.query, keep_blank_values=True)
+            if not key.lower().startswith("utm_") and key.lower() not in TRACKING_QUERY_KEYS
+        ])
+        path = parts.path.rstrip("/") or "/"
+        return urlunsplit((parts.scheme.lower(), parts.netloc.lower(), path, query, ""))
+    except ValueError:
+        return str(value or "").strip()
+
+def stable_id(source_name, entry, url, title):
+    identity = canonical_url(entry.get("id") or entry.get("guid") or url)
+    if not identity:
+        identity = f"{source_name}|{title.casefold()}"
+    return hashlib.sha256(identity.encode("utf-8")).hexdigest()[:20]
+
+def detect_language(text):
+    words = re.findall(r"[a-zà-ÿ]+", text.casefold())
+    italian = sum(word in {"il", "lo", "la", "gli", "le", "di", "del", "della", "che", "per", "con", "sono", "nel", "nella", "alla"} for word in words)
+    spanish = sum(word in {"el", "la", "los", "las", "de", "del", "que", "para", "con", "según", "una", "un", "en"} for word in words)
+    english = sum(word in {"the", "of", "and", "to", "in", "for", "with", "is", "are", "from", "that", "on"} for word in words)
+    scores = {"it": italian, "es": spanish, "en": english}
+    language = max(scores, key=scores.get)
+    return language if scores[language] else "en"
+
+def content_tokens(item):
+    text = f"{item['title']} {item['summary']}".casefold()
+    return {
+        token for token in re.findall(r"[a-zà-ÿ0-9]{4,}", text)
+        if token not in STOPWORDS
+    }
+
+def is_duplicate(item, selected):
+    item_url = canonical_url(item["url"])
+    item_tokens = content_tokens(item)
+    for existing in selected:
+        if item_url and item_url == canonical_url(existing["url"]):
+            return True
+        other_tokens = content_tokens(existing)
+        union = item_tokens | other_tokens
+        similarity = len(item_tokens & other_tokens) / len(union) if union else 0
+        threshold = 0.55 if item["source"] == existing["source"] else 0.72
+        if similarity >= threshold:
+            return True
+    return False
+
 def is_low_value(title, summary):
     text = f"{title} {summary}".lower()
     return any(re.search(pattern, text, re.IGNORECASE) for pattern in LOW_VALUE_PATTERNS)
 
 def build_body(entry):
-    """Estrae il corpo completo dell'articolo, pulisce boilerplate, struttura in paragrafi."""
+    """Estrae un estratto dell'articolo, pulisce boilerplate e struttura in paragrafi."""
     summary = clean_html(entry.get("summary", "") or entry.get("description", ""))
 
     # Cerca il contenuto piu' lungo disponibile nell'RSS
@@ -172,7 +248,7 @@ def build_body(entry):
     # Se il corpo e' gia' diviso in paragrafi, rispetta la struttura
     if "\n\n" in body:
         paragraphs = [p.strip() for p in body.split("\n\n") if p.strip()]
-        return "\n\n".join(paragraphs)
+        return truncate("\n\n".join(paragraphs), MAX_BODY_CHARS)
 
     # Altrimenti, spezza in paragrafi ogni ~400 caratteri al punto fermo
     words = body.split()
@@ -186,20 +262,28 @@ def build_body(entry):
     if current:
         paragraphs.append(" ".join(current))
 
-    return "\n\n".join(paragraphs)
+    return truncate("\n\n".join(paragraphs), MAX_BODY_CHARS)
 
 def fetch_all():
     buckets = {cat: [] for cat in KEYWORDS}
     cutoff = datetime.now(timezone.utc) - timedelta(hours=MAX_AGE_HOURS)
+    successful_sources, failed_sources = [], []
+    session = requests.Session()
+    session.headers.update({"User-Agent": "LaGraffa/1.0 (+https://la-graffa.vercel.app)"})
 
     for source in RSS_SOURCES:
-        cat = source["cat"]
         print(f"  Fetching {source['name']}...")
         try:
-            feed = feedparser.parse(source["url"])
+            response = session.get(source["url"], timeout=REQUEST_TIMEOUT)
+            response.raise_for_status()
+            feed = feedparser.parse(response.content)
             entries = feed.entries[:40]  # leggi piu' voci per avere piu' scelta
+            if not entries:
+                raise ValueError("feed senza articoli")
+            successful_sources.append(source["name"])
         except Exception as e:
             print(f"    ERRORE: {e}")
+            failed_sources.append(source["name"])
             continue
 
         for entry in entries:
@@ -212,21 +296,25 @@ def fetch_all():
             if not title or len(summary) < 20:
                 continue
 
-            score = score_entry(entry, cat)
+            cat, score = classify_entry(entry, source)
             if score == 0 or is_low_value(title, summary):
                 continue
 
             pub_ts = int(pub_dt.timestamp()) if pub_dt else 0
             body   = build_body(entry)
+            url = canonical_url(entry.get("link", source["url"]))
 
             buckets[cat].append({
+                "id":      stable_id(source["name"], entry, url, title),
                 "title":   title,
                 "summary": truncate(summary, 400),
                 "body":    body,
                 "source":  source["name"],
-                "url":     entry.get("link", source["url"]),
+                "url":     url,
                 "time":    relative_time(pub_dt),
                 "pub_ts":  pub_ts,
+                "published_at": pub_dt.isoformat() if pub_dt else None,
+                "language": detect_language(f"{title} {summary}"),
                 "score":   score,
                 "italian_priority": source["name"] in ITALIAN_SOURCES,
             })
@@ -236,29 +324,38 @@ def fetch_all():
         seen = set()
         unique = []
         source_counts = {}
-        # Favoriamo fonti italiane e articoli pertinenti, mantenendo un limite per
-        # testata così da non trasformare la rassegna nel feed di un solo editore.
-        for item in sorted(items, key=lambda x: (x["italian_priority"], x["score"], x["pub_ts"]), reverse=True):
-            norm = re.sub(r"[^a-z0-9]", "", item["title"].lower())[:60]
+        # Ordiniamo per freschezza, pertinenza e priorità italiana, mantenendo un
+        # limite per testata per non trasformare la rassegna nel feed di un editore.
+        for item in sorted(items, key=lambda x: (x["pub_ts"], x["score"], x["italian_priority"]), reverse=True):
             source = item["source"]
-            if norm not in seen and source_counts.get(source, 0) < MAX_PER_SOURCE:
-                seen.add(norm)
+            if item["id"] not in seen and not is_duplicate(item, unique) and source_counts.get(source, 0) < MAX_PER_SOURCE:
+                seen.add(item["id"])
                 unique.append(item)
                 source_counts[source] = source_counts.get(source, 0) + 1
             if len(unique) >= MAX_PER_CAT:
                 break
         result[cat] = unique
-    return result
+    total = sum(len(items) for items in result.values())
+    if total < MIN_TOTAL_ARTICLES:
+        raise RuntimeError(f"raccolti solo {total} articoli: news.js esistente preservato")
+    meta = {
+        "successful_sources": len(successful_sources),
+        "failed_sources": failed_sources,
+        "total_sources": len(RSS_SOURCES),
+        "total_articles": total,
+    }
+    return result, meta
 
 def js_string(s):
     return json.dumps(s, ensure_ascii=False)
 
-def generate_news_js(buckets, ts):
+def generate_news_js(buckets, ts, meta):
     now = datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M UTC")
     lines = []
     lines.append(f"// Generato automaticamente il {now} da scripts/fetch_news.py")
     lines.append("// NON modificare manualmente: viene sovrascritto ogni ora dalla GitHub Action.")
     lines.append(f"var NEWS_TIMESTAMP = {ts};")
+    lines.append("const FEED_META = " + json.dumps(meta, ensure_ascii=False) + ";")
     lines.append("")
     lines.append("const RSS_SOURCES = " + json.dumps(
         [{"name": s["name"], "url": s["url"], "cat": s["cat"]} for s in RSS_SOURCES],
@@ -266,11 +363,10 @@ def generate_news_js(buckets, ts):
     ) + ";")
     lines.append("")
     lines.append("const NEWS = [")
-    news_id = 1
     for cat, items in buckets.items():
         for item in items:
             lines.append("  {")
-            lines.append(f"    id: {news_id},")
+            lines.append(f"    id: {js_string(item['id'])},")
             lines.append(f"    cat: {js_string(cat)},")
             lines.append(f"    title: {js_string(item['title'])},")
             lines.append(f"    summary: {js_string(item['summary'])},")
@@ -279,9 +375,10 @@ def generate_news_js(buckets, ts):
             lines.append(f"    url: {js_string(item['url'])},")
             lines.append(f"    time: {js_string(item['time'])},")
             lines.append(f"    pub_ts: {item['pub_ts']},")
-            lines.append("    tags: [],")
+            lines.append(f"    published_at: {js_string(item['published_at'])},")
+            lines.append(f"    language: {js_string(item['language'])},")
+            lines.append(f"    score: {item['score']},")
             lines.append("  },")
-            news_id += 1
     lines.append("];")    
     return "\n".join(lines) + "\n"
 
@@ -300,12 +397,12 @@ if __name__ == "__main__":
     print("=== fetch_news.py ===")
     ts = int(datetime.now(timezone.utc).timestamp())
     print(f"Avviato: {datetime.now(timezone.utc).strftime('%Y-%m-%d %H:%M UTC')} (ts={ts})")
-    buckets = fetch_all()
+    buckets, meta = fetch_all()
     total = sum(len(v) for v in buckets.values())
     print(f"Articoli raccolti: {total}")
     for cat, items in buckets.items():
         print(f"  {cat}: {len(items)}")
-    js = generate_news_js(buckets, ts)
+    js = generate_news_js(buckets, ts, meta)
     out_path = ROOT / "news.js"
     out_path.write_text(js, encoding="utf-8")
     print(f"news.js aggiornato ({len(js)} byte)")

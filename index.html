@@ -5,45 +5,65 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <meta name="referrer" content="strict-origin-when-cross-origin" />
   <meta name="description" content="LaGraffa: notizie selezionate e contestualizzate, con priorità alle fonti italiane affidabili." />
+  <meta name="theme-color" content="#c0392b" />
+  <meta property="og:type" content="website" />
+  <meta property="og:locale" content="it_IT" />
+  <meta property="og:site_name" content="LaGraffa" />
+  <meta property="og:title" content="LaGraffa — Notizie con contesto" />
+  <meta property="og:description" content="Una rassegna aggiornata di notizie italiane e internazionali, selezionate con criteri trasparenti." />
+  <meta property="og:url" content="https://la-graffa.vercel.app/" />
+  <meta property="og:image" content="https://la-graffa.vercel.app/og.png" />
+  <meta property="og:image:width" content="1200" />
+  <meta property="og:image:height" content="630" />
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="LaGraffa — Notizie con contesto" />
+  <meta name="twitter:description" content="Una rassegna aggiornata di notizie italiane e internazionali, selezionate con criteri trasparenti." />
+  <meta name="twitter:image" content="https://la-graffa.vercel.app/og.png" />
+  <link rel="canonical" href="https://la-graffa.vercel.app/" />
+  <link rel="manifest" href="manifest.webmanifest" />
+  <link rel="icon" href="icon-512.png" type="image/png" />
+  <link rel="apple-touch-icon" href="icon-512.png" />
   <title>LaGraffa &mdash; Notizie con contesto</title>
-  <link rel="stylesheet" href="style.css" />
+  <link rel="stylesheet" href="style.css?v=2" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:wght@700&display=swap" rel="stylesheet" />
 </head>
 <body>
+  <a class="skip-link" href="#newsContent">Vai alle notizie</a>
   <header class="header">
     <div class="header-inner">
       <a class="logo" href="/" aria-label="LaGraffa, pagina iniziale">LaGraffa<span aria-hidden="true">.</span></a>
-      <nav class="nav-cats" id="navCats">
-        <button class="cat-btn active" data-cat="all">Tutto</button>
-        <button class="cat-btn" data-cat="politica-italiana">Italia</button>
-        <button class="cat-btn" data-cat="geopolitica">Mondo</button>
-        <button class="cat-btn" data-cat="conflitti">Conflitti</button>
-        <button class="cat-btn" data-cat="ai">Tecnologia</button>
-        <button class="cat-btn" data-cat="economia-tech">Economia</button>
-        <button class="cat-btn" data-cat="preferiti">&#9733; Preferiti</button>
-        <button class="cat-btn" data-cat="leggi-dopo">&#9200; Leggi dopo</button>
+      <nav class="nav-cats" id="navCats" aria-label="Categorie">
+        <button class="cat-btn active" data-cat="all" aria-pressed="true">Tutto</button>
+        <button class="cat-btn" data-cat="politica-italiana" aria-pressed="false">Italia</button>
+        <button class="cat-btn" data-cat="geopolitica" aria-pressed="false">Mondo</button>
+        <button class="cat-btn" data-cat="conflitti" aria-pressed="false">Conflitti</button>
+        <button class="cat-btn" data-cat="ai" aria-pressed="false">Tecnologia</button>
+        <button class="cat-btn" data-cat="economia-tech" aria-pressed="false">Economia</button>
+        <button class="cat-btn" data-cat="preferiti" aria-pressed="false">&#9733; Preferiti</button>
+        <button class="cat-btn" data-cat="leggi-dopo" aria-pressed="false">&#9200; Leggi dopo</button>
       </nav>
       <div class="header-right">
-        <span class="refresh-timer" id="refreshTimer">Aggiorn. tra 60 min</span>
-        <button class="refresh-btn" id="refreshBtn" title="Aggiorna ora">&#8635;</button>
+        <span class="refresh-timer" id="refreshTimer">Verifica aggiornamento…</span>
+        <button class="refresh-btn" id="refreshBtn" title="Ricarica le notizie" aria-label="Ricarica le notizie">&#8635;</button>
         <button class="theme-toggle" id="themeToggle" aria-label="Cambia tema">&#127769;</button>
-        <button class="menu-toggle" id="menuToggle" aria-label="Menu categorie">&#9776;</button>
+        <button class="menu-toggle" id="menuToggle" aria-label="Menu categorie" aria-controls="mobileNav" aria-expanded="false">&#9776;</button>
       </div>
     </div>
-    <div class="mobile-nav" id="mobileNav">
-      <button class="cat-btn active" data-cat="all">Tutto</button>
-      <button class="cat-btn" data-cat="politica-italiana">Italia</button>
-      <button class="cat-btn" data-cat="geopolitica">Mondo</button>
-      <button class="cat-btn" data-cat="conflitti">Conflitti</button>
-      <button class="cat-btn" data-cat="ai">Tecnologia</button>
-      <button class="cat-btn" data-cat="economia-tech">Economia</button>
-      <button class="cat-btn" data-cat="preferiti">&#9733; Preferiti</button>
-      <button class="cat-btn" data-cat="leggi-dopo">&#9200; Leggi dopo</button>
-    </div>
+    <nav class="mobile-nav" id="mobileNav" aria-label="Categorie mobile" hidden>
+      <button class="cat-btn active" data-cat="all" aria-pressed="true">Tutto</button>
+      <button class="cat-btn" data-cat="politica-italiana" aria-pressed="false">Italia</button>
+      <button class="cat-btn" data-cat="geopolitica" aria-pressed="false">Mondo</button>
+      <button class="cat-btn" data-cat="conflitti" aria-pressed="false">Conflitti</button>
+      <button class="cat-btn" data-cat="ai" aria-pressed="false">Tecnologia</button>
+      <button class="cat-btn" data-cat="economia-tech" aria-pressed="false">Economia</button>
+      <button class="cat-btn" data-cat="preferiti" aria-pressed="false">&#9733; Preferiti</button>
+      <button class="cat-btn" data-cat="leggi-dopo" aria-pressed="false">&#9200; Leggi dopo</button>
+    </nav>
+    <div class="feed-status" id="feedStatus" role="status" aria-live="polite"></div>
   </header>
 
-  <main>
+  <main id="newsContent">
     <section class="hero-section" id="heroSection">
       <div class="hero-inner">
         <div class="hero-label">In evidenza</div>
@@ -67,19 +87,60 @@
       <div class="section-heading">
         <p class="section-kicker" id="sectionKicker">Panoramica</p>
         <h2 id="sectionTitle">Le notizie da seguire</h2>
-        <p id="sectionDescription">Una selezione ordinata per rilevanza e aggiornamento.</p>
+        <p id="sectionDescription">Una selezione verificabile, ordinata per freschezza e pertinenza.</p>
       </div>
+      <form class="news-tools" id="newsTools" role="search">
+        <label class="search-field" for="searchInput">
+          <span class="sr-only">Cerca nelle notizie</span>
+          <input id="searchInput" type="search" placeholder="Cerca titolo, testo o fonte…" autocomplete="off" />
+        </label>
+        <label>
+          <span class="sr-only">Filtra per fonte</span>
+          <select id="sourceFilter" aria-label="Filtra per fonte"><option value="">Tutte le fonti</option></select>
+        </label>
+        <label>
+          <span class="sr-only">Ordina le notizie</span>
+          <select id="sortOrder" aria-label="Ordina le notizie">
+            <option value="newest">Più recenti</option>
+            <option value="relevance">Più rilevanti</option>
+          </select>
+        </label>
+        <button class="clear-filters" id="clearFilters" type="button">Azzera filtri</button>
+      </form>
+      <p class="results-count" id="resultsCount" aria-live="polite"></p>
       <div class="news-grid" id="newsGrid"></div>
     </section>
   </main>
 
+  <footer class="site-footer">
+    <div class="footer-grid">
+      <section id="metodologia" aria-labelledby="methodTitle">
+        <h2 id="methodTitle">Metodo editoriale</h2>
+        <p>LaGraffa aggrega feed RSS pubblici, privilegia freschezza e pertinenza, limita il peso di ogni testata e rimuove duplicati, promozioni e gossip. La selezione è automatica e può contenere errori.</p>
+      </section>
+      <section id="intelligenza-artificiale" aria-labelledby="aiTitle">
+        <h2 id="aiTitle">Sintesi AI</h2>
+        <p>Le sintesi sono generate su richiesta dal testo disponibile nel feed. Possono sbagliare: per conferme e dettagli fa sempre fede l’articolo originale.</p>
+      </section>
+      <section id="privacy" aria-labelledby="privacyTitle">
+        <h2 id="privacyTitle">Privacy e dati</h2>
+        <p>Preferiti, letture, tema e sintesi salvate restano nel browser. Non sono richiesti account e LaGraffa non usa cookie pubblicitari.</p>
+      </section>
+    </div>
+    <div class="footer-bottom">
+      <span>&copy; 2026 LaGraffa</span>
+      <a href="https://github.com/francescoeramo/LaGraffa" target="_blank" rel="noopener noreferrer">Codice e segnalazioni</a>
+    </div>
+  </footer>
+
   <!-- Modal -->
-  <div class="modal-overlay" id="modalOverlay" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
+  <div class="modal-overlay" id="modalOverlay" role="dialog" aria-modal="true" aria-labelledby="modalTitle" aria-describedby="modalDisclosure" aria-hidden="true">
     <div class="modal" id="modal">
       <div class="modal-header">
         <button class="modal-close" id="modalClose" aria-label="Chiudi">&#10005;</button>
         <div class="modal-header-actions">
           <button class="translate-btn" id="translateBtn" style="display:none">&#10024; Sintesi AI in italiano</button>
+          <button class="share-btn" id="shareBtn" aria-label="Condividi notizia" title="Condividi">&#8599;</button>
           <button class="later-btn" id="modalLaterBtn" aria-label="Leggi dopo" title="Leggi dopo">&#9200;</button>
           <button class="fav-btn" id="modalFavBtn" aria-label="Aggiungi ai preferiti" title="Aggiungi ai preferiti">&#9733;</button>
         </div>
@@ -92,11 +153,14 @@
       </div>
       <div class="modal-body" id="modalBody"></div>
       <div class="modal-sources-block" id="modalSourcesBlock"></div>
+      <p class="modal-disclosure" id="modalDisclosure">Qui è mostrato un estratto del feed. La sintesi AI può contenere errori: verifica sempre sulla fonte originale.</p>
       <a class="modal-link" id="modalLink" href="#" target="_blank" rel="noopener noreferrer">Leggi l&rsquo;articolo originale &rarr;</a>
     </div>
   </div>
 
-  <script src="news.js?t=1785664982"></script>
-  <script src="app.js"></script>
+  <div class="toast" id="toast" role="status" aria-live="polite" aria-atomic="true"></div>
+
+  <script src="news.js?t=1785671613"></script>
+  <script src="app.js?v=3"></script>
 </body>
 </html>

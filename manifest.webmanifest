@@ -1,0 +1,13 @@
+{
+  "name": "LaGraffa — Notizie con contesto",
+  "short_name": "LaGraffa",
+  "description": "Rassegna di notizie italiane e internazionali selezionate con criteri trasparenti.",
+  "lang": "it",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#f4f4f0",
+  "theme_color": "#c0392b",
+  "icons": [
+    { "src": "/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any maskable" }
+  ]
+}
