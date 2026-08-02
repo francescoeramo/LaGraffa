@@ -245,6 +245,18 @@ const NEWS = [
   {
     id: "a0d1cd353bfca5052b77",
     cat: "geopolitica",
+    title: "Trump dice que suspende los ataques contra Irán a la espera de un acuerdo rápido",
+    summary: "El presidente de EE UU asegura haber tomado la decisión a petición de Teherán y de otros países de Oriente Próximo",
+    body: "Nuevo bandazo en la guerra de Irán. Tras unos días en los que Washington había vuelto a golpear con fuerza a la República Islámica, el presidente de Estados Unidos, Donald Trump, ha anunciado que congela los ataques para tratar de buscar un acuerdo. En esta ocasión, asegura que lo hace a petición de Teherán y de otros países de la región que no especifica. Y que cuenta con el beneplácito de Israel.\n\nSeguir leyendo",
+    source: "El Pais",
+    url: "https://elpais.com/internacional/2026-08-02/donald-trump-dice-que-suspende-los-ataques-contra-iran-a-la-espera-de-un-acuerdo-rapido.html",
+    time: "2 ore fa",
+    pub_ts: 1785662090,
+    tags: [],
+  },
+  {
+    id: 6,
+    cat: "geopolitica",
     title: "La crisis de Ceuta alinea a la derecha europea contra Sánchez",
     summary: "El presidente español, cada vez más solo en Europa, acusa a sus socios de falta de solidaridad, mientras PP y Vox avivan la batalla por la inmigración",
     body: "Un nuevo fantasma recorre Europa y esta vez se llama inmigración. Sobre él cabalga la rampante derechización del continente. Y ante él, Pedro Sánchez, el único socialdemócrata al mando de uno de los grandes países de los 27, se ve cada vez más solo, como ha evidenciado la crisis de Ceuta con sus imágenes de una oleada humana que han impresionado a todo el planeta . Pero, muy en su estilo, el presidente español no rehúye la batalla.\n\nComo prueba, la carta que envió este sábado a Bruselas denunciando el “egoísmo” de algunos de sus socios europeos. Seguir leyendo",
