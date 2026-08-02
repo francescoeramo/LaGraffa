@@ -19,8 +19,11 @@ import requests
 RSS_SOURCES = [
     {"name": "ANSA",             "url": "https://www.ansa.it/sito/ansait_rss.xml",                          "cat": "politica-italiana"},
     {"name": "AGI",              "url": "https://www.agi.it/politica/rss",                                   "cat": "politica-italiana"},
+    {"name": "Facta",            "url": "https://www.facta.news/feed.xml",                                  "cat": "politica-italiana"},
+    {"name": "Pagella Politica", "url": "https://pagellapolitica.it/feed.xml",                              "cat": "politica-italiana"},
     {"name": "Valigia Blu",      "url": "https://www.valigiablu.it/feed/",                                   "cat": "politica-italiana"},
     {"name": "Internazionale",   "url": "https://www.internazionale.it/subscribe/opinioni/",                  "cat": "geopolitica"},
+    {"name": "Limes",            "url": "https://www.limesonline.com/rss",                                  "cat": "geopolitica"},
     {"name": "BBC World",        "url": "https://feeds.bbci.co.uk/news/world/rss.xml",                       "cat": "geopolitica"},
     {"name": "The Economist",    "url": "https://www.economist.com/international/rss.xml",                   "cat": "geopolitica"},
     {"name": "El Pais",          "url": "https://feeds.elpais.com/mrss-s/pages/ep/site/elpais.com/portada",  "cat": "geopolitica"},
@@ -37,8 +40,9 @@ RSS_SOURCES = [
 
 # Le fonti italiane restano il punto di partenza: la priorità interviene solo
 # a parità di freschezza e rilevanza, senza nascondere il necessario contesto estero.
-ITALIAN_SOURCES = {"ANSA", "AGI", "Valigia Blu", "Internazionale", "Wired IT", "Il Post Tech", "Il Sole 24 Ore"}
-BROAD_SOURCES = {"ANSA", "AGI", "Internazionale", "BBC World", "El Pais"}
+ITALIAN_SOURCES = {"ANSA", "AGI", "Facta", "Pagella Politica", "Valigia Blu", "Internazionale", "Limes", "Wired IT", "Il Post Tech", "Il Sole 24 Ore"}
+BROAD_SOURCES = {"ANSA", "AGI", "Facta", "Pagella Politica", "Internazionale", "BBC World", "El Pais"}
+REQUESTED_PUBLISHERS = {"Facta", "Internazionale", "Limes", "Pagella Politica"}
 
 KEYWORDS = {
     "politica-italiana": ["governo", "parlamento", "senato", "camera", "ministro", "ministero", "meloni", "quirinale", "presidente della repubblica", "elezioni", "referendum", "decreto", "riforma", "legge", "bilancio", "partito", "coalizione", "regione", "comune", "sindaco", "politica italiana", "terremoto", "alluvione", "protezione civile", "strage", "mafia", "tribunale", "scuola", "sanità"],
@@ -83,6 +87,7 @@ BOILERPLATE_PATTERNS = [
     r"(?i)click\s+here\s+to\s+read[^.]{0,60}[.…]?",
     r"(?i)subscribe\s+to\s+read[^.]{0,80}[.…]?",
     r"(?i)per\s+leggere\s+l.articolo\s+completo[^.]{0,60}[.…]?",
+    r"(?i)\s*\bleggi\s*$",
     r"(?i)\[\s*\u2026\s*\]",
     r"(?i)\(\s*segue\s*\)",
     r"(?i)\(\s*ansa\s*\)",
@@ -95,7 +100,8 @@ BOILERPLATE_PATTERNS = [
 MAX_PER_CAT    = 20
 MAX_PER_SOURCE = 3
 MAX_AGE_HOURS  = 48
-MAX_BODY_CHARS = 3000  # mostriamo solo un estratto e rimandiamo sempre all'editore
+ANALYSIS_MAX_AGE_HOURS = 168
+MAX_EMBEDDED_SUMMARY_CHARS = 2000
 MIN_TOTAL_ARTICLES = 10
 REQUEST_TIMEOUT = (5, 20)
 ROOT = Path(__file__).parent.parent
@@ -173,7 +179,8 @@ def classify_entry(entry, source):
         specificity = {"conflitti": 5, "ai": 4, "economia-tech": 3, "geopolitica": 2}
         selected = max(strong_candidates, key=lambda cat: (scores[cat], specificity[cat]))
         return selected, max(1, scores[selected])
-    return default_cat, scores[default_cat]
+    score = scores[default_cat]
+    return default_cat, max(1, score) if source["name"] in REQUESTED_PUBLISHERS else score
 
 def canonical_url(value):
     try:
@@ -227,8 +234,15 @@ def is_low_value(title, summary):
     text = f"{title} {summary}".lower()
     return any(re.search(pattern, text, re.IGNORECASE) for pattern in LOW_VALUE_PATTERNS)
 
+def has_complete_excerpt(summary, source_name):
+    """Esclude le mere etichette che non spiegano davvero la notizia."""
+    if source_name not in REQUESTED_PUBLISHERS:
+        return len(summary) >= 20
+    generic = r"(?i)^(il |la )?(riassunto|rassegna)\b.{0,80}(giorni|settimana)[.!]?$"
+    return len(summary) >= 90 and len(summary.split()) >= 12 and not re.search(generic, summary)
+
 def build_body(entry):
-    """Estrae un estratto dell'articolo, pulisce boilerplate e struttura in paragrafi."""
+    """Preserva integralmente la sintesi più completa fornita dal feed."""
     summary = clean_html(entry.get("summary", "") or entry.get("description", ""))
 
     # Cerca il contenuto piu' lungo disponibile nell'RSS
@@ -239,8 +253,11 @@ def build_body(entry):
         if len(candidate) > len(full):
             full = candidate
 
-    # Usa il piu' lungo tra full content e summary
-    body = full if len(full) > len(summary) + 50 else summary
+    # Alcuni feed duplicano qui l'intero articolo: in quel caso conserviamo la
+    # sintesi editoriale completa invece di ripubblicare il testo. Usiamo il
+    # contenuto embedded solo quando è chiaramente una sinossi più dettagliata.
+    use_embedded = full and len(full) > len(summary) + 50 and len(full) <= MAX_EMBEDDED_SUMMARY_CHARS
+    body = full if use_embedded else summary
 
     # Rimuovi frasi boilerplate
     body = remove_boilerplate(body)
@@ -248,7 +265,7 @@ def build_body(entry):
     # Se il corpo e' gia' diviso in paragrafi, rispetta la struttura
     if "\n\n" in body:
         paragraphs = [p.strip() for p in body.split("\n\n") if p.strip()]
-        return truncate("\n\n".join(paragraphs), MAX_BODY_CHARS)
+        return "\n\n".join(paragraphs)
 
     # Altrimenti, spezza in paragrafi ogni ~400 caratteri al punto fermo
     words = body.split()
@@ -262,17 +279,18 @@ def build_body(entry):
     if current:
         paragraphs.append(" ".join(current))
 
-    return truncate("\n\n".join(paragraphs), MAX_BODY_CHARS)
+    return "\n\n".join(paragraphs)
 
 def fetch_all():
     buckets = {cat: [] for cat in KEYWORDS}
-    cutoff = datetime.now(timezone.utc) - timedelta(hours=MAX_AGE_HOURS)
     successful_sources, failed_sources = [], []
     session = requests.Session()
     session.headers.update({"User-Agent": "LaGraffa/1.0 (+https://la-graffa.vercel.app)"})
 
     for source in RSS_SOURCES:
         print(f"  Fetching {source['name']}...")
+        max_age = ANALYSIS_MAX_AGE_HOURS if source["name"] in REQUESTED_PUBLISHERS else MAX_AGE_HOURS
+        cutoff = datetime.now(timezone.utc) - timedelta(hours=max_age)
         try:
             response = session.get(source["url"], timeout=REQUEST_TIMEOUT)
             response.raise_for_status()
@@ -293,7 +311,7 @@ def fetch_all():
 
             title   = clean_html(entry.get("title", "")).strip()
             summary = remove_boilerplate(clean_html(entry.get("summary", "") or entry.get("description", "")))
-            if not title or len(summary) < 20:
+            if not title or not has_complete_excerpt(summary, source["name"]):
                 continue
 
             cat, score = classify_entry(entry, source)
@@ -307,7 +325,7 @@ def fetch_all():
             buckets[cat].append({
                 "id":      stable_id(source["name"], entry, url, title),
                 "title":   title,
-                "summary": truncate(summary, 400),
+                "summary": summary,
                 "body":    body,
                 "source":  source["name"],
                 "url":     url,

@@ -52,6 +52,30 @@ class FetchNewsTests(unittest.TestCase):
         }
         self.assertTrue(fetch_news.is_duplicate(candidate, existing))
 
+    def test_requested_publishers_are_configured_with_working_feed_urls(self):
+        sources = {source["name"]: source["url"] for source in fetch_news.RSS_SOURCES}
+        self.assertEqual(sources["Facta"], "https://www.facta.news/feed.xml")
+        self.assertEqual(sources["Internazionale"], "https://www.internazionale.it/subscribe/opinioni/")
+        self.assertEqual(sources["Limes"], "https://www.limesonline.com/rss")
+        self.assertEqual(sources["Pagella Politica"], "https://pagellapolitica.it/feed.xml")
+        self.assertGreater(fetch_news.ANALYSIS_MAX_AGE_HOURS, fetch_news.MAX_AGE_HOURS)
+
+    def test_complete_feed_summary_is_not_truncated(self):
+        ending = "Dettaglio conclusivo indispensabile."
+        summary = ("Contesto e conseguenze della notizia. " * 120) + ending
+        body = fetch_news.build_body({"summary": summary})
+        self.assertGreater(len(body), 3000)
+        self.assertTrue(body.endswith(ending))
+
+    def test_generic_labels_are_not_accepted_as_complete_excerpts(self):
+        self.assertFalse(fetch_news.has_complete_excerpt(
+            "Il riassunto geopolitico degli ultimi sette giorni.", "Limes"
+        ))
+        self.assertTrue(fetch_news.has_complete_excerpt(
+            "La crisi modifica i rapporti regionali, coinvolge i governi europei e produce conseguenze economiche già misurabili.",
+            "Limes",
+        ))
+
 
 if __name__ == "__main__":
     unittest.main()

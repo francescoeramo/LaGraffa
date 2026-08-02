@@ -13,9 +13,9 @@ LaGraffa è una rassegna di notizie italiane e internazionali aggiornata ogni or
 
 ## Criteri editoriali
 
-La selezione conserva prima la freschezza e poi considera pertinenza e priorità delle fonti italiane. Ogni testata ha un limite per categoria. URL canonici, similarità del testo e filtri tematici riducono duplicati, offerte commerciali, gossip e contenuti fuori linea.
+La selezione conserva prima la freschezza e poi considera pertinenza e priorità delle fonti italiane. Tra gli editori configurati ci sono anche Facta, Internazionale, Limes e Pagella Politica. Ogni testata ha un limite per categoria. URL canonici, similarità del testo e filtri tematici riducono duplicati, offerte commerciali, gossip e contenuti fuori linea.
 
-I feed generalisti vengono classificati dal contenuto; quelli verticali conservano la propria sezione. Gli ID derivano dall’URL o dal GUID del feed, quindi preferiti e letture restano associati alla stessa notizia dopo gli aggiornamenti.
+I feed generalisti vengono classificati dal contenuto; quelli verticali conservano la propria sezione. Gli estratti preservano senza tagli, anche nelle card, la sintesi editoriale più completa disponibile nel feed; se il contenuto incorporato coincide con l’articolo integrale, viene mantenuta la sinossi dell’editore e il testo completo resta sulla fonte. Per gli editori di analisi richiesti la finestra arriva a sette giorni, così le pubblicazioni meno frequenti non spariscono dalla rassegna. Gli ID derivano dall’URL o dal GUID del feed, quindi preferiti e letture restano associati alla stessa notizia dopo gli aggiornamenti.
 
 Le fonti configurate si trovano in `scripts/fetch_news.py`. Gli URL non più pubblicati o non accessibili in modo affidabile non vengono mantenuti solo per aumentarne il numero.
 
