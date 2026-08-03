@@ -7,13 +7,15 @@ e aggiorna index.html con cache-bust timestamp.
 import feedparser
 import hashlib
 import html
+import ipaddress
 import json
 import re
+import socket
 import unicodedata
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from datetime import datetime, timezone, timedelta
 from pathlib import Path
-from urllib.parse import parse_qsl, urlencode, urlsplit, urlunsplit
+from urllib.parse import parse_qsl, urlencode, urljoin, urlsplit, urlunsplit
 
 import requests
 from trafilatura import extract
@@ -45,6 +47,17 @@ RSS_SOURCES = [
 ITALIAN_SOURCES = {"ANSA", "AGI", "Facta", "Pagella Politica", "Valigia Blu", "Internazionale", "Limes", "Wired IT", "Il Post Tech", "Il Sole 24 Ore"}
 BROAD_SOURCES = {"ANSA", "AGI", "Facta", "Pagella Politica", "Internazionale", "BBC World", "El Pais", "Al Jazeera"}
 REQUESTED_PUBLISHERS = {"Facta", "Internazionale", "Limes", "Pagella Politica"}
+PUBLISHER_DOMAINS = {
+    "ANSA": {"ansa.it"}, "AGI": {"agi.it"}, "Facta": {"facta.news"},
+    "Pagella Politica": {"pagellapolitica.it"}, "Valigia Blu": {"valigiablu.it"},
+    "Internazionale": {"internazionale.it"}, "Limes": {"limesonline.com"},
+    "BBC World": {"bbc.co.uk", "bbc.com"}, "The Economist": {"economist.com"},
+    "El Pais": {"elpais.com"}, "Al Jazeera": {"aljazeera.com"},
+    "The Verge": {"theverge.com"}, "Wired IT": {"wired.it"},
+    "TechCrunch": {"techcrunch.com"}, "Il Post Tech": {"ilpost.it"},
+    "Il Sole 24 Ore": {"ilsole24ore.com"}, "Bloomberg Tech": {"bloomberg.com"},
+    "Financial Times": {"ft.com"}, "The Economist Ec": {"economist.com"},
+}
 
 KEYWORDS = {
     "politica-italiana": ["governo", "parlamento", "senato", "camera", "ministro", "ministero", "meloni", "quirinale", "presidente della repubblica", "elezioni", "referendum", "decreto", "riforma", "legge", "bilancio", "partito", "coalizione", "regione", "comune", "sindaco", "politica italiana", "terremoto", "alluvione", "protezione civile", "strage", "mafia", "tribunale", "scuola", "sanità"],
@@ -130,6 +143,8 @@ PREVIEW_MAX_CHARS = 560
 MIN_USABLE_PREVIEW_CHARS = 220
 MAX_ARTICLE_CHARS = 50000
 ARTICLE_FETCH_WORKERS = 6
+MAX_DOWNLOAD_BYTES = 5_000_000
+MAX_REDIRECTS = 5
 MIN_TOTAL_ARTICLES = 10
 REQUEST_TIMEOUT = (5, 20)
 ROOT = Path(__file__).parent.parent
@@ -232,6 +247,8 @@ def classify_entry(entry, source):
 def canonical_url(value):
     try:
         parts = urlsplit(str(value or "").strip())
+        if parts.scheme.lower() not in {"http", "https"} or not parts.hostname or parts.username or parts.password:
+            return ""
         query = urlencode([
             (key, val) for key, val in parse_qsl(parts.query, keep_blank_values=True)
             if not key.lower().startswith("utm_") and key.lower() not in TRACKING_QUERY_KEYS
@@ -239,7 +256,72 @@ def canonical_url(value):
         path = parts.path.rstrip("/") or "/"
         return urlunsplit((parts.scheme.lower(), parts.netloc.lower(), path, query, ""))
     except ValueError:
-        return str(value or "").strip()
+        return ""
+
+def is_public_http_url(value):
+    """Blocca destinazioni locali/private prima di scaricare URL ottenuti dai feed."""
+    try:
+        parts = urlsplit(str(value or ""))
+        if parts.scheme.lower() not in {"http", "https"} or not parts.hostname or parts.username or parts.password:
+            return False
+        hostname = parts.hostname.rstrip(".").casefold()
+        if hostname == "localhost" or hostname.endswith(".localhost"):
+            return False
+        try:
+            addresses = {ipaddress.ip_address(hostname)}
+        except ValueError:
+            addresses = {
+                ipaddress.ip_address(item[4][0])
+                for item in socket.getaddrinfo(hostname, parts.port or 443, type=socket.SOCK_STREAM)
+            }
+        return bool(addresses) and all(address.is_global for address in addresses)
+    except (OSError, ValueError):
+        return False
+
+def is_allowed_publisher_url(value, source_name):
+    try:
+        hostname = (urlsplit(str(value or "")).hostname or "").rstrip(".").casefold()
+    except ValueError:
+        return False
+    return any(hostname == domain or hostname.endswith(f".{domain}") for domain in PUBLISHER_DOMAINS.get(source_name, set()))
+
+def fetch_public_html(url, source_name):
+    """Scarica HTML pubblico con redirect validati e limite rigido di dimensione."""
+    current_url = url
+    for _ in range(MAX_REDIRECTS + 1):
+        if not is_allowed_publisher_url(current_url, source_name) or not is_public_http_url(current_url):
+            return None
+        response = requests.get(
+            current_url, timeout=REQUEST_TIMEOUT, allow_redirects=False, stream=True,
+            headers={"User-Agent": "LaGraffa/1.0 (+https://la-graffa.vercel.app)"},
+        )
+        if response.status_code in {301, 302, 303, 307, 308}:
+            location = response.headers.get("location")
+            response.close()
+            if not location:
+                return None
+            current_url = urljoin(current_url, location)
+            continue
+        response.raise_for_status()
+        if "text/html" not in response.headers.get("content-type", "").lower():
+            response.close()
+            return None
+        if int(response.headers.get("content-length") or 0) > MAX_DOWNLOAD_BYTES:
+            response.close()
+            return None
+        chunks, total = [], 0
+        for chunk in response.iter_content(chunk_size=65536):
+            total += len(chunk)
+            if total > MAX_DOWNLOAD_BYTES:
+                response.close()
+                return None
+            chunks.append(chunk)
+        response._content = b"".join(chunks)
+        response._content_consumed = True
+        response.url = current_url
+        response.close()
+        return response
+    return None
 
 def stable_id(source_name, entry, url, title):
     identity = canonical_url(entry.get("id") or entry.get("guid") or url)
@@ -355,15 +437,8 @@ def build_preview(summary, body):
 def fetch_public_article(item):
     """Estrae il testo leggibile della pagina pubblica senza aggirare blocchi o paywall."""
     try:
-        response = requests.get(
-            item["url"], timeout=REQUEST_TIMEOUT, allow_redirects=True,
-            headers={"User-Agent": "LaGraffa/1.0 (+https://la-graffa.vercel.app)"},
-        )
-        response.raise_for_status()
-        if "text/html" not in response.headers.get("content-type", "").lower():
-            return None
-        content_length = int(response.headers.get("content-length") or 0)
-        if content_length > 5_000_000 or len(response.content) > 5_000_000:
+        response = fetch_public_html(item["url"], item["source"])
+        if response is None:
             return None
         extracted = extract(
             response.text, url=response.url, output_format="txt",
@@ -442,6 +517,8 @@ def fetch_all():
             pub_ts = int(pub_dt.timestamp()) if pub_dt else 0
             body   = build_body(entry)
             url = canonical_url(entry.get("link", source["url"]))
+            if not url:
+                continue
 
             buckets[cat].append({
                 "id":      stable_id(source["name"], entry, url, title),
@@ -528,6 +605,24 @@ def generate_news_js(buckets, ts, meta):
     lines.append("];")    
     return "\n".join(lines) + "\n"
 
+def generate_news_json(buckets, ts, meta):
+    """Genera il formato dati server-side, senza eseguire JavaScript nell'API."""
+    public_fields = (
+        "id", "title", "summary", "preview", "body", "content_status", "source",
+        "url", "pub_ts", "published_at", "language", "score",
+    )
+    articles = []
+    for category, items in buckets.items():
+        for item in items:
+            article = {field: item[field] for field in public_fields}
+            article["cat"] = category
+            articles.append(article)
+    return json.dumps(
+        {"timestamp": ts, "meta": meta, "articles": articles},
+        ensure_ascii=False,
+        separators=(",", ":"),
+    ) + "\n"
+
 def update_index_html(ts):
     index_path = ROOT / "index.html"
     html = index_path.read_text(encoding="utf-8")
@@ -552,4 +647,8 @@ if __name__ == "__main__":
     out_path = ROOT / "news.js"
     out_path.write_text(js, encoding="utf-8")
     print(f"news.js aggiornato ({len(js)} byte)")
+    json_content = generate_news_json(buckets, ts, meta)
+    json_path = ROOT / "news.json"
+    json_path.write_text(json_content, encoding="utf-8")
+    print(f"news.json aggiornato ({len(json_content)} byte)")
     update_index_html(ts)

@@ -20,6 +20,7 @@
   --cat-ai: #2980b9;
   --cat-economia: #27ae60;
 }
+[hidden] { display: none !important; }
 [data-theme="dark"] {
   --bg: #141414;
   --surface: #1e1e1e;

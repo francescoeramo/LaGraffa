@@ -78,7 +78,7 @@
           <button class="hero-read-btn" id="heroReadBtn">Leggi di pi&ugrave;</button>
         </div>
       </div>
-      <div class="hero-read-indicator" id="heroReadIndicator" style="display:none">
+      <div class="hero-read-indicator" id="heroReadIndicator" hidden>
         <span class="check-circle">&#10003;</span> Gi&agrave; letta
       </div>
     </section>
@@ -120,11 +120,11 @@
       </section>
       <section id="intelligenza-artificiale" aria-labelledby="aiTitle">
         <h2 id="aiTitle">Sintesi AI</h2>
-        <p>La modalità lettura usa il testo disponibile nella pagina pubblica dell’editore. Sintesi e traduzioni AI sono generate solo su richiesta e devono restare fedeli a quel testo; per conferme e citazioni fa sempre fede l’articolo originale.</p>
+        <p>La modalità lettura usa il testo disponibile nella pagina pubblica dell’editore. Le traduzioni brevi passano da DeepL o MyMemory; Groq è riservato agli articoli lunghi e alle sintesi approfondite. Per conferme e citazioni fa sempre fede l’articolo originale.</p>
       </section>
       <section id="privacy" aria-labelledby="privacyTitle">
         <h2 id="privacyTitle">Privacy e dati</h2>
-        <p>Preferiti, letture, tema e sintesi salvate restano nel browser. Non sono richiesti account e LaGraffa non usa cookie pubblicitari.</p>
+        <p>Preferiti, letture, tema e testi salvati restano nel browser. Quando chiedi una traduzione o una sintesi, il testo pubblico della notizia viene inviato dal server al provider indicato sopra. Non sono richiesti account e LaGraffa non usa cookie pubblicitari.</p>
       </section>
     </div>
     <div class="footer-bottom">
@@ -139,7 +139,7 @@
       <div class="modal-header">
         <button class="modal-close" id="modalClose" aria-label="Chiudi">&#10005;</button>
         <div class="modal-header-actions">
-          <button class="translate-btn" id="translateBtn" style="display:none">&#10024; Sintesi AI in italiano</button>
+          <button class="translate-btn" id="translateBtn" hidden>&#10024; Sintesi AI in italiano</button>
           <button class="share-btn" id="shareBtn" aria-label="Condividi notizia" title="Condividi">&#8599;</button>
           <button class="later-btn" id="modalLaterBtn" aria-label="Leggi dopo" title="Leggi dopo">&#9200;</button>
           <button class="fav-btn" id="modalFavBtn" aria-label="Aggiungi ai preferiti" title="Aggiungi ai preferiti">&#9733;</button>
@@ -160,7 +160,7 @@
 
   <div class="toast" id="toast" role="status" aria-live="polite" aria-atomic="true"></div>
 
-  <script src="news.js?t=1785752377"></script>
+  <script src="news.js?t=1785753756"></script>
   <script src="app.js?v=4"></script>
 </body>
 </html>

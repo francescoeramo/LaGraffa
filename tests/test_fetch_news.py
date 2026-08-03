@@ -14,6 +14,22 @@ class FetchNewsTests(unittest.TestCase):
         value = "https://Example.com/story/?utm_source=x&id=7#section"
         self.assertEqual(fetch_news.canonical_url(value), "https://example.com/story?id=7")
 
+    def test_canonical_url_rejects_unsafe_schemes_and_credentials(self):
+        self.assertEqual(fetch_news.canonical_url("javascript:alert(1)"), "")
+        self.assertEqual(fetch_news.canonical_url("file:///etc/passwd"), "")
+        self.assertEqual(fetch_news.canonical_url("https://user:pass@example.com/story"), "")
+
+    def test_private_network_urls_are_blocked(self):
+        self.assertFalse(fetch_news.is_public_http_url("http://127.0.0.1/admin"))
+        self.assertFalse(fetch_news.is_public_http_url("http://169.254.169.254/latest/meta-data"))
+        self.assertFalse(fetch_news.is_public_http_url("http://[::1]/"))
+
+    def test_article_urls_must_stay_on_the_publishers_domains(self):
+        self.assertTrue(fetch_news.is_allowed_publisher_url("https://www.aljazeera.com/news/story", "Al Jazeera"))
+        self.assertTrue(fetch_news.is_allowed_publisher_url("https://www.bbc.co.uk/news/story", "BBC World"))
+        self.assertFalse(fetch_news.is_allowed_publisher_url("https://aljazeera.com.evil.example/story", "Al Jazeera"))
+        self.assertFalse(fetch_news.is_allowed_publisher_url("https://example.com/redirect", "ANSA"))
+
     def test_stable_id_does_not_depend_on_position(self):
         entry = {"id": "https://example.com/story"}
         first = fetch_news.stable_id("Fonte", entry, entry["id"], "Titolo")
@@ -140,6 +156,18 @@ class FetchNewsTests(unittest.TestCase):
     def test_editorial_footer_is_removed_from_article_text(self):
         text = "Primo paragrafo con i fatti.\nRiproduzione riservata © Copyright ANSA"
         self.assertEqual(fetch_news.clean_article_text(text), "Primo paragrafo con i fatti.")
+
+    def test_server_news_payload_is_strict_json(self):
+        item = {
+            "id": "a" * 20, "title": "Titolo", "summary": "Sintesi", "preview": "Anteprima",
+            "body": "Corpo", "content_status": "full", "source": "Fonte",
+            "url": "https://example.com/story", "pub_ts": 1, "published_at": None,
+            "language": "it", "score": 1,
+        }
+        payload = fetch_news.generate_news_json({"politica-italiana": [item]}, 123, {"total_articles": 1})
+        parsed = __import__("json").loads(payload)
+        self.assertEqual(parsed["timestamp"], 123)
+        self.assertEqual(parsed["articles"][0]["cat"], "politica-italiana")
 
 
 if __name__ == "__main__":

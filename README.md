@@ -28,7 +28,7 @@ Il workflow `.github/workflows/fetch_news.yml` esegue `scripts/fetch_news.py` og
 
 ## Sintesi AI e sicurezza
 
-L’API accetta esclusivamente l’ID di una notizia con testo esteso presente nel `news.js` distribuito. Titolo, fonte e testo vengono letti lato server, impedendo l’uso dell’endpoint con testo arbitrario. Il prompt distingue la traduzione integrale dalla sintesi approfondita; l’output viene rifiutato se è troppo breve, perde troppi dati numerici o contiene metacommenti come giudizi sulla qualità della notizia. Sono inoltre presenti controllo same-origin, rate limiting per IP, timeout del provider e istruzioni contro prompt injection.
+L’API accetta esclusivamente l’ID di una notizia presente nel `news.json` generato. Titolo, fonte e testo vengono letti lato server, senza valutare JavaScript e impedendo l’uso dell’endpoint con testo arbitrario. Le traduzioni brevi usano DeepL API Free quando `DEEPL_API_KEY` è configurata, altrimenti MyMemory; in questo percorso Groq non viene chiamato. Gli articoli lunghi e le sintesi approfondite continuano a usare Groq. L’output viene rifiutato se è troppo breve, perde troppi dati numerici o contiene metacommenti. Sono inoltre presenti controllo same-origin, validazione stretta del body, rate limiting per IP, timeout dei provider e istruzioni contro prompt injection.
 
 Il modello configurato è `llama-3.3-70b-versatile` tramite Groq. Le sintesi sono automatiche e possono sbagliare; l’articolo originale resta la fonte autorevole.
 
