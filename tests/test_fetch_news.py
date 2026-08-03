@@ -28,6 +28,7 @@ class FetchNewsTests(unittest.TestCase):
         self.assertEqual(fetch_news.detect_language("Il governo approva la legge con il voto della Camera"), "it")
         self.assertEqual(fetch_news.detect_language("The government approves the law after a vote"), "en")
         self.assertEqual(fetch_news.detect_language("El gobierno aprueba la ley después del voto"), "es")
+        self.assertEqual(fetch_news.article_language("L'impatto tra un bus e un camper", "ANSA"), "it")
 
     def test_weak_economy_word_does_not_move_general_news(self):
         entry = {"title": "Terremoto, riaperto il porto", "summary": "Danni per il commercio locale"}
@@ -38,6 +39,46 @@ class FetchNewsTests(unittest.TestCase):
         entry = {"title": "AI Act e tutela dei dati", "summary": "Il Garante interviene sull'intelligenza artificiale"}
         category, _score = fetch_news.classify_entry(entry, {"name": "ANSA", "cat": "politica-italiana"})
         self.assertEqual(category, "ai")
+
+    def test_road_accident_metaphor_is_not_classified_as_conflict(self):
+        entry = {
+            "title": "Tragedia sulla Terni-Rieti, sei morti e 34 feriti in uno scontro",
+            "summary": "L'impatto tra un bus e un camper. Presidente dell'Umbria: scenario di guerra",
+        }
+        category, _score = fetch_news.classify_entry(entry, {"name": "ANSA", "cat": "politica-italiana"})
+        self.assertEqual(category, "politica-italiana")
+
+    def test_wildfire_historical_comparison_is_not_classified_as_conflict(self):
+        entry = {
+            "title": "L'incendio che ha travolto una regione francese",
+            "summary": "È il più esteso dalla seconda guerra mondiale e ha costretto migliaia di persone a evacuare",
+        }
+        category, _score = fetch_news.classify_entry(entry, {"name": "El Pais", "cat": "geopolitica"})
+        self.assertEqual(category, "geopolitica")
+
+    def test_historical_memorial_from_general_source_is_geopolitics(self):
+        entry = {
+            "title": "Uganda unveils statue of Israel PM's brother",
+            "summary": "The soldier died during the historic Entebbe rescue mission",
+        }
+        category, _score = fetch_news.classify_entry(entry, {"name": "Al Jazeera", "cat": "conflitti"})
+        self.assertEqual(category, "geopolitica")
+
+    def test_military_coup_is_geopolitics_not_automatically_conflict(self):
+        entry = {
+            "title": "Myanmar releases images of Aung San Suu Kyi",
+            "summary": "She was detained after the 2021 military coup",
+        }
+        category, _score = fetch_news.classify_entry(entry, {"name": "Al Jazeera", "cat": "conflitti"})
+        self.assertEqual(category, "geopolitica")
+
+    def test_real_attack_remains_in_conflicts_even_when_an_incident_is_mentioned(self):
+        entry = {
+            "title": "Attacco missilistico a Gaza",
+            "summary": "L'incidente ha coinvolto civili durante un raid israeliano",
+        }
+        category, _score = fetch_news.classify_entry(entry, {"name": "ANSA", "cat": "politica-italiana"})
+        self.assertEqual(category, "conflitti")
 
     def test_similar_same_source_items_are_duplicates(self):
         existing = [{

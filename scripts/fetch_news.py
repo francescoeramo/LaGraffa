@@ -43,7 +43,7 @@ RSS_SOURCES = [
 # Le fonti italiane restano il punto di partenza: la priorità interviene solo
 # a parità di freschezza e rilevanza, senza nascondere il necessario contesto estero.
 ITALIAN_SOURCES = {"ANSA", "AGI", "Facta", "Pagella Politica", "Valigia Blu", "Internazionale", "Limes", "Wired IT", "Il Post Tech", "Il Sole 24 Ore"}
-BROAD_SOURCES = {"ANSA", "AGI", "Facta", "Pagella Politica", "Internazionale", "BBC World", "El Pais"}
+BROAD_SOURCES = {"ANSA", "AGI", "Facta", "Pagella Politica", "Internazionale", "BBC World", "El Pais", "Al Jazeera"}
 REQUESTED_PUBLISHERS = {"Facta", "Internazionale", "Limes", "Pagella Politica"}
 
 KEYWORDS = {
@@ -55,11 +55,30 @@ KEYWORDS = {
 }
 
 STRONG_CATEGORY_PATTERNS = {
-    "geopolitica": r"\b(nato|onu|g7|g20|sanzioni|sanctions|diplomazia|diplomacy|trattato|treaty)\b",
+    "geopolitica": r"\b(nato|onu|g7|g20|sanzioni|sanctions|diplomazia|diplomacy|trattato|treaty|colpo di stato|coup)\b",
     "conflitti": r"\b(guerra|war|conflitto|conflict|ucraina|ukraine|gaza|israele|israel|hamas|missile|raid|attacco|attacchi|bombardamento|bombing|ceasefire)\b",
     "ai": r"\b(ai act|intelligenza artificiale|artificial intelligence|openai|chatgpt|anthropic|claude|deepmind|deepseek|cybersecurity|cyberattack|hacker|hackers)\b",
     "economia-tech": r"\b(inflazione|inflation|tassi d.interesse|interest rates|borsa|stock market|bce|ecb|federal reserve|ipo|pil|gdp)\b",
 }
+
+# Evita che metafore come "scenario di guerra" o confronti storici trasformino
+# incidenti e calamità in conflitti armati.
+NON_CONFLICT_EVENT_PATTERN = re.compile(
+    r"\b(incidente|incident|crash|collisione|collision|scontro|impatto|"
+    r"incendio|wildfire|forest fire|terremoto|earthquake|alluvione|flood|frana|landslide|"
+    r"valanga|avalanche|naufragio|shipwreck)\b",
+    re.IGNORECASE,
+)
+ACTIVE_CONFLICT_PATTERN = re.compile(
+    r"\b(attacco|attacchi|attack|attacks|missile|missili|raid|bombardamento|bombing|"
+    r"truppe|troops|esercito\s+(?:russo|israeliano)|idf|cessate il fuoco|ceasefire)\b",
+    re.IGNORECASE,
+)
+HISTORICAL_OR_CEREMONIAL_PATTERN = re.compile(
+    r"\b(statua|statue|anniversario|anniversary|memoriale|memorial|commemorazione|"
+    r"commemoration|museo|museum|seconda guerra mondiale|world war (?:i|ii|one|two))\b",
+    re.IGNORECASE,
+)
 
 # Contenuti promozionali, gossip e consumer news non coerenti con la linea editoriale.
 LOW_VALUE_PATTERNS = [
@@ -196,10 +215,17 @@ def classify_entry(entry, source):
         return default_cat, scores[default_cat]
     text = f"{clean_html(entry.get('title', ''))} {clean_html(entry.get('summary', ''))}".casefold()
     strong_candidates = [cat for cat, pattern in STRONG_CATEGORY_PATTERNS.items() if re.search(pattern, text, re.IGNORECASE)]
+    misleading_conflict_context = NON_CONFLICT_EVENT_PATTERN.search(text) or HISTORICAL_OR_CEREMONIAL_PATTERN.search(text)
+    conflict_suppressed = "conflitti" in strong_candidates and misleading_conflict_context and not ACTIVE_CONFLICT_PATTERN.search(text)
+    if conflict_suppressed:
+        strong_candidates.remove("conflitti")
+        scores["conflitti"] = 0
     if strong_candidates:
         specificity = {"conflitti": 5, "ai": 4, "economia-tech": 3, "geopolitica": 2}
         selected = max(strong_candidates, key=lambda cat: (scores[cat], specificity[cat]))
         return selected, max(1, scores[selected])
+    if conflict_suppressed and source["name"] == "Al Jazeera":
+        return "geopolitica", max(1, scores["geopolitica"])
     score = scores[default_cat]
     return default_cat, max(1, score) if source["name"] in REQUESTED_PUBLISHERS else score
 
@@ -229,6 +255,12 @@ def detect_language(text):
     scores = {"it": italian, "es": spanish, "en": english}
     language = max(scores, key=scores.get)
     return language if scores[language] else "en"
+
+def article_language(text, source_name):
+    """Le testate italiane pubblicano il feed selezionato in italiano."""
+    if source_name in ITALIAN_SOURCES:
+        return "it"
+    return detect_language(text)
 
 def content_tokens(item):
     text = f"{item['title']} {item['summary']}".casefold()
@@ -421,7 +453,7 @@ def fetch_all():
                 "time":    relative_time(pub_dt),
                 "pub_ts":  pub_ts,
                 "published_at": pub_dt.isoformat() if pub_dt else None,
-                "language": detect_language(f"{title} {summary}"),
+                "language": article_language(f"{title} {summary}", source["name"]),
                 "score":   score,
                 "italian_priority": source["name"] in ITALIAN_SOURCES,
             })
