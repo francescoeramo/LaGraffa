@@ -10,8 +10,8 @@
   --fav-color: #e6b800;
   --later-color: #2980b9;
   --read-color: #2980b9;
-  --font-head: 'Playfair Display', Georgia, serif;
-  --font-body: 'Inter', system-ui, sans-serif;
+  --font-head: Georgia, 'Times New Roman', serif;
+  --font-body: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
   --radius: 10px;
   --shadow: 0 2px 12px rgba(0,0,0,.07);
   --cat-politica: #c0392b;
@@ -396,8 +396,23 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
 .footer-grid { max-width: 1280px; margin: 0 auto 28px; display: grid; grid-template-columns: repeat(3, 1fr); gap: 28px; }
 .footer-grid h2 { font-family: var(--font-head); font-size: 1rem; margin-bottom: 8px; }
 .footer-grid p { color: var(--text-muted); font-size: .78rem; line-height: 1.65; }
+.footer-grid a { color: var(--accent2); }
 .footer-bottom { max-width: 1280px; margin: 0 auto; padding-top: 16px; border-top: 1px solid var(--border); display: flex; justify-content: space-between; gap: 16px; color: var(--text-muted); font-size: .72rem; }
 .footer-bottom a { color: var(--accent2); }
+.github-link { display: inline-flex; align-items: center; gap: 6px; font-weight: 600; text-decoration: none; }
+.github-link:hover { text-decoration: underline; }
+.legal-header .header-inner { justify-content: space-between; }
+.legal-back { color: var(--accent2); font-size: .82rem; font-weight: 600; text-decoration: none; }
+.legal-back:hover { text-decoration: underline; }
+.legal-page { width: min(760px, calc(100% - 32px)); margin: 0 auto; padding: 64px 0 72px; }
+.legal-page h1 { font-family: var(--font-head); font-size: clamp(2rem, 5vw, 3rem); line-height: 1.1; margin: 6px 0 8px; }
+.legal-updated { color: var(--text-muted); font-size: .78rem; margin-bottom: 40px; }
+.legal-page section { padding: 24px 0; border-top: 1px solid var(--border); }
+.legal-page h2 { font-family: var(--font-head); font-size: 1.2rem; margin-bottom: 10px; }
+.legal-page p { color: var(--text-muted); font-size: .92rem; line-height: 1.75; }
+.legal-page p + p { margin-top: 12px; }
+.legal-page a { color: var(--accent2); }
+.legal-footer { padding-top: 20px; }
 .toast {
   position: fixed; z-index: 400; left: 50%; bottom: 24px; transform: translate(-50%, 140%);
   max-width: min(420px, calc(100% - 32px)); padding: 10px 16px; border-radius: 8px;

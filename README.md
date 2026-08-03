@@ -32,22 +32,6 @@ L’API accetta esclusivamente l’ID di una notizia presente nel `news.json` ge
 
 Il modello configurato è `llama-3.3-70b-versatile` tramite Groq. Le sintesi sono automatiche e possono sbagliare; l’articolo originale resta la fonte autorevole.
 
-## Sviluppo locale
+## Autore e progetto
 
-1. Crea un ambiente Python e installa le dipendenze: `pip install -r requirements.txt`.
-2. Copia `.env.example` in `.env` e inserisci `GROQ_API_KEY`.
-3. Esegui `python scripts/fetch_news.py` per aggiornare i feed.
-4. Usa `vercel dev` per provare insieme sito e API, oppure un server statico per la sola interfaccia.
-
-Controlli disponibili:
-
-```sh
-python -m unittest discover -s tests -p 'test_*.py'
-node --check app.js
-node --check api/ai.js
-node --test tests/test_api.js
-```
-
-## Deploy
-
-Importa il repository in Vercel senza build command e configura `GROQ_API_KEY` in Production, Preview e Development. Gli header di sicurezza sono definiti in `vercel.json`; la chiave non viene mai esposta al browser.
+LaGraffa è un progetto di Francesco Eramo ed è disponibile su [lagraffa.vercel.app](https://lagraffa.vercel.app/). Segnalazioni, rettifiche e richieste di rimozione possono essere aperte nella sezione Issues del repository.

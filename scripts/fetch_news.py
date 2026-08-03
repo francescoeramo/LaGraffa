@@ -131,6 +131,9 @@ BOILERPLATE_PATTERNS = [
     r"(?i)compiled\s+by[^.]{0,80}[.…]?",
     r"(?i)riproduzione\s+riservata(?:\s+©)?(?:\s+copyright)?[^.\n]{0,80}$",
     r"(?i)published\s+on\s+\d{1,2}\s+\w+\s+\d{4}\s*$",
+    # Crediti relativi a media che LaGraffa non ripubblica.
+    r"(?i)\(\s*(?:photo|photograph|image|video)?\s*(?:credit|credits|source|fonte)\s*:\s*[^)\n]{1,180}\s*\)",
+    r"(?i)^\s*(?:foto|fotografia|photo|photograph|immagine|image|video)\s+(?:in\s+anteprima|di|by|credit(?:s)?|courtesy)\s*[:\-—]\s*[^\n]{1,220}\s*$",
 ]
 
 MAX_PER_CAT    = 20
@@ -293,7 +296,7 @@ def fetch_public_html(url, source_name):
             return None
         response = requests.get(
             current_url, timeout=REQUEST_TIMEOUT, allow_redirects=False, stream=True,
-            headers={"User-Agent": "LaGraffa/1.0 (+https://la-graffa.vercel.app)"},
+            headers={"User-Agent": "LaGraffa/1.0 (+https://lagraffa.vercel.app)"},
         )
         if response.status_code in {301, 302, 303, 307, 308}:
             location = response.headers.get("location")
@@ -481,7 +484,7 @@ def fetch_all():
     buckets = {cat: [] for cat in KEYWORDS}
     successful_sources, failed_sources = [], []
     session = requests.Session()
-    session.headers.update({"User-Agent": "LaGraffa/1.0 (+https://la-graffa.vercel.app)"})
+    session.headers.update({"User-Agent": "LaGraffa/1.0 (+https://lagraffa.vercel.app)"})
 
     for source in RSS_SOURCES:
         print(f"  Fetching {source['name']}...")

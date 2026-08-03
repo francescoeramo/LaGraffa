@@ -157,6 +157,21 @@ class FetchNewsTests(unittest.TestCase):
         text = "Primo paragrafo con i fatti.\nRiproduzione riservata © Copyright ANSA"
         self.assertEqual(fetch_news.clean_article_text(text), "Primo paragrafo con i fatti.")
 
+    def test_media_credits_are_removed_when_media_is_not_republished(self):
+        text = (
+            "Primo paragrafo con i fatti.\n"
+            "Immagine in anteprima: Frame video TG2000 via YouTube\n"
+            "Secondo paragrafo con il contesto. (Source: Bloomberg)"
+        )
+        self.assertEqual(
+            fetch_news.clean_article_text(text),
+            "Primo paragrafo con i fatti.\n\nSecondo paragrafo con il contesto.",
+        )
+
+    def test_mentions_of_photos_and_videos_remain_part_of_the_news(self):
+        text = "Le fotografie diffuse dal governo mostrano la leader durante l'incontro."
+        self.assertEqual(fetch_news.clean_article_text(text), text)
+
     def test_server_news_payload_is_strict_json(self):
         item = {
             "id": "a" * 20, "title": "Titolo", "summary": "Sintesi", "preview": "Anteprima",

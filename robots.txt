@@ -1,4 +1,4 @@
 User-agent: *
 Allow: /
 
-Sitemap: https://la-graffa.vercel.app/sitemap.xml
+Sitemap: https://lagraffa.vercel.app/sitemap.xml
