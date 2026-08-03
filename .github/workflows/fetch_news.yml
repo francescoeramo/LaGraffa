@@ -28,7 +28,12 @@ jobs:
           python-version: '3.12'
 
       - name: Install dependencies
-        run: pip install feedparser requests
+        run: pip install -r requirements.txt
+
+      - name: Test pipeline
+        run: |
+          python -m unittest discover -s tests -p 'test_*.py'
+          node --test tests/test_api.js
 
       - name: Fetch RSS and generate news.js
         run: python scripts/fetch_news.py
