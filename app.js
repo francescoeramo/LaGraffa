@@ -20,7 +20,7 @@
   var searchTerm = '', sourceName = '', sortOrder = 'newest', lastFocusedElement = null;
   var LOW_VALUE_NEWS_RE = /\b(sconto|sconti|offerta|offerte|coupon|in saldo|discount|discounts|deal|deals|starter kit|lowest price|low price|price drop|percent off|where to buy|buy now|prime day|black friday|gossip|vip|celebrity|red carpet|oroscopo|reality show|phone accessories|fight stick|gaming controller)\b/i;
   var ALL_NEWS = (typeof NEWS === 'undefined' ? [] : NEWS).filter(function (news) {
-    return news && news.id && news.title && news.url && !LOW_VALUE_NEWS_RE.test((news.title || '') + ' ' + (news.summary || ''));
+    return news && news.id && news.title && news.url && !LOW_VALUE_NEWS_RE.test((news.title || '') + ' ' + (news.preview || '') + ' ' + (news.summary || ''));
   });
   var favs = readSet(FAV_KEY), later = readSet(LATER_KEY), read = readSet(READ_KEY);
 
@@ -35,16 +35,18 @@
   function decodeEntities(value) { var area = document.createElement('textarea'), text = String(value || ''); area.innerHTML = text; text = area.value; area.innerHTML = text; return area.value; }
   function escapeHTML(value) { var d = document.createElement('div'); d.textContent = decodeEntities(value); return d.innerHTML; }
   function normalize(value) { return decodeEntities(value).toLocaleLowerCase('it').normalize('NFD').replace(/[\u0300-\u036f]/g, ''); }
-  function cleanText(text) { return decodeEntities(text).replace(/<[^>]+>/g, ' ').replace(/\s+/g, ' ').trim(); }
-  function formatBody(text) { return cleanText(text).split(/\n{2,}/).filter(Boolean).map(function (p) { return '<p>' + escapeHTML(p) + '</p>'; }).join(''); }
-  function cacheKey(news) { return 'lagraffa-ai-' + news.id + '-' + (typeof NEWS_TIMESTAMP === 'undefined' ? 'current' : NEWS_TIMESTAMP); }
+  function cleanText(text) { return decodeEntities(text).replace(/<[^>]+>/g, ' ').replace(/[ \t]+/g, ' ').trim(); }
+  function formatBody(text) {
+    return String(text || '').split(/\n{2,}/).map(cleanText).filter(Boolean).map(function (p) { return '<p>' + escapeHTML(p) + '</p>'; }).join('');
+  }
+  function cacheKey(news) { return 'lagraffa-ai-v3-' + news.id + '-' + (typeof NEWS_TIMESTAMP === 'undefined' ? 'current' : NEWS_TIMESTAMP); }
   function isFav(id) { return favs.has(id); }
   function isLater(id) { return later.has(id); }
   function isRead(id) { return read.has(id); }
   function markRead(id) { if (!isRead(id)) { read.add(id); saveSet(READ_KEY, read); } }
 
   var heroSection = document.getElementById('heroSection'), heroTitle = document.getElementById('heroTitle'), heroSummary = document.getElementById('heroSummary'), heroCat = document.getElementById('heroCat'), heroTime = document.getElementById('heroTime'), heroSource = document.getElementById('heroSource'), heroReadBtn = document.getElementById('heroReadBtn'), heroReadIndicator = document.getElementById('heroReadIndicator');
-  var grid = document.getElementById('newsGrid'), modalOverlay = document.getElementById('modalOverlay'), modalClose = document.getElementById('modalClose'), modalTitle = document.getElementById('modalTitle'), modalCat = document.getElementById('modalCat'), modalSource = document.getElementById('modalSource'), modalTime = document.getElementById('modalTime'), modalBody = document.getElementById('modalBody'), modalLink = document.getElementById('modalLink'), modalFavBtn = document.getElementById('modalFavBtn'), modalLaterBtn = document.getElementById('modalLaterBtn'), translateBtn = document.getElementById('translateBtn'), modalSourcesBlock = document.getElementById('modalSourcesBlock'), shareBtn = document.getElementById('shareBtn');
+  var grid = document.getElementById('newsGrid'), modalOverlay = document.getElementById('modalOverlay'), modalClose = document.getElementById('modalClose'), modalTitle = document.getElementById('modalTitle'), modalCat = document.getElementById('modalCat'), modalSource = document.getElementById('modalSource'), modalTime = document.getElementById('modalTime'), modalBody = document.getElementById('modalBody'), modalLink = document.getElementById('modalLink'), modalFavBtn = document.getElementById('modalFavBtn'), modalLaterBtn = document.getElementById('modalLaterBtn'), translateBtn = document.getElementById('translateBtn'), modalSourcesBlock = document.getElementById('modalSourcesBlock'), modalDisclosure = document.getElementById('modalDisclosure'), shareBtn = document.getElementById('shareBtn');
   var themeToggle = document.getElementById('themeToggle'), refreshBtn = document.getElementById('refreshBtn'), refreshTimer = document.getElementById('refreshTimer'), feedStatus = document.getElementById('feedStatus'), menuToggle = document.getElementById('menuToggle'), mobileNav = document.getElementById('mobileNav');
   var searchInput = document.getElementById('searchInput'), sourceFilter = document.getElementById('sourceFilter'), sortSelect = document.getElementById('sortOrder'), clearFilters = document.getElementById('clearFilters'), resultsCount = document.getElementById('resultsCount'), toast = document.getElementById('toast');
 
@@ -166,7 +168,7 @@
   }
   function setModalContent(news, content) {
     modalTitle.textContent = decodeEntities(content && content.title || news.title);
-    modalBody.innerHTML = formatBody(content && content.summary || news.body || news.summary);
+    modalBody.innerHTML = formatBody(content && (content.body || content.summary) || news.body || news.summary);
   }
   function openModal(news, trigger, updateHash) {
     currentModalNews = news; aiContent = null; showingAi = false; lastFocusedElement = trigger || document.activeElement;
@@ -177,11 +179,14 @@
     modalTime.textContent = '🕐 ' + formatRelativeTime(news.pub_ts);
     modalLink.href = news.url;
     setModalContent(news);
+    modalDisclosure.textContent = news.content_status === 'full'
+      ? 'Modalità lettura: testo esteso estratto dalla pagina pubblica dell’editore e ripulito dagli elementi di navigazione. Per citazioni e impaginazione fa sempre fede la fonte originale.'
+      : 'La fonte non rende disponibile un testo esteso leggibile: qui è mostrata la sintesi completa del feed. Apri l’articolo originale per tutti i dettagli.';
     var cached;
     try { cached = JSON.parse(localStorage.getItem(cacheKey(news)) || 'null'); } catch (_) { cached = null; }
-    if (cached && cached.summary) { aiContent = cached; translateBtn.textContent = '✨ Mostra sintesi AI'; }
-    else { translateBtn.textContent = news.language === 'it' ? '✨ Approfondisci con AI' : '✨ Traduci e approfondisci'; }
-    translateBtn.style.display = '';
+    if (cached && (cached.body || cached.summary)) { aiContent = cached; translateBtn.textContent = news.language === 'it' ? '✨ Mostra sintesi AI' : '✨ Mostra traduzione'; }
+    else { translateBtn.textContent = news.language === 'it' ? '✨ Sintesi accurata' : '✨ Traduci integralmente'; }
+    translateBtn.style.display = news.content_status === 'full' ? '' : 'none';
     translateBtn.disabled = false;
     modalSourcesBlock.textContent = '';
     var strong = document.createElement('strong'); strong.textContent = 'Fonte utilizzata:';
@@ -201,11 +206,11 @@
     if (aiContent) {
       showingAi = !showingAi;
       setModalContent(currentModalNews, showingAi ? aiContent : null);
-      translateBtn.textContent = showingAi ? '↩ Mostra testo originale' : '✨ Mostra sintesi AI';
+      translateBtn.textContent = showingAi ? '↩ Mostra testo originale' : (currentModalNews.language === 'it' ? '✨ Mostra sintesi AI' : '✨ Mostra traduzione');
       return;
     }
     var requestedNews = currentModalNews;
-    translateBtn.disabled = true; translateBtn.textContent = '⏳ Sintesi in preparazione…';
+    translateBtn.disabled = true; translateBtn.textContent = requestedNews.language === 'it' ? '⏳ Sintesi in preparazione…' : '⏳ Traduzione in preparazione…';
     fetch('/api/ai', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ articleId: requestedNews.id }) })
       .then(function (response) { return response.json().then(function (data) { if (!response.ok) throw new Error(data.error || 'Servizio non disponibile'); return data; }); })
       .then(function (data) {
@@ -214,7 +219,7 @@
         try { localStorage.setItem(cacheKey(requestedNews), JSON.stringify(data)); } catch (_) { /* cache facoltativa */ }
         setModalContent(requestedNews, data); translateBtn.textContent = '↩ Mostra testo originale'; translateBtn.disabled = false;
       })
-      .catch(function (error) { translateBtn.textContent = '✨ Riprova'; translateBtn.disabled = false; showToast(error.message || 'Sintesi non disponibile.'); });
+      .catch(function (error) { translateBtn.textContent = '✨ Riprova'; translateBtn.disabled = false; showToast(error.message || 'Elaborazione non disponibile.'); });
   });
 
   function shareNews(news) {
@@ -257,7 +262,7 @@
   function renderHero(news) {
     if (!news) { heroSection.hidden = true; return; }
     heroSection.hidden = false; heroSection.className = 'hero-section cat-bg-' + news.cat;
-    heroTitle.textContent = decodeEntities(news.title); heroSummary.textContent = decodeEntities(news.summary);
+    heroTitle.textContent = decodeEntities(news.title); heroSummary.textContent = decodeEntities(news.preview || news.summary);
     heroCat.textContent = CAT_LABELS[news.cat] || news.cat; heroTime.dataset.pubTs = news.pub_ts; heroTime.textContent = formatRelativeTime(news.pub_ts); heroSource.textContent = news.source;
     heroReadBtn.onclick = function () { openModal(news, heroReadBtn); };
     heroReadIndicator.style.display = isRead(news.id) ? 'flex' : 'none';
@@ -268,7 +273,7 @@
     card.className = 'news-card cat-' + news.cat + (wasRead ? ' card-read' : '');
     card.dataset.newsId = news.id;
     var languageBadge = news.language && news.language !== 'it' ? '<span class="card-language" lang="' + escapeHTML(news.language) + '">' + escapeHTML(LANGUAGE_LABELS[news.language] || news.language.toUpperCase()) + '</span>' : '';
-    card.innerHTML = '<div class="card-cat-bar"></div><div class="card-body"><div class="card-topline"><span class="card-cat-badge">' + escapeHTML(CAT_LABELS[news.cat] || news.cat) + '</span><span class="card-badges">' + languageBadge + '<span class="card-read-badge"' + (wasRead ? '' : ' hidden') + ' aria-label="Già letta">✔</span></span></div><h3 class="card-title"><button class="card-open-btn" type="button">' + escapeHTML(news.title) + '</button></h3><p class="card-summary">' + escapeHTML(news.summary) + '</p></div><div class="card-footer"><span class="card-source">' + escapeHTML(news.source) + '</span><span class="card-footer-right"><time class="card-time" data-pub-ts="' + escapeHTML(news.pub_ts) + '" datetime="' + escapeHTML(news.published_at || '') + '">' + escapeHTML(formatRelativeTime(news.pub_ts)) + '</time><button class="card-later-btn' + (laterOn ? ' later-on' : '') + '" type="button" aria-pressed="' + String(laterOn) + '" aria-label="' + (laterOn ? 'Rimuovi da Leggi dopo' : 'Aggiungi a Leggi dopo') + '">⏰</button></span></div>';
+    card.innerHTML = '<div class="card-cat-bar"></div><div class="card-body"><div class="card-topline"><span class="card-cat-badge">' + escapeHTML(CAT_LABELS[news.cat] || news.cat) + '</span><span class="card-badges">' + languageBadge + '<span class="card-read-badge"' + (wasRead ? '' : ' hidden') + ' aria-label="Già letta">✔</span></span></div><h3 class="card-title"><button class="card-open-btn" type="button">' + escapeHTML(news.title) + '</button></h3><p class="card-summary">' + escapeHTML(news.preview || news.summary) + '</p></div><div class="card-footer"><span class="card-source">' + escapeHTML(news.source) + '</span><span class="card-footer-right"><time class="card-time" data-pub-ts="' + escapeHTML(news.pub_ts) + '" datetime="' + escapeHTML(news.published_at || '') + '">' + escapeHTML(formatRelativeTime(news.pub_ts)) + '</time><button class="card-later-btn' + (laterOn ? ' later-on' : '') + '" type="button" aria-pressed="' + String(laterOn) + '" aria-label="' + (laterOn ? 'Rimuovi da Leggi dopo' : 'Aggiungi a Leggi dopo') + '">⏰</button></span></div>';
     var openButton = card.querySelector('.card-open-btn');
     openButton.addEventListener('click', function () { openModal(news, openButton); });
     card.querySelector('.card-later-btn').addEventListener('click', function () { toggleLater(news.id); });

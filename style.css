@@ -144,6 +144,8 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
 .hero-summary {
   font-size: 1rem; color: rgba(255,255,255,.88);
   max-width: 640px; margin-bottom: 18px;
+  display: -webkit-box; -webkit-line-clamp: 8;
+  -webkit-box-orient: vertical; overflow: hidden;
 }
 .hero-meta {
   display: flex; gap: 12px; flex-wrap: wrap; align-items: center;
@@ -270,7 +272,9 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
 .card-open-btn:focus-visible { border-radius: 4px; outline-offset: 5px; }
 .card-summary {
   font-size: .82rem; color: var(--text-muted); line-height: 1.55;
-  margin-bottom: 10px;
+  display: -webkit-box; -webkit-line-clamp: 8;
+  -webkit-box-orient: vertical; overflow: hidden;
+  min-height: calc(1.55em * 5); max-height: calc(1.55em * 8); margin-bottom: 10px;
 }
 .card-tags { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 8px; }
 .card-tag {

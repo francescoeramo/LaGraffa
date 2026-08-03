@@ -1,6 +1,6 @@
 # LaGraffa
 
-LaGraffa è una rassegna di notizie italiane e internazionali aggiornata ogni ora. Aggrega feed RSS pubblici, mostra estratti attribuiti alle testate e rimanda sempre all’articolo originale. Vercel serve il sito statico e l’API server-side per le sintesi AI.
+LaGraffa è una rassegna di notizie italiane e internazionali aggiornata ogni ora. Aggrega feed RSS pubblici, mostra anteprime attribuite alle testate e rimanda sempre all’articolo originale. Vercel serve il sito statico e l’API server-side per traduzioni e sintesi AI.
 
 ## Funzioni
 
@@ -9,13 +9,14 @@ LaGraffa è una rassegna di notizie italiane e internazionali aggiornata ogni or
 - preferiti, articoli letti e coda “Leggi dopo” salvati solo nel browser;
 - indicatore dell’ultimo aggiornamento e avviso quando i dati diventano obsoleti;
 - link diretti e condivisibili alle singole notizie;
-- sintesi o traduzione AI su richiesta, con rimando esplicito alla fonte.
+- anteprime omogenee di 5-8 righe nella home e testo esteso solo nel lettore aperto con un clic;
+- sintesi approfondita per le notizie italiane o traduzione integrale per quelle straniere, sempre su richiesta e con rimando esplicito alla fonte.
 
 ## Criteri editoriali
 
 La selezione conserva prima la freschezza e poi considera pertinenza e priorità delle fonti italiane. Tra gli editori configurati ci sono anche Facta, Internazionale, Limes e Pagella Politica. Ogni testata ha un limite per categoria. URL canonici, similarità del testo e filtri tematici riducono duplicati, offerte commerciali, gossip e contenuti fuori linea.
 
-I feed generalisti vengono classificati dal contenuto; quelli verticali conservano la propria sezione. Gli estratti preservano senza tagli, anche nelle card, la sintesi editoriale più completa disponibile nel feed; se il contenuto incorporato coincide con l’articolo integrale, viene mantenuta la sinossi dell’editore e il testo completo resta sulla fonte. Per gli editori di analisi richiesti la finestra arriva a sette giorni, così le pubblicazioni meno frequenti non spariscono dalla rassegna. Gli ID derivano dall’URL o dal GUID del feed, quindi preferiti e letture restano associati alla stessa notizia dopo gli aggiornamenti.
+I feed generalisti vengono classificati dal contenuto; quelli verticali conservano la propria sezione. La pipeline prova a estrarre il testo leggibile dalla pagina pubblica dell’editore, senza aggirare blocchi o paywall. La home ne mostra soltanto un’anteprima di massimo 560 caratteri; il testo esteso compare nel lettore dopo il clic. Se la pagina non è accessibile, resta la sintesi del feed, purché sia abbastanza informativa: gli elementi troppo corti vengono esclusi. Per gli editori di analisi richiesti la finestra arriva a sette giorni, così le pubblicazioni meno frequenti non spariscono dalla rassegna. Gli ID derivano dall’URL o dal GUID del feed, quindi preferiti e letture restano associati alla stessa notizia dopo gli aggiornamenti.
 
 Le fonti configurate si trovano in `scripts/fetch_news.py`. Gli URL non più pubblicati o non accessibili in modo affidabile non vengono mantenuti solo per aumentarne il numero.
 
@@ -27,7 +28,7 @@ Il workflow `.github/workflows/fetch_news.yml` esegue `scripts/fetch_news.py` og
 
 ## Sintesi AI e sicurezza
 
-L’API accetta esclusivamente l’ID di una notizia presente nel `news.js` distribuito. Titolo, fonte e testo vengono letti lato server, impedendo l’uso dell’endpoint con testo arbitrario. Sono inoltre presenti controllo same-origin, rate limiting per IP, timeout del provider e istruzioni contro prompt injection.
+L’API accetta esclusivamente l’ID di una notizia con testo esteso presente nel `news.js` distribuito. Titolo, fonte e testo vengono letti lato server, impedendo l’uso dell’endpoint con testo arbitrario. Il prompt distingue la traduzione integrale dalla sintesi approfondita; l’output viene rifiutato se è troppo breve, perde troppi dati numerici o contiene metacommenti come giudizi sulla qualità della notizia. Sono inoltre presenti controllo same-origin, rate limiting per IP, timeout del provider e istruzioni contro prompt injection.
 
 Il modello configurato è `llama-3.3-70b-versatile` tramite Groq. Le sintesi sono automatiche e possono sbagliare; l’articolo originale resta la fonte autorevole.
 

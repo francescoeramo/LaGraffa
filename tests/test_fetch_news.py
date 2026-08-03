@@ -76,6 +76,30 @@ class FetchNewsTests(unittest.TestCase):
             "Limes",
         ))
 
+    def test_preview_uses_article_when_feed_summary_is_too_short(self):
+        summary = "Una descrizione troppo breve per essere utile."
+        body = " ".join([
+            "La decisione è stata annunciata dal governo dopo settimane di confronto.",
+            "Il provvedimento coinvolge amministrazioni locali, imprese e cittadini.",
+            "Entrerà in vigore a settembre e prevede una verifica dopo sei mesi.",
+            "Le opposizioni chiedono chiarimenti sui costi e sui tempi di attuazione.",
+            "Il ministero pubblicherà i dati completi nel prossimo rapporto.",
+        ])
+        preview = fetch_news.build_preview(summary, body)
+        self.assertGreater(len(preview), len(summary))
+        self.assertLessEqual(len(preview), fetch_news.PREVIEW_MAX_CHARS)
+        self.assertIn("Entrerà in vigore", preview)
+
+    def test_preview_truncates_at_sentence_boundary(self):
+        text = ("Prima frase con informazioni verificabili. " * 20) + "Dettaglio finale."
+        preview = fetch_news.truncate_at_sentence(text, 300)
+        self.assertLessEqual(len(preview), 300)
+        self.assertTrue(preview.endswith("."))
+
+    def test_editorial_footer_is_removed_from_article_text(self):
+        text = "Primo paragrafo con i fatti.\nRiproduzione riservata © Copyright ANSA"
+        self.assertEqual(fetch_news.clean_article_text(text), "Primo paragrafo con i fatti.")
+
 
 if __name__ == "__main__":
     unittest.main()

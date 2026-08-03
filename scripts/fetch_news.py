@@ -10,11 +10,13 @@ import html
 import json
 import re
 import unicodedata
+from concurrent.futures import ThreadPoolExecutor, as_completed
 from datetime import datetime, timezone, timedelta
 from pathlib import Path
 from urllib.parse import parse_qsl, urlencode, urlsplit, urlunsplit
 
 import requests
+from trafilatura import extract
 
 RSS_SOURCES = [
     {"name": "ANSA",             "url": "https://www.ansa.it/sito/ansait_rss.xml",                          "cat": "politica-italiana"},
@@ -95,6 +97,8 @@ BOILERPLATE_PATTERNS = [
     r"(?i)reporting\s+by[^.]{0,80}[.…]?",
     r"(?i)editing\s+by[^.]{0,80}[.…]?",
     r"(?i)compiled\s+by[^.]{0,80}[.…]?",
+    r"(?i)riproduzione\s+riservata(?:\s+©)?(?:\s+copyright)?[^.\n]{0,80}$",
+    r"(?i)published\s+on\s+\d{1,2}\s+\w+\s+\d{4}\s*$",
 ]
 
 MAX_PER_CAT    = 20
@@ -102,6 +106,11 @@ MAX_PER_SOURCE = 3
 MAX_AGE_HOURS  = 48
 ANALYSIS_MAX_AGE_HOURS = 168
 MAX_EMBEDDED_SUMMARY_CHARS = 2000
+PREVIEW_MIN_CHARS = 280
+PREVIEW_MAX_CHARS = 560
+MIN_USABLE_PREVIEW_CHARS = 220
+MAX_ARTICLE_CHARS = 50000
+ARTICLE_FETCH_WORKERS = 6
 MIN_TOTAL_ARTICLES = 10
 REQUEST_TIMEOUT = (5, 20)
 ROOT = Path(__file__).parent.parent
@@ -141,6 +150,18 @@ def truncate(text, max_chars=400):
     if len(text) <= max_chars:
         return text
     return text[:max_chars].rsplit(" ", 1)[0] + "\u2026"
+
+def truncate_at_sentence(text, max_chars):
+    """Accorcia senza spezzare una frase quando è disponibile un confine utile."""
+    text = re.sub(r"\s+", " ", str(text or "")).strip()
+    if len(text) <= max_chars:
+        return text
+    window = text[:max_chars + 1]
+    boundaries = [match.end() for match in re.finditer(r"[.!?](?=\s|$)", window)]
+    useful = [position for position in boundaries if position >= int(max_chars * 0.6)]
+    if useful:
+        return window[:useful[-1]].strip()
+    return window[:max_chars].rsplit(" ", 1)[0].rstrip(" ,;:") + "…"
 
 def get_pub_dt(entry):
     parsed = entry.get("published_parsed") or entry.get("updated_parsed")
@@ -281,6 +302,74 @@ def build_body(entry):
 
     return "\n\n".join(paragraphs)
 
+def clean_article_text(value):
+    """Normalizza il testo estratto conservando una struttura leggibile."""
+    paragraphs = []
+    for raw_line in re.split(r"\n+", str(value or "")):
+        line = remove_boilerplate(clean_html(raw_line))
+        if line and (not paragraphs or line != paragraphs[-1]):
+            paragraphs.append(line)
+    return "\n\n".join(paragraphs)
+
+def build_preview(summary, body):
+    """Crea una preview omogenea usando anche l'incipit quando il feed è scarno."""
+    summary = remove_boilerplate(clean_html(summary))
+    body_flat = re.sub(r"\s+", " ", str(body or "")).strip()
+    candidate = summary
+    if len(candidate) < PREVIEW_MIN_CHARS and len(body_flat) > len(candidate):
+        candidate = body_flat
+    return truncate_at_sentence(candidate, PREVIEW_MAX_CHARS)
+
+def fetch_public_article(item):
+    """Estrae il testo leggibile della pagina pubblica senza aggirare blocchi o paywall."""
+    try:
+        response = requests.get(
+            item["url"], timeout=REQUEST_TIMEOUT, allow_redirects=True,
+            headers={"User-Agent": "LaGraffa/1.0 (+https://la-graffa.vercel.app)"},
+        )
+        response.raise_for_status()
+        if "text/html" not in response.headers.get("content-type", "").lower():
+            return None
+        content_length = int(response.headers.get("content-length") or 0)
+        if content_length > 5_000_000 or len(response.content) > 5_000_000:
+            return None
+        extracted = extract(
+            response.text, url=response.url, output_format="txt",
+            include_comments=False, include_tables=False, favor_recall=True,
+        )
+        article_text = clean_article_text(extracted)
+        is_short_video = "/video/" in response.url and len(article_text) >= 250 and len(article_text.split()) >= 40
+        if not is_short_video and (len(article_text) < max(600, len(item["summary"]) + 200) or len(article_text.split()) < 100):
+            return None
+        if len(article_text) <= MAX_ARTICLE_CHARS:
+            return article_text
+        return truncate_at_sentence(article_text, MAX_ARTICLE_CHARS)
+    except Exception:
+        return None
+
+def enrich_selected_articles(result):
+    """Arricchisce solo gli articoli selezionati, in parallelo e con fallback al feed."""
+    items = [item for category_items in result.values() for item in category_items]
+    full_count = 0
+    with ThreadPoolExecutor(max_workers=ARTICLE_FETCH_WORKERS) as executor:
+        futures = {executor.submit(fetch_public_article, item): item for item in items}
+        for future in as_completed(futures):
+            item = futures[future]
+            article_text = future.result()
+            if article_text:
+                item["body"] = article_text
+                item["content_status"] = "full"
+                full_count += 1
+            else:
+                item["content_status"] = "feed"
+            item["preview"] = build_preview(item["summary"], item["body"])
+    for category, category_items in result.items():
+        result[category] = [
+            item for item in category_items
+            if item["content_status"] == "full" or len(item["preview"]) >= MIN_USABLE_PREVIEW_CHARS
+        ]
+    return full_count
+
 def fetch_all():
     buckets = {cat: [] for cat in KEYWORDS}
     successful_sources, failed_sources = [], []
@@ -356,11 +445,16 @@ def fetch_all():
     total = sum(len(items) for items in result.values())
     if total < MIN_TOTAL_ARTICLES:
         raise RuntimeError(f"raccolti solo {total} articoli: news.js esistente preservato")
+    full_text_articles = enrich_selected_articles(result)
+    total = sum(len(items) for items in result.values())
+    if total < MIN_TOTAL_ARTICLES:
+        raise RuntimeError(f"rimasti solo {total} articoli con un estratto adeguato: news.js esistente preservato")
     meta = {
         "successful_sources": len(successful_sources),
         "failed_sources": failed_sources,
         "total_sources": len(RSS_SOURCES),
         "total_articles": total,
+        "full_text_articles": full_text_articles,
     }
     return result, meta
 
@@ -388,7 +482,9 @@ def generate_news_js(buckets, ts, meta):
             lines.append(f"    cat: {js_string(cat)},")
             lines.append(f"    title: {js_string(item['title'])},")
             lines.append(f"    summary: {js_string(item['summary'])},")
+            lines.append(f"    preview: {js_string(item['preview'])},")
             lines.append(f"    body: {js_string(item['body'])},")
+            lines.append(f"    content_status: {js_string(item['content_status'])},")
             lines.append(f"    source: {js_string(item['source'])},")
             lines.append(f"    url: {js_string(item['url'])},")
             lines.append(f"    time: {js_string(item['time'])},")
