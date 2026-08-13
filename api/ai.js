@@ -126,10 +126,12 @@ function buildMessages({ title, text, source, language, mode }) {
 }
 
 function numericTokens(value) {
-  return new Set((String(value || '').match(/\b\d+(?:[.,]\d+)*%?\b/g) || []).map(token => {
-    const digits = token.replace(/\D/g, '').replace(/^0+(?=\d)/, '');
-    return digits || '0';
-  }));
+  return new Set((String(value || '').match(/\b\d+(?:[.,]\d+)*%?\b/g) || [])
+    .map(token => token.replace(/\D/g, '').replace(/^0+(?=\d)/, '') || '0')
+    // Single-digit counters commonly come from menus such as "list 1 of 4".
+    // Checking the more substantial values still catches lost dates, totals and percentages
+    // without rejecting a faithful translation that omits scraped navigation boilerplate.
+    .filter(token => token.length >= 2));
 }
 
 function validateNumbers(sourceText, translatedText) {
