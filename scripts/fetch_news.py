@@ -106,6 +106,12 @@ LOW_VALUE_PATTERNS = [
 
 # Frasi boilerplate da rimuovere dal corpo degli articoli
 BOILERPLATE_PATTERNS = [
+    r"(?i)^\s*-?\s*published\s*$",
+    r"(?i)^\s*newsfeed\s*$",
+    r"(?i)^\s*(?:i\s+punti\s+chiave|chiedilo\s+al\s+sole)\s*$",
+    r"(?i)^\s*\d+\s*['’]\s*(?:di\s+lettura)?\s*$",
+    r"(?i)^\s*(?:pubblicato\s+il|aggiornato\s+alle)\s*$",
+    r"(?i)\bpubblicato\s+il\s+aggiornato\s+alle\s+",
     r"(?i)continua\s+a\s+leggere[^.]{0,60}[.…]?",
     r"(?i)leggi\s+(l.articolo|tutto|di\s+pi\u00f9)[^.]{0,60}[.…]?",
     r"(?i)in\s+continuo\s+aggiornamento[^.]{0,60}[.…]?",
@@ -174,6 +180,8 @@ def clean_html(text):
                 text = repaired
         except (UnicodeEncodeError, UnicodeDecodeError):
             pass
+    # Alcuni estrattori lasciano un singolo marcatore mojibake davanti a una parola.
+    text = re.sub(r"â(?=[A-Za-zÀ-ÖØ-öø-ÿ])", "", text)
     return re.sub(r"\s+", " ", text).strip()
 
 def remove_boilerplate(text):
@@ -193,7 +201,7 @@ def truncate_at_sentence(text, max_chars):
     text = re.sub(r"\s+", " ", str(text or "")).strip()
     if len(text) <= max_chars:
         return text
-    window = text[:max_chars + 1]
+    window = text[:max_chars]
     boundaries = [match.end() for match in re.finditer(r"[.!?](?=\s|$)", window)]
     useful = [position for position in boundaries if position >= int(max_chars * 0.6)]
     if useful:
@@ -419,12 +427,13 @@ def build_body(entry):
 
     return "\n\n".join(paragraphs)
 
-def clean_article_text(value):
+def clean_article_text(value, title=""):
     """Normalizza il testo estratto conservando una struttura leggibile."""
     paragraphs = []
+    normalized_title = clean_html(title).casefold()
     for raw_line in re.split(r"\n+", str(value or "")):
         line = remove_boilerplate(clean_html(raw_line))
-        if line and (not paragraphs or line != paragraphs[-1]):
+        if line and line.casefold() != normalized_title and (not paragraphs or line != paragraphs[-1]):
             paragraphs.append(line)
     return "\n\n".join(paragraphs)
 
@@ -447,7 +456,7 @@ def fetch_public_article(item):
             response.text, url=response.url, output_format="txt",
             include_comments=False, include_tables=False, favor_recall=True,
         )
-        article_text = clean_article_text(extracted)
+        article_text = clean_article_text(extracted, item["title"])
         is_short_video = "/video/" in response.url and len(article_text) >= 250 and len(article_text.split()) >= 40
         if not is_short_video and (len(article_text) < max(600, len(item["summary"]) + 200) or len(article_text.split()) < 100):
             return None

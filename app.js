@@ -48,6 +48,9 @@
     return value && typeof value === 'object' && typeof value.title === 'string' && typeof value.body === 'string'
       && value.title.length > 0 && value.title.length <= 600 && value.body.length > 0 && value.body.length <= 40000;
   }
+  function articleLanguage(news, generated) {
+    return generated ? 'it' : (LANGUAGE_LABELS[news && news.language] ? news.language : 'it');
+  }
   function isFav(id) { return favs.has(id); }
   function isLater(id) { return later.has(id); }
   function isRead(id) { return read.has(id); }
@@ -178,6 +181,8 @@
   function setModalContent(news, content) {
     modalTitle.textContent = decodeEntities(content && content.title || news.title);
     modalBody.innerHTML = formatBody(content && (content.body || content.summary) || news.body || news.summary);
+    modalTitle.lang = articleLanguage(news, Boolean(content));
+    modalBody.lang = articleLanguage(news, Boolean(content));
   }
   function openModal(news, trigger, updateHash) {
     currentModalNews = news; aiContent = null; showingAi = false; lastFocusedElement = trigger || document.activeElement;
@@ -279,6 +284,7 @@
     if (!news) { heroSection.hidden = true; return; }
     heroSection.hidden = false; heroSection.className = 'hero-section cat-bg-' + news.cat;
     heroTitle.textContent = decodeEntities(news.title); heroSummary.textContent = decodeEntities(news.preview || news.summary);
+    heroTitle.lang = articleLanguage(news, false); heroSummary.lang = articleLanguage(news, false);
     heroCat.textContent = CAT_LABELS[news.cat] || news.cat; heroTime.dataset.pubTs = news.pub_ts; heroTime.textContent = formatRelativeTime(news.pub_ts); heroSource.textContent = news.source;
     heroReadBtn.onclick = function () { openModal(news, heroReadBtn); };
     heroReadIndicator.hidden = !isRead(news.id);
@@ -288,8 +294,9 @@
     var card = document.createElement('article'), wasRead = isRead(news.id), laterOn = isLater(news.id);
     card.className = 'news-card cat-' + news.cat + (wasRead ? ' card-read' : '');
     card.dataset.newsId = news.id;
-    var languageBadge = news.language && news.language !== 'it' ? '<span class="card-language" lang="' + escapeHTML(news.language) + '">' + escapeHTML(LANGUAGE_LABELS[news.language] || news.language.toUpperCase()) + '</span>' : '';
-    card.innerHTML = '<div class="card-cat-bar"></div><div class="card-body"><div class="card-topline"><span class="card-cat-badge">' + escapeHTML(CAT_LABELS[news.cat] || news.cat) + '</span><span class="card-badges">' + languageBadge + '<span class="card-read-badge"' + (wasRead ? '' : ' hidden') + ' aria-label="Già letta">✔</span></span></div><h3 class="card-title"><button class="card-open-btn" type="button">' + escapeHTML(news.title) + '</button></h3><p class="card-summary">' + escapeHTML(news.preview || news.summary) + '</p></div><div class="card-footer"><span class="card-source">' + escapeHTML(news.source) + '</span><span class="card-footer-right"><time class="card-time" data-pub-ts="' + escapeHTML(news.pub_ts) + '" datetime="' + escapeHTML(news.published_at || '') + '">' + escapeHTML(formatRelativeTime(news.pub_ts)) + '</time><button class="card-later-btn' + (laterOn ? ' later-on' : '') + '" type="button" aria-pressed="' + String(laterOn) + '" aria-label="' + (laterOn ? 'Rimuovi da Leggi dopo' : 'Aggiungi a Leggi dopo') + '">⏰</button></span></div>';
+    var language = articleLanguage(news, false);
+    var languageBadge = language !== 'it' ? '<span class="card-language" lang="' + language + '">' + escapeHTML(LANGUAGE_LABELS[language]) + '</span>' : '';
+    card.innerHTML = '<div class="card-cat-bar"></div><div class="card-body"><div class="card-topline"><span class="card-cat-badge">' + escapeHTML(CAT_LABELS[news.cat] || news.cat) + '</span><span class="card-badges">' + languageBadge + '<span class="card-read-badge"' + (wasRead ? '' : ' hidden') + ' aria-label="Già letta">✔</span></span></div><h3 class="card-title"><button class="card-open-btn" type="button" lang="' + language + '">' + escapeHTML(news.title) + '</button></h3><p class="card-summary" lang="' + language + '">' + escapeHTML(news.preview || news.summary) + '</p></div><div class="card-footer"><span class="card-source">' + escapeHTML(news.source) + '</span><span class="card-footer-right"><time class="card-time" data-pub-ts="' + escapeHTML(news.pub_ts) + '" datetime="' + escapeHTML(news.published_at || '') + '">' + escapeHTML(formatRelativeTime(news.pub_ts)) + '</time><button class="card-later-btn' + (laterOn ? ' later-on' : '') + '" type="button" aria-pressed="' + String(laterOn) + '" aria-label="' + (laterOn ? 'Rimuovi da Leggi dopo' : 'Aggiungi a Leggi dopo') + '">⏰</button></span></div>';
     var openButton = card.querySelector('.card-open-btn');
     openButton.addEventListener('click', function () { openModal(news, openButton); });
     card.querySelector('.card-later-btn').addEventListener('click', function () { toggleLater(news.id); });

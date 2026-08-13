@@ -6,7 +6,7 @@
   --text-muted: #666;
   --border: #e0ddd8;
   --accent: #c0392b;
-  --accent2: #2980b9;
+  --accent2: #1f6f9f;
   --fav-color: #e6b800;
   --later-color: #2980b9;
   --read-color: #2980b9;
@@ -16,9 +16,14 @@
   --shadow: 0 2px 12px rgba(0,0,0,.07);
   --cat-politica: #c0392b;
   --cat-geopolitica: #8e44ad;
-  --cat-conflitti: #d35400;
-  --cat-ai: #2980b9;
-  --cat-economia: #27ae60;
+  --cat-conflitti: #a84300;
+  --cat-ai: #1f6f9f;
+  --cat-economia: #176b3a;
+  --hero-politica: #a93226;
+  --hero-geopolitica: #71368a;
+  --hero-conflitti: #a84300;
+  --hero-ai: #1f6691;
+  --hero-economia: #176b3a;
 }
 [hidden] { display: none !important; }
 [data-theme="dark"] {
@@ -29,7 +34,14 @@
   --text-muted: #999;
   --border: #333;
   --shadow: 0 2px 12px rgba(0,0,0,.3);
+  --accent2: #69b8e8;
+  --cat-politica: #ff8276;
+  --cat-geopolitica: #d7a0ef;
+  --cat-conflitti: #ff9a57;
+  --cat-ai: #73bee9;
+  --cat-economia: #65cd91;
 }
+[data-theme="dark"] .section-kicker { color: #ff8276; }
 * { box-sizing: border-box; margin: 0; padding: 0; }
 html { font-size: 16px; scroll-behavior: smooth; }
 body {
@@ -74,16 +86,16 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
   background: none; border: 1.5px solid var(--border); border-radius: 20px;
   padding: 5px 13px; font-size: .78rem; font-weight: 600;
   cursor: pointer; color: var(--text-muted); font-family: var(--font-body);
-  transition: all .2s; white-space: nowrap;
+  transition: all .2s; white-space: nowrap; min-height: 36px;
 }
 .cat-btn:hover, .cat-btn.active {
   background: var(--accent); border-color: var(--accent); color: #fff;
 }
-.header-right { display: flex; align-items: center; gap: 8px; flex-shrink: 0; }
+.header-right { display: flex; align-items: center; gap: 8px; flex-shrink: 0; margin-left: auto; }
 .refresh-timer { font-size: .72rem; color: var(--text-muted); white-space: nowrap; }
 .refresh-btn, .theme-toggle, .menu-toggle {
   background: none; border: 1.5px solid var(--border); border-radius: 50%;
-  width: 32px; height: 32px; cursor: pointer; font-size: .95rem; color: var(--text-muted);
+  width: 40px; height: 40px; cursor: pointer; font-size: .95rem; color: var(--text-muted);
   transition: all .2s; display: flex; align-items: center; justify-content: center; flex-shrink: 0;
 }
 .refresh-btn:hover { border-color: var(--accent); color: var(--accent); transform: rotate(180deg); }
@@ -121,11 +133,11 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
   background: linear-gradient(135deg, rgba(0,0,0,.2) 0%, transparent 60%);
   pointer-events: none;
 }
-.hero-section.cat-bg-politica-italiana { background: var(--cat-politica); }
-.hero-section.cat-bg-geopolitica       { background: var(--cat-geopolitica); }
-.hero-section.cat-bg-conflitti         { background: var(--cat-conflitti); }
-.hero-section.cat-bg-ai                { background: var(--cat-ai); }
-.hero-section.cat-bg-economia-tech     { background: var(--cat-economia); }
+.hero-section.cat-bg-politica-italiana { background: var(--hero-politica); }
+.hero-section.cat-bg-geopolitica       { background: var(--hero-geopolitica); }
+.hero-section.cat-bg-conflitti         { background: var(--hero-conflitti); }
+.hero-section.cat-bg-ai                { background: var(--hero-ai); }
+.hero-section.cat-bg-economia-tech     { background: var(--hero-economia); }
 
 .hero-inner {
   max-width: 1280px; margin: 0 auto;
@@ -145,7 +157,7 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
 .hero-summary {
   font-size: 1rem; color: rgba(255,255,255,.88);
   max-width: 640px; margin-bottom: 18px;
-  display: -webkit-box; -webkit-line-clamp: 8;
+  display: -webkit-box; -webkit-line-clamp: 6;
   -webkit-box-orient: vertical; overflow: hidden;
 }
 .hero-meta {
@@ -193,11 +205,11 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
   gap: 10px; align-items: center; margin-bottom: 10px;
 }
 .news-tools input, .news-tools select {
-  width: 100%; min-height: 42px; border: 1.5px solid var(--border); border-radius: 8px;
+  width: 100%; min-height: 44px; border: 1.5px solid var(--border); border-radius: 8px;
   background: var(--surface); color: var(--text); font: inherit; font-size: .84rem; padding: 9px 12px;
 }
 .clear-filters {
-  min-height: 42px; border: 1.5px solid var(--border); border-radius: 8px;
+  min-height: 44px; border: 1.5px solid var(--border); border-radius: 8px;
   background: var(--surface2); color: var(--text); padding: 8px 13px; cursor: pointer; font-weight: 600;
 }
 .clear-filters:hover { border-color: var(--accent); color: var(--accent); }
@@ -273,9 +285,9 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
 .card-open-btn:focus-visible { border-radius: 4px; outline-offset: 5px; }
 .card-summary {
   font-size: .82rem; color: var(--text-muted); line-height: 1.55;
-  display: -webkit-box; -webkit-line-clamp: 8;
+  display: -webkit-box; -webkit-line-clamp: 5;
   -webkit-box-orient: vertical; overflow: hidden;
-  min-height: calc(1.55em * 5); max-height: calc(1.55em * 8); margin-bottom: 10px;
+  min-height: calc(1.55em * 4); max-height: calc(1.55em * 5); margin-bottom: 10px;
 }
 .card-tags { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 8px; }
 .card-tag {
@@ -298,7 +310,7 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
   background: none;
   border: 1.5px solid var(--border);
   border-radius: 50%;
-  width: 26px; height: 26px;
+  width: 36px; height: 36px;
   display: inline-flex; align-items: center; justify-content: center;
   font-size: .8rem; cursor: pointer; color: var(--text-muted);
   transition: all .2s; padding: 0; flex-shrink: 0; line-height: 1;
@@ -326,7 +338,7 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
 .modal-header-actions { display: flex; align-items: center; gap: 8px; flex-shrink: 0; }
 .modal-close {
   background: none; border: 1.5px solid var(--border); border-radius: 50%;
-  width: 34px; height: 34px; cursor: pointer; font-size: .9rem; color: var(--text-muted);
+  width: 40px; height: 40px; cursor: pointer; font-size: .9rem; color: var(--text-muted);
   transition: all .2s; display: flex; align-items: center; justify-content: center; flex-shrink: 0;
 }
 .modal-close:hover { border-color: var(--accent); color: var(--accent); }
@@ -340,7 +352,7 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
 .translate-btn:disabled { opacity: .6; cursor: wait; }
 .later-btn, .share-btn {
   background: none; border: 1.5px solid var(--border); border-radius: 50%;
-  width: 34px; height: 34px; cursor: pointer; font-size: 1rem; line-height: 1;
+  width: 40px; height: 40px; cursor: pointer; font-size: 1rem; line-height: 1;
   color: var(--text-muted);
   display: flex; align-items: center; justify-content: center;
   transition: all .2s; flex-shrink: 0; padding: 0;
@@ -349,7 +361,7 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
 .later-btn.later-on { background: var(--later-color); border-color: var(--later-color); color: #fff; }
 .fav-btn {
   background: none; border: 1.5px solid var(--border); border-radius: 50%;
-  width: 34px; height: 34px; cursor: pointer; font-size: 1rem; line-height: 1;
+  width: 40px; height: 40px; cursor: pointer; font-size: 1rem; line-height: 1;
   color: var(--text-muted);
   display: flex; align-items: center; justify-content: center;
   transition: all .2s; flex-shrink: 0; padding: 0;
@@ -422,6 +434,11 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
 .toast.show { transform: translate(-50%, 0); opacity: 1; }
 
 /* RESPONSIVE */
+@media (max-width: 1260px) {
+  .nav-cats { display: none; }
+  .menu-toggle { display: flex; }
+  .refresh-timer { display: none; }
+}
 @media (max-width: 768px) {
   .nav-cats { display: none; }
   .menu-toggle { display: flex; }
@@ -431,6 +448,7 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
   .hero-inner { padding: 32px 16px 36px; }
   .hero-title { font-size: 1.4rem; }
   .hero-summary { font-size: .9rem; }
+  .hero-summary { -webkit-line-clamp: 5; }
   .hero-read-btn { padding: 9px 18px; font-size: .85rem; }
   .news-grid-section { padding: 20px 12px 48px; }
   .news-tools { grid-template-columns: 1fr 1fr; }

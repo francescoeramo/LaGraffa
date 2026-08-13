@@ -126,7 +126,10 @@ function buildMessages({ title, text, source, language, mode }) {
 }
 
 function numericTokens(value) {
-  return new Set(String(value || '').match(/\b\d+(?:[.,]\d+)*%?\b/g) || []);
+  return new Set((String(value || '').match(/\b\d+(?:[.,]\d+)*%?\b/g) || []).map(token => {
+    const digits = token.replace(/\D/g, '').replace(/^0+(?=\d)/, '');
+    return digits || '0';
+  }));
 }
 
 function validateNumbers(sourceText, translatedText) {
@@ -315,6 +318,6 @@ async function handler(req, res) {
 module.exports = handler;
 module.exports._test = {
   buildMessages, checkRateLimit, chunksByUtf8Bytes, cleanSourceText, decodeTranslationEntities,
-  isSameOrigin, loadArticles, requestsByIp, translateShortArticle, validJsonRequest,
+  isSameOrigin, loadArticles, numericTokens, requestsByIp, translateShortArticle, validJsonRequest,
   validateGenerated, validateShortTranslation
 };

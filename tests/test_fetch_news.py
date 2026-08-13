@@ -153,9 +153,30 @@ class FetchNewsTests(unittest.TestCase):
         self.assertLessEqual(len(preview), 300)
         self.assertTrue(preview.endswith("."))
 
+    def test_sentence_boundary_never_exceeds_limit(self):
+        text = ("Parola " * 77) + "fine. Testo successivo."
+        self.assertLessEqual(len(fetch_news.truncate_at_sentence(text, 560)), 560)
+
     def test_editorial_footer_is_removed_from_article_text(self):
         text = "Primo paragrafo con i fatti.\nRiproduzione riservata © Copyright ANSA"
         self.assertEqual(fetch_news.clean_article_text(text), "Primo paragrafo con i fatti.")
+
+    def test_extraction_labels_and_repeated_title_are_removed(self):
+        title = "Titolo della notizia"
+        text = "\n".join([
+            title, "NewsFeed", title, "3' di lettura", "I punti chiave",
+            "Primo paragrafo con informazioni utili.",
+        ])
+        self.assertEqual(
+            fetch_news.clean_article_text(text, title),
+            "Primo paragrafo con informazioni utili.",
+        )
+
+    def test_stray_mojibake_marker_is_removed(self):
+        self.assertEqual(
+            fetch_news.clean_html('Address "âincreased speculation" today.'),
+            'Address "increased speculation" today.',
+        )
 
     def test_media_credits_are_removed_when_media_is_not_republished(self):
         text = (

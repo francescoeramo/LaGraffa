@@ -125,3 +125,10 @@ test('requests complete translations and rejects meta-commentary', () => {
     /metacommenti/
   );
 });
+
+test('numeric validation accepts localized punctuation and percent signs', () => {
+  assert.deepEqual(
+    [...handler._test.numericTokens('93 percent, 8.79 million and 100,000 people')],
+    [...handler._test.numericTokens('93%, 8,79 milioni e 100.000 persone')]
+  );
+});

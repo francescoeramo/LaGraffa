@@ -9,7 +9,7 @@ LaGraffa è una rassegna di notizie italiane e internazionali aggiornata ogni or
 - preferiti, articoli letti e coda “Leggi dopo” salvati solo nel browser;
 - indicatore dell’ultimo aggiornamento e avviso quando i dati diventano obsoleti;
 - link diretti e condivisibili alle singole notizie;
-- anteprime omogenee di 5-8 righe nella home e testo esteso solo nel lettore aperto con un clic;
+- anteprime compatte di 4-5 righe nella home e testo esteso solo nel lettore aperto con un clic;
 - sintesi approfondita per le notizie italiane o traduzione integrale per quelle straniere, sempre su richiesta e con rimando esplicito alla fonte.
 
 ## Criteri editoriali
