@@ -296,43 +296,50 @@ def is_allowed_publisher_url(value, source_name):
         return False
     return any(hostname == domain or hostname.endswith(f".{domain}") for domain in PUBLISHER_DOMAINS.get(source_name, set()))
 
-def fetch_public_html(url, source_name):
-    """Scarica HTML pubblico con redirect validati e limite rigido di dimensione."""
+def fetch_public_document(url, source_name, session=None, require_html=False):
+    """Valida ogni hop e limita i byte decodificati prima di qualsiasi parser."""
     current_url = url
+    get = session.get if session is not None else requests.get
     for _ in range(MAX_REDIRECTS + 1):
         if not is_allowed_publisher_url(current_url, source_name) or not is_public_http_url(current_url):
             return None
-        response = requests.get(
+        response = get(
             current_url, timeout=REQUEST_TIMEOUT, allow_redirects=False, stream=True,
             headers={"User-Agent": "LaGraffa/1.0 (+https://lagraffa.vercel.app)"},
         )
-        if response.status_code in {301, 302, 303, 307, 308}:
-            location = response.headers.get("location")
-            response.close()
-            if not location:
+        try:
+            if response.status_code in {301, 302, 303, 307, 308}:
+                location = response.headers.get("location")
+                if not location:
+                    return None
+                current_url = urljoin(current_url, location)
+                continue
+            response.raise_for_status()
+            if require_html and "text/html" not in response.headers.get("content-type", "").lower():
                 return None
-            current_url = urljoin(current_url, location)
-            continue
-        response.raise_for_status()
-        if "text/html" not in response.headers.get("content-type", "").lower():
-            response.close()
-            return None
-        if int(response.headers.get("content-length") or 0) > MAX_DOWNLOAD_BYTES:
-            response.close()
-            return None
-        chunks, total = [], 0
-        for chunk in response.iter_content(chunk_size=65536):
-            total += len(chunk)
-            if total > MAX_DOWNLOAD_BYTES:
-                response.close()
+            try:
+                declared_bytes = int(response.headers.get("content-length") or 0)
+            except (ValueError, TypeError):
                 return None
-            chunks.append(chunk)
-        response._content = b"".join(chunks)
-        response._content_consumed = True
-        response.url = current_url
-        response.close()
-        return response
+            if declared_bytes < 0 or declared_bytes > MAX_DOWNLOAD_BYTES:
+                return None
+            chunks, total = [], 0
+            for chunk in response.iter_content(chunk_size=65536):
+                total += len(chunk)
+                if total > MAX_DOWNLOAD_BYTES:
+                    return None
+                chunks.append(chunk)
+            response._content = b"".join(chunks)
+            response._content_consumed = True
+            response.url = current_url
+            return response
+        finally:
+            response.close()
     return None
+
+
+def fetch_public_html(url, source_name):
+    return fetch_public_document(url, source_name, require_html=True)
 
 def stable_id(source_name, entry, url, title):
     identity = canonical_url(entry.get("id") or entry.get("guid") or url)
@@ -500,8 +507,9 @@ def fetch_all():
         max_age = ANALYSIS_MAX_AGE_HOURS if source["name"] in REQUESTED_PUBLISHERS else MAX_AGE_HOURS
         cutoff = datetime.now(timezone.utc) - timedelta(hours=max_age)
         try:
-            response = session.get(source["url"], timeout=REQUEST_TIMEOUT)
-            response.raise_for_status()
+            response = fetch_public_document(source["url"], source["name"], session=session)
+            if response is None:
+                raise ValueError("feed non consentito o troppo grande")
             feed = feedparser.parse(response.content)
             entries = feed.entries[:40]  # leggi piu' voci per avere piu' scelta
             if not entries:
