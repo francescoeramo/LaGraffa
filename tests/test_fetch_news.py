@@ -27,6 +27,8 @@ class FetchNewsTests(unittest.TestCase):
     def test_article_urls_must_stay_on_the_publishers_domains(self):
         self.assertTrue(fetch_news.is_allowed_publisher_url("https://www.aljazeera.com/news/story", "Al Jazeera"))
         self.assertTrue(fetch_news.is_allowed_publisher_url("https://www.bbc.co.uk/news/story", "BBC World"))
+        self.assertTrue(fetch_news.is_allowed_publisher_url("https://feeds.bbci.co.uk/news/world/rss.xml", "BBC World"))
+        self.assertFalse(fetch_news.is_allowed_publisher_url("https://bbci.co.uk.evil.example/news", "BBC World"))
         self.assertFalse(fetch_news.is_allowed_publisher_url("https://aljazeera.com.evil.example/story", "Al Jazeera"))
         self.assertFalse(fetch_news.is_allowed_publisher_url("https://example.com/redirect", "ANSA"))
 
