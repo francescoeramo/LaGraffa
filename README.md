@@ -34,7 +34,7 @@ Il workflow `.github/workflows/fetch_news.yml` esegue `scripts/fetch_news.py` og
 
 Feed e pagine degli articoli condividono il downloader: ogni redirect viene verificato contro i domini dell’editore e gli indirizzi pubblici; il corpo decodificato è limitato a 5 MB prima del parsing. Risposte rifiutate o fallite vengono chiuse e la raccolta prosegue con le altre fonti.
 
-I collegamenti pubblicati devono appartenere ai domini configurati per la testata. Il downloader interrompe inoltre le risposte che superano il budget di tempo quando riceve un blocco di dati; i timeout di rete restano attivi, ma questo controllo non interrompe un'operazione DNS o una lettura bloccata prima del blocco successivo.
+I collegamenti pubblicati devono appartenere ai domini configurati per la testata. Ogni download viene eseguito in un processo separato, terminato allo scadere del budget anche se DNS o lettura rimangono bloccati. Le risoluzioni usate dal trasporto vengono controllate al momento della connessione; sono consentiti solo indirizzi pubblici. I proxy ereditati dall'ambiente sono disabilitati, mentre la verifica del certificato HTTPS resta attiva.
 
 `news.js` include data di generazione, numero di fonti raggiunte e nomi delle fonti fallite. L’interfaccia mostra questi dati e segnala ritardi superiori alle soglie previste. Il pulsante di aggiornamento ricarica soltanto l’ultima versione pubblicata: non avvia un workflow remoto.
 

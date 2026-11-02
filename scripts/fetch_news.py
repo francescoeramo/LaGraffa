@@ -5,12 +5,16 @@ e aggiorna index.html con cache-bust timestamp.
 """
 
 import feedparser
+import base64
 import hashlib
 import html
 import ipaddress
 import json
+import os
 import re
 import socket
+import subprocess
+import sys
 import time
 import unicodedata
 from concurrent.futures import ThreadPoolExecutor, as_completed
@@ -311,7 +315,7 @@ def is_allowed_publisher_url(value, source_name):
         return False
     return any(hostname == domain or hostname.endswith(f".{domain}") for domain in PUBLISHER_DOMAINS.get(source_name, set()))
 
-def fetch_public_document(url, source_name, session=None, require_html=False):
+def _fetch_public_document(url, source_name, session=None, require_html=False):
     """Valida ogni hop e limita i byte decodificati prima di qualsiasi parser."""
     current_url = url
     deadline = time.monotonic() + DOWNLOAD_BUDGET_SECONDS
@@ -360,6 +364,56 @@ def fetch_public_document(url, source_name, session=None, require_html=False):
         finally:
             response.close()
     return None
+
+
+def _download_worker():
+    """Un processo isolato controlla anche la risoluzione usata dal socket."""
+    original_getaddrinfo = socket.getaddrinfo
+
+    def public_getaddrinfo(*args, **kwargs):
+        records = original_getaddrinfo(*args, **kwargs)
+        if not records or any(not ipaddress.ip_address(item[4][0]).is_global for item in records):
+            raise OSError("indirizzo non pubblico")
+        return records
+
+    socket.getaddrinfo = public_getaddrinfo
+    request = json.load(sys.stdin)
+    with requests.Session() as session:
+        session.trust_env = False
+        response = _fetch_public_document(request['url'], request['source'], session, request['require_html'])
+        if response is None:
+            json.dump(None, sys.stdout)
+        else:
+            json.dump({'content': base64.b64encode(response.content).decode('ascii'),
+                       'url': response.url, 'encoding': response.encoding,
+                       'headers': dict(response.headers)}, sys.stdout)
+
+
+def fetch_public_document(url, source_name, require_html=False):
+    """Termina il download, compresi DNS e letture bloccate, alla scadenza."""
+    request = json.dumps({'url': url, 'source': source_name, 'require_html': require_html})
+    command = [sys.executable, '-c',
+               'import importlib.util,sys; s=importlib.util.spec_from_file_location("download",sys.argv[1]); '
+               'm=importlib.util.module_from_spec(s); s.loader.exec_module(m); m._download_worker()',
+               str(Path(__file__).resolve())]
+    try:
+        result = subprocess.run(command, input=request, text=True, capture_output=True,
+                                timeout=DOWNLOAD_BUDGET_SECONDS, check=True,
+                                env={'PATH': os.defpath})
+        data = json.loads(result.stdout)
+        if data is None:
+            return None
+        response = requests.Response()
+        response._content = base64.b64decode(data['content'], validate=True)
+        if len(response._content) > MAX_DOWNLOAD_BYTES:
+            return None
+        response._content_consumed = True
+        response.url = data['url']
+        response.encoding = data['encoding']
+        response.headers.update(data['headers'])
+        return response
+    except (subprocess.TimeoutExpired, subprocess.SubprocessError, ValueError, KeyError, TypeError):
+        return None
 
 
 def fetch_public_html(url, source_name):
@@ -523,15 +577,12 @@ def enrich_selected_articles(result):
 def fetch_all():
     buckets = {cat: [] for cat in KEYWORDS}
     successful_sources, failed_sources = [], []
-    session = requests.Session()
-    session.headers.update({"User-Agent": "LaGraffa/1.0 (+https://lagraffa.vercel.app)"})
-
     for source in RSS_SOURCES:
         print(f"  Fetching {source['name']}...")
         max_age = ANALYSIS_MAX_AGE_HOURS if source["name"] in REQUESTED_PUBLISHERS else MAX_AGE_HOURS
         cutoff = datetime.now(timezone.utc) - timedelta(hours=max_age)
         try:
-            response = fetch_public_document(source["url"], source["name"], session=session)
+            response = fetch_public_document(source["url"], source["name"])
             if response is None:
                 raise ValueError("feed non consentito o troppo grande")
             feed = feedparser.parse(response.content)
