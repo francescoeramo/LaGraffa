@@ -13,6 +13,7 @@ La selezione comprende testate italiane e internazionali. Per ampliare la copert
 ## Funzioni
 
 - sezioni Italia, Mondo, Conflitti, Tecnologia ed Economia;
+- notizie trasversali visibili in più sezioni pertinenti, senza duplicati nella panoramica;
 - ricerca testuale, filtro per fonte e ordinamento per data o rilevanza;
 - preferiti, articoli letti e coda “Leggi dopo” salvati solo nel browser;
 - indicatore dell’ultimo aggiornamento e avviso quando i dati diventano obsoleti;
@@ -24,7 +25,7 @@ La selezione comprende testate italiane e internazionali. Per ampliare la copert
 
 La selezione conserva prima la freschezza e poi considera pertinenza e priorità delle fonti italiane. Tra gli editori configurati ci sono anche Facta, Internazionale, Limes e Pagella Politica. Ogni testata ha un limite per categoria. URL canonici, similarità del testo e filtri tematici riducono duplicati, offerte commerciali, gossip e contenuti fuori linea.
 
-I feed generalisti vengono classificati dal contenuto; quelli verticali conservano la propria sezione. La pipeline prova a estrarre il testo leggibile dalla pagina pubblica dell’editore, senza aggirare blocchi o paywall. La home ne mostra soltanto un’anteprima di massimo 560 caratteri; il testo esteso compare nel lettore dopo il clic. Se la pagina non è accessibile, resta la sintesi del feed, purché sia abbastanza informativa: gli elementi troppo corti vengono esclusi. Per gli editori di analisi richiesti la finestra arriva a sette giorni, così le pubblicazioni meno frequenti non spariscono dalla rassegna. Gli ID derivano dall’URL o dal GUID del feed, quindi preferiti e letture restano associati alla stessa notizia dopo gli aggiornamenti.
+I feed generalisti vengono classificati dal contenuto; quelli verticali conservano la propria sezione. Una notizia può comparire anche in altre sezioni quando titolo e sintesi indicano temi pertinenti. La classificazione è automatica e può richiedere correzioni. La pipeline prova a estrarre il testo leggibile dalla pagina pubblica dell’editore, senza aggirare blocchi o paywall. La home ne mostra soltanto un’anteprima di massimo 560 caratteri; il testo esteso compare nel lettore dopo il clic. Se la pagina non è accessibile, resta la sintesi del feed, purché sia abbastanza informativa: gli elementi troppo corti vengono esclusi. Per gli editori di analisi richiesti la finestra arriva a sette giorni, così le pubblicazioni meno frequenti non spariscono dalla rassegna. Gli ID derivano dall’URL o dal GUID del feed, quindi preferiti e letture restano associati alla stessa notizia dopo gli aggiornamenti.
 
 Le fonti configurate si trovano in `scripts/fetch_news.py`. Gli URL non più pubblicati o non accessibili in modo affidabile non vengono mantenuti solo per aumentarne il numero.
 

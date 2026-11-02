@@ -307,7 +307,7 @@
     var filtered = ALL_NEWS.filter(function (news) {
       if (activeCategory === 'preferiti' && !isFav(news.id)) return false;
       if (activeCategory === 'leggi-dopo' && !isLater(news.id)) return false;
-      if (activeCategory !== 'all' && activeCategory !== 'preferiti' && activeCategory !== 'leggi-dopo' && news.cat !== activeCategory) return false;
+      if (activeCategory !== 'all' && activeCategory !== 'preferiti' && activeCategory !== 'leggi-dopo' && !(Array.isArray(news.categories) ? news.categories : [news.cat]).includes(activeCategory)) return false;
       if (sourceName && news.source !== sourceName) return false;
       if (searchTerm && normalize(news.title + ' ' + news.summary + ' ' + news.source).indexOf(searchTerm) === -1) return false;
       return true;

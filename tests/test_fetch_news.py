@@ -98,6 +98,26 @@ class FetchNewsTests(unittest.TestCase):
         category, _score = fetch_news.classify_entry(entry, {"name": "ANSA", "cat": "politica-italiana"})
         self.assertEqual(category, "conflitti")
 
+    def test_italian_legal_case_about_hamas_is_not_an_armed_conflict(self):
+        entry = {"title": "Inneggiare a Hamas è reato? La Cassazione decide", "summary": "La sentenza del tribunale italiano riguarda il reato di apologia."}
+        source = {"name": "ANSA", "cat": "politica-italiana"}
+        category, score = fetch_news.classify_entry(entry, source)
+        self.assertEqual(category, "politica-italiana")
+        self.assertGreater(score, 0)
+        self.assertNotIn("conflitti", fetch_news.classify_categories(entry, source, category))
+
+    def test_international_economy_belongs_to_both_sections(self):
+        entry = {"title": "Trump annuncia nuovi dazi sulla Cina", "summary": "Le tariffe colpiscono commercio e mercati internazionali."}
+        source = {"name": "BBC World", "cat": "geopolitica"}
+        category, _ = fetch_news.classify_entry(entry, source)
+        self.assertEqual(set(fetch_news.classify_categories(entry, source, category)), {"economia-tech", "geopolitica"})
+
+    def test_real_conflict_remains_in_conflicts(self):
+        entry = {"title": "Italia, il governo condanna un attacco a Gaza", "summary": "Il ministro interviene dopo il raid."}
+        source = {"name": "ANSA", "cat": "politica-italiana"}
+        category, _ = fetch_news.classify_entry(entry, source)
+        self.assertIn("conflitti", fetch_news.classify_categories(entry, source, category))
+
     def test_similar_same_source_items_are_duplicates(self):
         existing = [{
             "title": "Il governo approva la nuova legge sul lavoro",
@@ -206,6 +226,13 @@ class FetchNewsTests(unittest.TestCase):
         parsed = __import__("json").loads(payload)
         self.assertEqual(parsed["timestamp"], 123)
         self.assertEqual(parsed["articles"][0]["cat"], "politica-italiana")
+        self.assertEqual(parsed["articles"][0]["categories"], ["politica-italiana"])
+        item['categories'] = ['politica-italiana', 'geopolitica']
+        parsed = __import__('json').loads(fetch_news.generate_news_json({'politica-italiana': [item]}, 123, {}))
+        self.assertEqual(len(parsed['articles']), 1)
+        self.assertEqual(parsed['articles'][0]['categories'], item['categories'])
+        js = fetch_news.generate_news_js({'politica-italiana': [dict(item, time='ora')]}, 123, {})
+        self.assertIn('categories: ["politica-italiana", "geopolitica"]', js)
 
 
 if __name__ == "__main__":

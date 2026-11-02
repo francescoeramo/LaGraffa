@@ -87,7 +87,7 @@ STRONG_CATEGORY_PATTERNS = {
     "geopolitica": r"\b(nato|onu|g7|g20|sanzioni|sanctions|diplomazia|diplomacy|trattato|treaty|colpo di stato|coup)\b",
     "conflitti": r"\b(guerra|war|conflitto|conflict|ucraina|ukraine|gaza|israele|israel|hamas|missile|raid|attacco|attacchi|bombardamento|bombing|ceasefire)\b",
     "ai": r"\b(ai act|intelligenza artificiale|artificial intelligence|openai|chatgpt|anthropic|claude|deepmind|deepseek|cybersecurity|cyberattack|hacker|hackers)\b",
-    "economia-tech": r"\b(inflazione|inflation|tassi d.interesse|interest rates|borsa|stock market|bce|ecb|federal reserve|ipo|pil|gdp)\b",
+    "economia-tech": r"\b(inflazione|inflation|tassi d.interesse|interest rates|borsa|stock market|bce|ecb|federal reserve|ipo|pil|gdp|dazi|tariffs)\b",
 }
 
 # Evita che metafore come "scenario di guerra" o confronti storici trasformino
@@ -257,6 +257,9 @@ def classify_entry(entry, source):
     if source["name"] not in BROAD_SOURCES:
         return default_cat, scores[default_cat]
     text = f"{clean_html(entry.get('title', ''))} {clean_html(entry.get('summary', ''))}".casefold()
+    domestic_legal = is_domestic_legal_issue(text)
+    if domestic_legal and not ACTIVE_CONFLICT_PATTERN.search(text):
+        return "politica-italiana", max(1, scores["politica-italiana"])
     strong_candidates = [cat for cat, pattern in STRONG_CATEGORY_PATTERNS.items() if re.search(pattern, text, re.IGNORECASE)]
     misleading_conflict_context = NON_CONFLICT_EVENT_PATTERN.search(text) or HISTORICAL_OR_CEREMONIAL_PATTERN.search(text)
     conflict_suppressed = "conflitti" in strong_candidates and misleading_conflict_context and not ACTIVE_CONFLICT_PATTERN.search(text)
@@ -271,6 +274,29 @@ def classify_entry(entry, source):
         return "geopolitica", max(1, scores["geopolitica"])
     score = scores[default_cat]
     return default_cat, max(1, score) if source["name"] in REQUESTED_PUBLISHERS else score
+
+def is_domestic_legal_issue(text):
+    domestic = re.search(r"\b(italia|italiano|italiana|italiani|italiane|italy|roma|milano|cassazione|procura|tribunale|magistrat[oi]|questura|governo italiano|legge italiana)\b", text, re.IGNORECASE)
+    legal = re.search(r"\b(reato|reati|penale|reato di|inneggia\w*|apologia|indagat\w*|arrestat\w*|condann\w*|sentenza|imputat\w*|processo|legge|reato|giudic\w*)\b", text, re.IGNORECASE)
+    return bool(domestic and legal)
+
+def classify_categories(entry, source, primary):
+    """Aggiunge sezioni pertinenti senza creare copie della stessa notizia."""
+    text = f"{clean_html(entry.get('title', ''))} {clean_html(entry.get('summary', ''))}".casefold()
+    categories = [primary]
+    domestic_legal = is_domestic_legal_issue(text)
+    conflict_suppressed = (domestic_legal or NON_CONFLICT_EVENT_PATTERN.search(text) or HISTORICAL_OR_CEREMONIAL_PATTERN.search(text)) and not ACTIVE_CONFLICT_PATTERN.search(text)
+    if domestic_legal and 'politica-italiana' not in categories:
+        categories.append('politica-italiana')
+    for cat, pattern in STRONG_CATEGORY_PATTERNS.items():
+        if cat in categories or (cat == 'conflitti' and conflict_suppressed):
+            continue
+        if re.search(pattern, text, re.IGNORECASE) and (cat != 'geopolitica' or score_entry(entry, cat) >= 1):
+            categories.append(cat)
+    # I temi economici internazionali appartengono anche a Mondo.
+    if 'economia-tech' in categories and 'geopolitica' not in categories and re.search(r'\b(european union|unione europea|europa|europe|mondiale|globale|global|international|internazionale|cina|china|russia|usa|stati uniti|united states|trump|g7|g20|nato|onu|united nations)\b', text):
+        categories.append('geopolitica')
+    return categories
 
 def canonical_url(value):
     try:
@@ -625,6 +651,7 @@ def fetch_all():
                 "published_at": pub_dt.isoformat() if pub_dt else None,
                 "language": article_language(f"{title} {summary}", source["name"]),
                 "score":   score,
+                "categories": classify_categories(entry, source, cat),
                 "italian_priority": source["name"] in ITALIAN_SOURCES,
             })
 
@@ -682,6 +709,7 @@ def generate_news_js(buckets, ts, meta):
             lines.append("  {")
             lines.append(f"    id: {js_string(item['id'])},")
             lines.append(f"    cat: {js_string(cat)},")
+            lines.append("    categories: " + json.dumps(item.get('categories', [cat]), ensure_ascii=False) + ",")
             lines.append(f"    title: {js_string(item['title'])},")
             lines.append(f"    summary: {js_string(item['summary'])},")
             lines.append(f"    preview: {js_string(item['preview'])},")
@@ -709,6 +737,7 @@ def generate_news_json(buckets, ts, meta):
         for item in items:
             article = {field: item[field] for field in public_fields}
             article["cat"] = category
+            article["categories"] = item.get("categories", [category])
             articles.append(article)
     return json.dumps(
         {"timestamp": ts, "meta": meta, "articles": articles},
