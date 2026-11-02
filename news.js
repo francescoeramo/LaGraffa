@@ -1,7 +1,7 @@
-// Generato automaticamente il 2026-11-02 15:25 UTC da scripts/fetch_news.py
+// Generato automaticamente il 2026-11-02 15:29 UTC da scripts/fetch_news.py
 // NON modificare manualmente: viene sovrascritto ogni ora dalla GitHub Action.
-var NEWS_TIMESTAMP = 1793633126;
-const FEED_META = {"successful_sources": 18, "failed_sources": ["BBC World"], "total_sources": 19, "total_articles": 37, "full_text_articles": 29};
+var NEWS_TIMESTAMP = 1793633368;
+const FEED_META = {"successful_sources": 18, "failed_sources": ["BBC World"], "total_sources": 19, "total_articles": 38, "full_text_articles": 30};
 
 const RSS_SOURCES = [
   {
@@ -112,7 +112,7 @@ const NEWS = [
     content_status: "full",
     source: "ANSA",
     url: "https://www.ansa.it/sito/notizie/cronaca/2026/11/02/atterrato-a-ciampino-laereo-con-le-salme-dei-militari-morti-in-bosnia_5d34d699-5dfe-4198-bff4-b4a4c9e4c0a9.html",
-    time: "26 min fa",
+    time: "30 min fa",
     pub_ts: 1793631545,
     published_at: "2026-11-02T14:59:05+00:00",
     language: "it",
@@ -160,7 +160,7 @@ const NEWS = [
     content_status: "full",
     source: "ANSA",
     url: "https://www.ansa.it/sito/notizie/mondo/2026/11/02/il-governo-del-belgio-si-spacca-sulla-manovra-il-premier-si-dimette_802dfb24-d75d-4ac8-8e4b-7fb8977a1bc8.html",
-    time: "3 ore fa",
+    time: "4 ore fa",
     pub_ts: 1793618848,
     published_at: "2026-11-02T11:27:28+00:00",
     language: "it",
@@ -464,7 +464,7 @@ const NEWS = [
     content_status: "full",
     source: "ANSA",
     url: "https://www.ansa.it/sito/notizie/mondo/2026/11/02/pezeshkian-da-khamenei-alcuni-poteri-al-governo-per-trattare-con-gli-usa_f5315141-c840-4f45-89ca-066c867cee06.html",
-    time: "15 min fa",
+    time: "19 min fa",
     pub_ts: 1793632219,
     published_at: "2026-11-02T15:10:19+00:00",
     language: "it",
@@ -480,7 +480,7 @@ const NEWS = [
     content_status: "full",
     source: "ANSA",
     url: "https://www.ansa.it/sito/notizie/mondo/2026/11/02/ucraina-melania-trump-evacuati-da-oleshky-in-800.-hackerate-le-app-di-allarme-aereo_5d7684f7-539f-4f2e-b683-fa74199e5046.html",
-    time: "21 min fa",
+    time: "25 min fa",
     pub_ts: 1793631818,
     published_at: "2026-11-02T15:03:38+00:00",
     language: "it",
@@ -496,10 +496,26 @@ const NEWS = [
     content_status: "full",
     source: "ANSA",
     url: "https://www.ansa.it/sito/notizie/mondo/europa/2026/11/02/ondata-di-attacchi-hacker-contro-i-supermercati-di-mezza-europa_5e6f0b27-05c9-468a-9004-087167137119.html",
-    time: "23 min fa",
+    time: "27 min fa",
     pub_ts: 1793631720,
     published_at: "2026-11-02T15:02:00+00:00",
     language: "it",
+    score: 1,
+  },
+  {
+    id: "f331d178a32531a04365",
+    cat: "conflitti",
+    title: "Arab parties back Eisenkot: What’s the latest in Israel’s coalition talks?",
+    summary: "Political wrangling is still ongoing as all blocs weigh potential paths to power.",
+    preview: "Political wrangling is still ongoing as all blocs weigh potential paths to power. Israel’s Arab parties, which won a record-breaking 19 seats in last week’s general elections, are set to back opposition leader Gadi Eisenkot’s bloc, further trampling Israeli Prime Minister Benjamin Netanyahu’s chances of leading another government. The main Jewish opposition bloc, which includes four parties, fell short of the 61 seats needed to form a majority in the Knesset, Israel’s parliament, but joining forces with the two main groups that represent Palestinian…",
+    body: "Political wrangling is still ongoing as all blocs weigh potential paths to power.\n\nIsrael’s Arab parties, which won a record-breaking 19 seats in last week’s general elections, are set to back opposition leader Gadi Eisenkot’s bloc, further trampling Israeli Prime Minister Benjamin Netanyahu’s chances of leading another government.\n\nThe main Jewish opposition bloc, which includes four parties, fell short of the 61 seats needed to form a majority in the Knesset, Israel’s parliament, but joining forces with the two main groups that represent Palestinian citizens of Israel could help avoid a political deadlock and another election.\n\nAlready, the “Change” opposition bloc has pledged not to join forces with Netanyahu, citing security failures that led to the October 7 Hamas attacks and an ongoing corruption trial that the prime minister faces.\n\nBut taking support from the Arab parties — whether as part of the ruling coalition or as outside support — also poses a challenge for Eisenkot from the right, at a time when leaders and parties, including Netanyahu, have been openly deploying anti-Arab racism to woo Jewish voters.\n\nIsrael’s minority Arab population has long been marginalised in politics. Since October 7, however, they have been sidelined even more. At least two former Palestinian legislators, and one current member of the Knesset, have been arrested briefly for comments or acts deemed critical of Israel’s genocide in Gaza and its occupation of the West Bank.\n\nAs the parties weigh possible paths to power, it’s likely they’ll have to make compromises and break promises made to their supporters, analysts say.\n\nHere’s the latest:\n\nWhat happened in the elections?\n\nA coalition of Jewish conservative and far-right parties led by Prime Minister Netanyahu’s Likud won 53 seats in a Knesset of 120 seats, falling short of a majority.\n\nThe opposition bloc, led by former military chief Gadi Eisenkot of the Yashar party, won 48 seats — even further away from a majority.\n\nMeanwhile, the Arab-led Joint List and Ra’am won more seats than ever after Arab voters doubled their turnout to about 80 percent. Ra’am, led by Mansour Abbas, won eight seats, while the Joint List, led by Yousef Jabareen, won 11.\n\nWhile the Arab bloc has been open to working with the opposition, there were speculations that Eisenkot would refuse their support to avoid backlash from the wider Jewish Israeli public. Arabs make up a fifth of the population of Israel. Only one Arab party, Ra’am, has successfully joined a governing coalition – in 2021. That government lasted less than two years.\n\nEisenkot and other opposition leaders had earlier said they would not form a coalition with Arab parties to appeal to their supporters.\n\nWhat is Netanyahu saying?\n\nNetanyahu has claimed repeatedly and without proof that Arab parties committed fraud during the elections with foreign backing.\n\nThe prime minister and his Likud party have cited a handful of cases, like the arrests of three political activists who allegedly bribed voters before polls opened. They are suspected of connections with the Ra’am party, although the party denies involvement.\n\nNetanyahu’s case, however, appears to be weakening. On Sunday, an Israeli court released one of the suspects, and another was ordered to remain in house arrest.\n\nIsraeli election officials have also said the vote would not be undermined. Videos on Sunday of Israel’s elections chief sitting with Israel’s attorney general and the head of the Shin Bet intelligence service appeared to send the message that the agencies are cooperating to make the vote stand.\n\n“Our position is that even if the suspicions are substantiated, this would not undermine the integrity of the electoral process or the election results as a whole,” Central Elections Committee head Noam Sohlberg said in the clip.\n\nNetanyahu and Likud also suggested that the opposition bloc joining with Arab parties would be treasonous. In a statement after the vote, Likud warned that Zionist parties cooperating with the Arab bloc would be “dangerous to Israel”.\n\nSome Israelis agree. Late on Sunday, dozens gathered outside Eisenkot’s home to protest a potential alliance.\n\nWill Arab parties back Eisenkot?\n\nYes. According to several media reports, Joint List and Ra’am said they’ll collaborate with the opposition bloc to push Netanyahu out but not necessarily to form a government.\n\nAbbas of Ra’am has long said he’d join a potential Eisenkot government if his party is given the internal security portfolio. That his deputy is a Jewish lawmaker is also seen as a signal to the opposition bloc.\n\nJabareen of the Joint List, meanwhile, said in a Monday interview with The Guardian that his party was ready to cooperate with the “Change” bloc to get rid of Netanyahu and other extremist members of the government, including National Security Minister Itamar Ben-Gvir and Finance Minister Bezalel Smotrich.\n\nHe clarified that the party has no intention of joining an Eisenkot government but that it would vote with it in the Knesset. That would allow Eisenkot to form a “minority government” with fewer than 61 seats.\n\nBut it’s unclear what Eisenkot and his partners will do next. The opposition bloc earlier placed conditions on any coalition with the Arab parties, saying they must accept Israel as a Jewish state, back army conscription and denounce Hamas as a terror group.\n\n“The conditions that [Eisenkot] speaks of are more relevant for parties who would be in the coalition. We are not planning to be in the coalition … for very clear reasons,” Jabareen told The Guardian, adding that “as long as the occupation of our people in the West Bank continues, we cannot be part of a government”.\n\nWhat will happen next?\n\nThe election results will be certified on Wednesday.\n\nAfterwards, President Isaac Herzog will begin meeting with leaders of the 11 parties elected to parliament to know who they want as the next prime minister. The meeting at his residence will be livestreamed.\n\nHe will then choose the candidate he thinks is most likely to form a coalition government. As the leaders of the two main blocs, that will likely be Netanyahu or Eisenkot.\n\nWith Arab parties now expected to name Eisenkot as their preferred partner, the opposition leader could be the frontrunner to get the nod from Herzog.\n\nEisenkot or Netanyahu will be given 28 days to form a coalition. If that fails, the negotiation period can be extended by 14 days, after which Herzog might ask another candidate to try again.\n\nAlthough chances are slim, it is still possible that Netanyahu and the opposition bloc could enter talks and agree to form a unity government. Or Netanyahu could attempt to pull at least eight members of the opposition bloc.\n\nAlready, Yashar claimed in an X post on Saturday that several of its members had gotten calls from Likud, which it said was in a state of “hysteria”.\n\nMeanwhile, parliamentarians will be sworn in on November 10 regardless of the coalition talks.",
+    content_status: "full",
+    source: "Al Jazeera",
+    url: "https://www.aljazeera.com/news/2026/11/2/arab-parties-back-eisenkot-whats-the-latest-in-israels-coalition-talks?traffic_source=rss",
+    time: "29 min fa",
+    pub_ts: 1793631608,
+    published_at: "2026-11-02T15:00:08+00:00",
+    language: "en",
     score: 1,
   },
   {
@@ -512,7 +528,7 @@ const NEWS = [
     content_status: "full",
     source: "Al Jazeera",
     url: "https://www.aljazeera.com/news/2026/11/2/how-us-oil-firms-profit-130bn-from-iran-war-as-household-bills-surge?traffic_source=rss",
-    time: "57 min fa",
+    time: "1 ora fa",
     pub_ts: 1793629670,
     published_at: "2026-11-02T14:27:50+00:00",
     language: "en",
@@ -576,7 +592,7 @@ const NEWS = [
     content_status: "full",
     source: "The Verge",
     url: "https://www.theverge.com/policy/1024357/florida-governors-race-donalds-jolly-data-centers",
-    time: "20 min fa",
+    time: "24 min fa",
     pub_ts: 1793631900,
     published_at: "2026-11-02T15:05:00+00:00",
     language: "en",
@@ -640,7 +656,7 @@ const NEWS = [
     content_status: "feed",
     source: "Bloomberg Tech",
     url: "https://www.bloomberg.com/news/videos/2026-11-02/anthropic-revenue-nears-17-billion-ahead-of-ipo-video",
-    time: "10 min fa",
+    time: "14 min fa",
     pub_ts: 1793632506,
     published_at: "2026-11-02T15:15:06+00:00",
     language: "en",
