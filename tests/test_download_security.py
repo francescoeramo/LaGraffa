@@ -2,6 +2,7 @@ import importlib.util
 import io
 import unittest
 from pathlib import Path
+from types import SimpleNamespace
 from unittest.mock import Mock, patch
 
 import requests
@@ -41,6 +42,30 @@ class Response:
 
 
 class DownloadSecurityTests(unittest.TestCase):
+    def test_slow_stream_exceeding_budget_is_rejected_and_closed(self):
+        response = Response([b"123", b"456"])
+        with patch.object(news, "is_allowed_publisher_url", return_value=True), \
+             patch.object(news, "is_public_http_url", return_value=True), \
+             patch.object(news.requests, "get", return_value=response), \
+             patch.object(news.time, "monotonic", side_effect=[0, 0, 0, 0, 1, 46]):
+            self.assertIsNone(news.fetch_public_document("https://publisher.example/feed", "Dummy"))
+        self.assertTrue(response.closed)
+
+    def test_feed_cannot_attribute_an_external_link_to_publisher(self):
+        entry = {
+            "title": "Il governo presenta una nuova legge al parlamento",
+            "summary": "Il governo presenta una legge al parlamento con misure per la scuola. " * 6,
+            "link": "https://attacker.invalid/notizia",
+        }
+        source = {"name": "ANSA", "url": "https://www.ansa.it/feed.xml", "cat": "politica-italiana"}
+        with patch.object(news, "RSS_SOURCES", [source]), \
+             patch.object(news, "MIN_TOTAL_ARTICLES", 1), \
+             patch.object(news, "fetch_public_document", return_value=SimpleNamespace(content=b"feed")), \
+             patch.object(news.feedparser, "parse", return_value=SimpleNamespace(entries=[entry])), \
+             patch.object(news, "fetch_public_article", return_value=None):
+            with self.assertRaisesRegex(RuntimeError, "esistente preservato"):
+                news.fetch_all()
+
     def download(self, response):
         with patch.object(news, "MAX_DOWNLOAD_BYTES", 8), \
              patch.object(news, "is_allowed_publisher_url", return_value=True), \

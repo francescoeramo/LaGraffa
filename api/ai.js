@@ -55,17 +55,18 @@ function checkRateLimit(req) {
   const now = Date.now();
   const ip = requestIp(req);
   const recent = (requestsByIp.get(ip) || []).filter(timestamp => now - timestamp < RATE_LIMIT_WINDOW_MS);
+  if (!requestsByIp.has(ip) && requestsByIp.size >= 1000) {
+    for (const [key, timestamps] of requestsByIp) {
+      if (!timestamps.some(timestamp => now - timestamp < RATE_LIMIT_WINDOW_MS)) requestsByIp.delete(key);
+    }
+    if (requestsByIp.size >= 1000) return { allowed: false, retryAfter: 60 };
+  }
   if (recent.length >= RATE_LIMIT_MAX) {
     const retryAfter = Math.max(1, Math.ceil((RATE_LIMIT_WINDOW_MS - (now - recent[0])) / 1000));
     return { allowed: false, retryAfter };
   }
   recent.push(now);
   requestsByIp.set(ip, recent);
-  if (requestsByIp.size > 1000) {
-    for (const [key, timestamps] of requestsByIp) {
-      if (!timestamps.some(timestamp => now - timestamp < RATE_LIMIT_WINDOW_MS)) requestsByIp.delete(key);
-    }
-  }
   return { allowed: true, remaining: RATE_LIMIT_MAX - recent.length };
 }
 

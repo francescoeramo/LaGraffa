@@ -11,6 +11,7 @@ import ipaddress
 import json
 import re
 import socket
+import time
 import unicodedata
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from datetime import datetime, timezone, timedelta
@@ -169,6 +170,7 @@ MAX_DOWNLOAD_BYTES = 5_000_000
 MAX_REDIRECTS = 5
 MIN_TOTAL_ARTICLES = 10
 REQUEST_TIMEOUT = (5, 20)
+DOWNLOAD_BUDGET_SECONDS = 45
 ROOT = Path(__file__).parent.parent
 
 TRACKING_QUERY_KEYS = {"fbclid", "gclid", "mc_cid", "mc_eid", "ref", "ref_src"}
@@ -312,15 +314,22 @@ def is_allowed_publisher_url(value, source_name):
 def fetch_public_document(url, source_name, session=None, require_html=False):
     """Valida ogni hop e limita i byte decodificati prima di qualsiasi parser."""
     current_url = url
+    deadline = time.monotonic() + DOWNLOAD_BUDGET_SECONDS
     get = session.get if session is not None else requests.get
     for _ in range(MAX_REDIRECTS + 1):
+        if time.monotonic() >= deadline:
+            return None
         if not is_allowed_publisher_url(current_url, source_name) or not is_public_http_url(current_url):
+            return None
+        if time.monotonic() >= deadline:
             return None
         response = get(
             current_url, timeout=REQUEST_TIMEOUT, allow_redirects=False, stream=True,
             headers={"User-Agent": "LaGraffa/1.0 (+https://lagraffa.vercel.app)"},
         )
         try:
+            if time.monotonic() >= deadline:
+                return None
             if response.status_code in {301, 302, 303, 307, 308}:
                 location = response.headers.get("location")
                 if not location:
@@ -338,6 +347,8 @@ def fetch_public_document(url, source_name, session=None, require_html=False):
                 return None
             chunks, total = [], 0
             for chunk in response.iter_content(chunk_size=65536):
+                if time.monotonic() >= deadline:
+                    return None
                 total += len(chunk)
                 if total > MAX_DOWNLOAD_BYTES:
                     return None
@@ -550,7 +561,7 @@ def fetch_all():
             pub_ts = int(pub_dt.timestamp()) if pub_dt else 0
             body   = build_body(entry)
             url = canonical_url(entry.get("link", source["url"]))
-            if not url:
+            if not url or not is_allowed_publisher_url(url, source["name"]):
                 continue
 
             buckets[cat].append({

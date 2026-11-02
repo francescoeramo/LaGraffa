@@ -74,6 +74,18 @@ test('same-origin validation accepts only matching secure origins', () => {
   assert.equal(handler._test.isSameOrigin({ headers: validHeaders({ origin: 'http://example.com' }) }), false);
 });
 
+test('rate limiter bounds active client records and frees expired entries', () => {
+  const entries = handler._test.requestsByIp;
+  entries.clear();
+  try {
+    for (let i = 0; i < 1000; i++) entries.set(`fixture-${i}`, [Date.now()]);
+    assert.equal(handler._test.checkRateLimit({ headers: {}, socket: { remoteAddress: '192.0.2.20' } }).allowed, false);
+    entries.set('fixture-0', [0]);
+    assert.equal(handler._test.checkRateLimit({ headers: {}, socket: { remoteAddress: '192.0.2.20' } }).allowed, true);
+    assert.equal(entries.size, 1000);
+  } finally { entries.clear(); }
+});
+
 test('looks up article text in news.json before calling Groq', async () => {
   const previousKey = process.env.GROQ_API_KEY;
   const previousFetch = global.fetch;
