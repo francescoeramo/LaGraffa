@@ -138,6 +138,11 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
 .hero-section.cat-bg-conflitti         { background: var(--hero-conflitti); }
 .hero-section.cat-bg-ai                { background: var(--hero-ai); }
 .hero-section.cat-bg-economia-tech     { background: var(--hero-economia); }
+.section-view .hero-section { background: #303039; }
+.section-view .hero-cat,
+.section-view .card-cat-bar,
+.section-view .card-cat-badge { display: none; }
+.section-view .card-topline { justify-content: flex-end; }
 
 .hero-inner {
   max-width: 1280px; margin: 0 auto;

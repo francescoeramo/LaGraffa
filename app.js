@@ -188,6 +188,7 @@
     currentModalNews = news; aiContent = null; showingAi = false; lastFocusedElement = trigger || document.activeElement;
     markRead(news.id);
     modalCat.textContent = (CAT_LABELS[news.cat] || news.cat) + (news.language && news.language !== 'it' ? ' · ' + (LANGUAGE_LABELS[news.language] || news.language) : '');
+    modalCat.hidden = activeCategory !== 'all';
     modalSource.textContent = '📰 ' + news.source;
     modalTime.dataset.pubTs = news.pub_ts;
     modalTime.textContent = '🕐 ' + formatRelativeTime(news.pub_ts);
@@ -297,6 +298,7 @@
     var language = articleLanguage(news, false);
     var languageBadge = language !== 'it' ? '<span class="card-language" lang="' + language + '">' + escapeHTML(LANGUAGE_LABELS[language]) + '</span>' : '';
     card.innerHTML = '<div class="card-cat-bar"></div><div class="card-body"><div class="card-topline"><span class="card-cat-badge">' + escapeHTML(CAT_LABELS[news.cat] || news.cat) + '</span><span class="card-badges">' + languageBadge + '<span class="card-read-badge"' + (wasRead ? '' : ' hidden') + ' aria-label="Già letta">✔</span></span></div><h3 class="card-title"><button class="card-open-btn" type="button" lang="' + language + '">' + escapeHTML(news.title) + '</button></h3><p class="card-summary" lang="' + language + '">' + escapeHTML(news.preview || news.summary) + '</p></div><div class="card-footer"><span class="card-source">' + escapeHTML(news.source) + '</span><span class="card-footer-right"><time class="card-time" data-pub-ts="' + escapeHTML(news.pub_ts) + '" datetime="' + escapeHTML(news.published_at || '') + '">' + escapeHTML(formatRelativeTime(news.pub_ts)) + '</time><button class="card-later-btn' + (laterOn ? ' later-on' : '') + '" type="button" aria-pressed="' + String(laterOn) + '" aria-label="' + (laterOn ? 'Rimuovi da Leggi dopo' : 'Aggiungi a Leggi dopo') + '">⏰</button></span></div>';
+    card.querySelector('.card-topline').hidden = activeCategory !== 'all' && !languageBadge && !wasRead;
     var openButton = card.querySelector('.card-open-btn');
     openButton.addEventListener('click', function () { openModal(news, openButton); });
     card.querySelector('.card-later-btn').addEventListener('click', function () { toggleLater(news.id); });
@@ -321,6 +323,7 @@
   function renderAll() {
     var description = CAT_DESCRIPTIONS[activeCategory], filtered = getFiltered();
     var hasFilters = Boolean(searchTerm || sourceName), noHero = NO_HERO_CATS[activeCategory] || hasFilters;
+    document.body.classList.toggle('section-view', activeCategory !== 'all');
     document.getElementById('sectionKicker').textContent = description[0];
     document.getElementById('sectionTitle').textContent = description[1];
     document.getElementById('sectionDescription').textContent = description[2];
