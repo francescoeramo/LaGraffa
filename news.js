@@ -1,7 +1,7 @@
-// Generato automaticamente il 2026-11-02 15:24 UTC da scripts/fetch_news.py
+// Generato automaticamente il 2026-11-02 15:25 UTC da scripts/fetch_news.py
 // NON modificare manualmente: viene sovrascritto ogni ora dalla GitHub Action.
-var NEWS_TIMESTAMP = 1793633022;
-const FEED_META = {"successful_sources": 18, "failed_sources": ["BBC World"], "total_sources": 19, "total_articles": 37, "full_text_articles": 30};
+var NEWS_TIMESTAMP = 1793633126;
+const FEED_META = {"successful_sources": 18, "failed_sources": ["BBC World"], "total_sources": 19, "total_articles": 37, "full_text_articles": 29};
 
 const RSS_SOURCES = [
   {
@@ -112,7 +112,7 @@ const NEWS = [
     content_status: "full",
     source: "ANSA",
     url: "https://www.ansa.it/sito/notizie/cronaca/2026/11/02/atterrato-a-ciampino-laereo-con-le-salme-dei-militari-morti-in-bosnia_5d34d699-5dfe-4198-bff4-b4a4c9e4c0a9.html",
-    time: "24 min fa",
+    time: "26 min fa",
     pub_ts: 1793631545,
     published_at: "2026-11-02T14:59:05+00:00",
     language: "it",
@@ -347,9 +347,9 @@ const NEWS = [
     cat: "geopolitica",
     title: "Pedro Sánchez: “España no se gobierna desde Washington, Tel Aviv, Moscú o Buenos Aires”",
     summary: "El presidente carga en el World in Progress contra la ultraderecha por buscar la fragmentación de Europa y reivindica su modelo económico pese a la crisis del coste de vida",
-    preview: "El presidente carga en el World in Progress contra la ultraderecha por buscar la fragmentación de Europa y reivindica su modelo económico pese a la crisis del coste de vida El presidente del Gobierno, Pedro Sánchez, ha advertido este lunes del riesgo de “retroceso” en las libertades conquistadas por el avance de las fuerzas de extrema derecha y ha llamado a construir una “Europa más fuerte, más autónoma y más unida” en su discurso en el foro World in Progress (WIP), organizado por el Grupo PRISA en Bacelona.",
-    body: "El presidente carga en el World in Progress contra la ultraderecha por buscar la fragmentación de Europa y reivindica su modelo económico pese a la crisis del coste de vida\n\nEl presidente del Gobierno, Pedro Sánchez, ha advertido este lunes del riesgo de “retroceso” en las libertades conquistadas por el avance de las fuerzas de extrema derecha y ha llamado a construir una “Europa más fuerte, más autónoma y más unida” en su discurso en el foro World in Progress (WIP), organizado por el Grupo PRISA en Bacelona. En vistas al nuevo ciclo electoral europeo que se abre en el continente con las elecciones españolas del 29-N, Sánchez ha afirmado: “Ningún destino está escrito”. Y ya en clave interna, ha criticado la alianza de la derecha tradicional, que representa el PP, con la ultraderecha y ha avisado: “España no se gobierna desde Washington, Tel Aviv, Moscú o Buenos Aires”.\n\nEl arranque del WIP ha estado marcado por la dinámica electoral en la que entra la Unión Europea. Después de una mesa centrada en Francia e Italia, cuyo futuro político se dirimirá en 2027, ha llegado la intervención de Sánchez, que ha recuperado su agenda pública tras los días de duelo decretados por el choque de trenes de Urda (Toledo), que implicaron que el líder socialista aparcara la precampaña electoral. Sánchez ha recurrido a la obra El mundo de ayer, de Stefan Zweig, para describir el trance en el que se halla hoy Europa: de un continente que creía poder protegerse de la guerra gracias a las intensas relaciones de sus países a otra que se ve “destruida por el nacionalismo”. “El progreso no puede darse por sentado porque siempre existe el riesgo de retroceso”, ha sostenido Sánchez.\n\nEl presidente del Gobierno ha destacado que el mundo acusa hoy tres grandes “amenazas”: el “retorno de la guerra en Europa” con los ataques de Rusia en Ucrania; la “competencia” entre Estados Unidos y China; y la “disputa” por los recursos, entre ellos los energéticos. Esta última batalla, que ha llevado a “la guerra ilegal” en Oriente Medio, ha acarreado un coste adicional que Sánchez ha estimado en 100.000 millones de euros que ha golpeado los bolsillos y el bienestar de los ciudadanos de Europa y ha dañado al Sur Global. Ante esa situación, el presidente del Ejecutivo se ha reafirmado en su apuesta hace ocho años por la transición energética, que ha supuesto que ahora más de la mitad de la electricidad producida provenga de las renovables. “Fue un acierto, nos ha permitido ser menos vulnerables a los shocks”, ha añadido.\n\nDespués de criticar los recortes presupuestarios en ayuda a la cooperación propuestos por Bruselas, Sánchez ha reivindicado la política social de su gobierno. Tras constatar que la economía francesa ha empezado a retroceder en plena oleada de protestas, ha destacado los buenos datos macroeconómicos que arroja la economía española, con un crecimiento interanual del 2,7%, un aumento de los trabajadores afiliados a la Seguridad Social y una reducción del déficit y la deuda pública en un contexto internacional que está dañando las arcas de los grandes países del euro. “No hay que elegir entre avanzar y proteger, crecer y reducir emisiones, crear empleo y recortar déficit y deuda. Y eso mientras se reduce la desigualdad con políticas de redistribución”, ha abundado.\n\nAun así, España no ha sido ajena a las expresiones de malestar social en sus calles. Sánchez ha admitido los dos grandes lastres que arrastra la economía española contra los que los sindicatos han convocado una huelga general para el próximo 11 de noviembre: la vivienda y el coste de la vida. El presidente ha defendido la ley de Vivienda, de cuyos resultados ha sacado pecho este lunes el president Salvador Illa con las inéditas bajadas en los precios del alquiler en la ciudad de Barcelona, muy presionada por el turismo, en los dos años de aplicación de la norma. Sánchez ha cargado contra los partidos que se niegan a aplicar esa norma. “España está avanzando, y lo hace sin renunciar al modelo social europeo, cuestionado por fuerzas que quieren socavar nuestra unidad”, ha remachado.\n\nEl presidente ha cargado ahí contra la ultraderecha, que ha presentado como la gran amenaza interna de la UE al ser una fuerza que busca esa fragmentación que destruyó la sociedad cosmopolita en la que creció Zweig. “La fragmentación para ellos no es un medio para alcanzar el poder, sino un fin por si mismo”, ha criticado Sánchez. “La democracia y los derechos humanos no son el final de una carrera ya ganada, hay que luchar por ellos día a día”, ha agregado. Sánchez, además, ha lamentado que una parte de la derecha tradicional se haya arrimado a los ultras, acabando fagocitados por estos. Algo que, a su juicio, no ha ocurrido en la Alemania de Friedich Merz o la Polonia de Donald Tusk, que se han mantenido firmes en su cordón sanitario a las fuerzas ultras. Sánchez ha criticado, además, que esos partidos se sometan a “oligarcas extranjeros” y tejan alianzas con otros países para debilitar Europa. “España no se gobierna desde Washington, Tel Aviv, Moscú o Buenos Aires”, ha avisado.\n\nComo ha venido haciendo a lo largo de esta legislatura, Sánchez ha abogado por intervenir en los nuevos entornos tecnológicos. “Hay una queja sobre la excesiva regulación. No es un problema de regulación, sino de buna no mala regulación”, ha señalado el presidente, quien ha puesto el ejemplo de la inteligencia artificial. “Necesitamos un marco con un horizonte hacia el que queramos progresar”, ha remachado. Y ahí el “faro” también es Bruselas. “Nuestra respuesta debe ser mucha más Europa. Frente a quienes quieren dividirnos, más unidad”, ha concluido.",
-    content_status: "full",
+    preview: "El presidente del Gobierno, Pedro Sánchez, ha advertido este lunes del riesgo de “retroceso” en las libertades conquistadas por el avance de las fuerzas de extrema derecha y ha llamado a construir una “Europa más fuerte, más autónoma y más unida” en su discurso en el foro World in Progress (WIP), organizado por el Grupo PRISA en Bacelona . En vistas al nuevo ciclo electoral europeo que se abre en el continente con las elecciones españolas del 29-N , Sánchez ha afirmado: “Ningún destino está escrito”.",
+    body: "El presidente del Gobierno, Pedro Sánchez, ha advertido este lunes del riesgo de “retroceso” en las libertades conquistadas por el avance de las fuerzas de extrema derecha y ha llamado a construir una “Europa más fuerte, más autónoma y más unida” en su discurso en el foro World in Progress (WIP), organizado por el Grupo PRISA en Bacelona . En vistas al nuevo ciclo electoral europeo que se abre en el continente con las elecciones españolas del 29-N , Sánchez ha afirmado: “Ningún destino está escrito”.\n\nY ya en clave interna, ha criticado la alianza de la derecha tradicional, que representa el PP, con la ultraderecha y ha avisado: “España no se gobierna desde Washington, Tel Aviv, Moscú o Buenos Aires”. Seguir leyendo",
+    content_status: "feed",
     source: "El Pais",
     url: "https://elpais.com/internacional/2026-11-02/pedro-sanchez-espana-no-se-gobierna-desde-tel-aviv-moscu-o-buenos-aires.html",
     time: "3 ore fa",
@@ -464,7 +464,7 @@ const NEWS = [
     content_status: "full",
     source: "ANSA",
     url: "https://www.ansa.it/sito/notizie/mondo/2026/11/02/pezeshkian-da-khamenei-alcuni-poteri-al-governo-per-trattare-con-gli-usa_f5315141-c840-4f45-89ca-066c867cee06.html",
-    time: "13 min fa",
+    time: "15 min fa",
     pub_ts: 1793632219,
     published_at: "2026-11-02T15:10:19+00:00",
     language: "it",
@@ -480,7 +480,7 @@ const NEWS = [
     content_status: "full",
     source: "ANSA",
     url: "https://www.ansa.it/sito/notizie/mondo/2026/11/02/ucraina-melania-trump-evacuati-da-oleshky-in-800.-hackerate-le-app-di-allarme-aereo_5d7684f7-539f-4f2e-b683-fa74199e5046.html",
-    time: "20 min fa",
+    time: "21 min fa",
     pub_ts: 1793631818,
     published_at: "2026-11-02T15:03:38+00:00",
     language: "it",
@@ -496,7 +496,7 @@ const NEWS = [
     content_status: "full",
     source: "ANSA",
     url: "https://www.ansa.it/sito/notizie/mondo/europa/2026/11/02/ondata-di-attacchi-hacker-contro-i-supermercati-di-mezza-europa_5e6f0b27-05c9-468a-9004-087167137119.html",
-    time: "21 min fa",
+    time: "23 min fa",
     pub_ts: 1793631720,
     published_at: "2026-11-02T15:02:00+00:00",
     language: "it",
@@ -512,7 +512,7 @@ const NEWS = [
     content_status: "full",
     source: "Al Jazeera",
     url: "https://www.aljazeera.com/news/2026/11/2/how-us-oil-firms-profit-130bn-from-iran-war-as-household-bills-surge?traffic_source=rss",
-    time: "56 min fa",
+    time: "57 min fa",
     pub_ts: 1793629670,
     published_at: "2026-11-02T14:27:50+00:00",
     language: "en",
@@ -576,7 +576,7 @@ const NEWS = [
     content_status: "full",
     source: "The Verge",
     url: "https://www.theverge.com/policy/1024357/florida-governors-race-donalds-jolly-data-centers",
-    time: "18 min fa",
+    time: "20 min fa",
     pub_ts: 1793631900,
     published_at: "2026-11-02T15:05:00+00:00",
     language: "en",
@@ -640,7 +640,7 @@ const NEWS = [
     content_status: "feed",
     source: "Bloomberg Tech",
     url: "https://www.bloomberg.com/news/videos/2026-11-02/anthropic-revenue-nears-17-billion-ahead-of-ipo-video",
-    time: "8 min fa",
+    time: "10 min fa",
     pub_ts: 1793632506,
     published_at: "2026-11-02T15:15:06+00:00",
     language: "en",
