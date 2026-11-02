@@ -118,6 +118,12 @@ class FetchNewsTests(unittest.TestCase):
         category, _ = fetch_news.classify_entry(entry, source)
         self.assertIn("conflitti", fetch_news.classify_categories(entry, source, category))
 
+    def test_israeli_diplomacy_is_not_automatically_a_conflict(self):
+        entry = {"title": "Il primo ambasciatore di Israele presenta le credenziali", "summary": "L'incontro diplomatico riguarda le relazioni tra i due governi."}
+        source = {"name": "BBC World", "cat": "geopolitica"}
+        category, _ = fetch_news.classify_entry(entry, source)
+        self.assertNotIn("conflitti", fetch_news.classify_categories(entry, source, category))
+
     def test_similar_same_source_items_are_duplicates(self):
         existing = [{
             "title": "Il governo approva la nuova legge sul lavoro",

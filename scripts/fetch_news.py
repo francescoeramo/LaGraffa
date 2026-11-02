@@ -103,6 +103,12 @@ ACTIVE_CONFLICT_PATTERN = re.compile(
     r"truppe|troops|esercito\s+(?:russo|israeliano)|idf|cessate il fuoco|ceasefire)\b",
     re.IGNORECASE,
 )
+CONFLICT_SUBSTANCE_PATTERN = re.compile(
+    r"\b(guerra|war|conflitto|conflict|attacco|attacchi|attack|attacks|missile|missili|"
+    r"raid|bombardamento|bombing|truppe|troops|esercito|military|militare|"
+    r"cessate il fuoco|ceasefire|ostaggi|hostages|vittime|casualties|combattimenti|fighting)\b",
+    re.IGNORECASE,
+)
 HISTORICAL_OR_CEREMONIAL_PATTERN = re.compile(
     r"\b(statua|statue|anniversario|anniversary|memoriale|memorial|commemorazione|"
     r"commemoration|museo|museum|seconda guerra mondiale|world war (?:i|ii|one|two))\b",
@@ -262,7 +268,10 @@ def classify_entry(entry, source):
         return "politica-italiana", max(1, scores["politica-italiana"])
     strong_candidates = [cat for cat, pattern in STRONG_CATEGORY_PATTERNS.items() if re.search(pattern, text, re.IGNORECASE)]
     misleading_conflict_context = NON_CONFLICT_EVENT_PATTERN.search(text) or HISTORICAL_OR_CEREMONIAL_PATTERN.search(text)
-    conflict_suppressed = "conflitti" in strong_candidates and misleading_conflict_context and not ACTIVE_CONFLICT_PATTERN.search(text)
+    conflict_suppressed = "conflitti" in strong_candidates and (
+        not CONFLICT_SUBSTANCE_PATTERN.search(text) or
+        (misleading_conflict_context and not ACTIVE_CONFLICT_PATTERN.search(text))
+    )
     if conflict_suppressed:
         strong_candidates.remove("conflitti")
         scores["conflitti"] = 0
@@ -285,7 +294,8 @@ def classify_categories(entry, source, primary):
     text = f"{clean_html(entry.get('title', ''))} {clean_html(entry.get('summary', ''))}".casefold()
     categories = [primary]
     domestic_legal = is_domestic_legal_issue(text)
-    conflict_suppressed = (domestic_legal or NON_CONFLICT_EVENT_PATTERN.search(text) or HISTORICAL_OR_CEREMONIAL_PATTERN.search(text)) and not ACTIVE_CONFLICT_PATTERN.search(text)
+    conflict_suppressed = (not CONFLICT_SUBSTANCE_PATTERN.search(text) or
+        ((domestic_legal or NON_CONFLICT_EVENT_PATTERN.search(text) or HISTORICAL_OR_CEREMONIAL_PATTERN.search(text)) and not ACTIVE_CONFLICT_PATTERN.search(text)))
     if domestic_legal and 'politica-italiana' not in categories:
         categories.append('politica-italiana')
     for cat, pattern in STRONG_CATEGORY_PATTERNS.items():
