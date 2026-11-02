@@ -32,7 +32,7 @@ Feed e pagine degli articoli condividono il downloader: ogni redirect viene veri
 
 L’API accetta esclusivamente l’ID di una notizia presente nel `news.json` generato. Titolo, fonte e testo vengono letti lato server, senza valutare JavaScript e impedendo l’uso dell’endpoint con testo arbitrario. Le traduzioni brevi usano DeepL API Free quando `DEEPL_API_KEY` è configurata, altrimenti MyMemory; in questo percorso Groq non viene chiamato. Gli articoli lunghi e le sintesi approfondite continuano a usare Groq. L’output viene rifiutato se è troppo breve, perde troppi dati numerici o contiene metacommenti. Sono inoltre presenti controllo same-origin, validazione stretta del body, rate limiting per IP, timeout dei provider e istruzioni contro prompt injection.
 
-Il modello configurato è `llama-3.3-70b-versatile` tramite Groq. Le sintesi sono automatiche e possono sbagliare; l’articolo originale resta la fonte autorevole.
+Il modello configurato è `openai/gpt-oss-120b` tramite Groq, con ragionamento medio e risposta JSON. Usa la stessa `GROQ_API_KEY`; non richiede una chiave OpenAI. È disponibile nel piano gratuito Groq entro le quote dell’account; il modello non rende gratuito un eventuale account già a pagamento. Le sintesi sono automatiche e possono sbagliare; l’articolo originale resta la fonte autorevole.
 
 Il limite di 12 richieste per IP ogni 15 minuti è locale a ciascuna istanza della funzione. Non garantisce un budget globale fra istanze o riavvii: prima di affidargli il controllo dei costi, verificare limiti condivisi al bordo o presso il provider. Le intestazioni di origine non autenticano un client non-browser.
 

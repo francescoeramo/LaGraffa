@@ -93,6 +93,11 @@ test('looks up article text in news.json before calling Groq', async () => {
     await handler({ method: 'POST', headers: validHeaders(), socket: { remoteAddress: '127.0.0.2' }, body: { articleId: article.id } }, res);
     assert.equal(res.statusCode, 200);
     assert.match(providerBody.messages[1].content, /<articolo>/);
+    assert.equal(providerBody.model, 'openai/gpt-oss-120b');
+    assert.equal(providerBody.reasoning_effort, 'medium');
+    assert.equal(providerBody.include_reasoning, false);
+    assert.equal(providerBody.max_completion_tokens, 4096);
+    assert.equal(providerBody.response_format.type, 'json_object');
     assert.equal(JSON.parse(res.body).provider, 'groq');
   } finally {
     global.fetch = previousFetch;

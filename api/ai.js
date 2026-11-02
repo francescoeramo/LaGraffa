@@ -260,7 +260,9 @@ async function generateWithGroq({ title, text, source, language, mode }) {
       method: 'POST', signal: controller.signal,
       headers: { Authorization: `Bearer ${process.env.GROQ_API_KEY}`, 'Content-Type': 'application/json' },
       body: JSON.stringify({
-        model: 'llama-3.3-70b-versatile', temperature: 0, max_tokens: mode === 'translation' ? 8000 : 1800,
+        model: 'openai/gpt-oss-120b', temperature: 0,
+        max_completion_tokens: mode === 'translation' ? 8000 : 4096,
+        reasoning_effort: 'medium', include_reasoning: false,
         response_format: { type: 'json_object' }, messages
       })
     });
