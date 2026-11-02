@@ -24,6 +24,8 @@ Le fonti configurate si trovano in `scripts/fetch_news.py`. Gli URL non più pub
 
 Il workflow `.github/workflows/fetch_news.yml` esegue `scripts/fetch_news.py` ogni ora. Ogni richiesta usa timeout, user-agent identificabile e controllo dello stato HTTP. Il file esistente non viene sovrascritto se la raccolta produce meno della soglia minima di articoli.
 
+Feed e pagine degli articoli condividono il downloader: ogni redirect viene verificato contro i domini dell’editore e gli indirizzi pubblici; il corpo decodificato è limitato a 5 MB prima del parsing. Risposte rifiutate o fallite vengono chiuse e la raccolta prosegue con le altre fonti.
+
 `news.js` include data di generazione, numero di fonti raggiunte e nomi delle fonti fallite. L’interfaccia mostra questi dati e segnala ritardi superiori alle soglie previste. Il pulsante di aggiornamento ricarica soltanto l’ultima versione pubblicata: non avvia un workflow remoto.
 
 ## Sintesi AI e sicurezza
@@ -31,6 +33,10 @@ Il workflow `.github/workflows/fetch_news.yml` esegue `scripts/fetch_news.py` og
 L’API accetta esclusivamente l’ID di una notizia presente nel `news.json` generato. Titolo, fonte e testo vengono letti lato server, senza valutare JavaScript e impedendo l’uso dell’endpoint con testo arbitrario. Le traduzioni brevi usano DeepL API Free quando `DEEPL_API_KEY` è configurata, altrimenti MyMemory; in questo percorso Groq non viene chiamato. Gli articoli lunghi e le sintesi approfondite continuano a usare Groq. L’output viene rifiutato se è troppo breve, perde troppi dati numerici o contiene metacommenti. Sono inoltre presenti controllo same-origin, validazione stretta del body, rate limiting per IP, timeout dei provider e istruzioni contro prompt injection.
 
 Il modello configurato è `llama-3.3-70b-versatile` tramite Groq. Le sintesi sono automatiche e possono sbagliare; l’articolo originale resta la fonte autorevole.
+
+Il limite di 12 richieste per IP ogni 15 minuti è locale a ciascuna istanza della funzione. Non garantisce un budget globale fra istanze o riavvii: prima di affidargli il controllo dei costi, verificare limiti condivisi al bordo o presso il provider. Le intestazioni di origine non autenticano un client non-browser.
+
+L’audit del 19 ottobre 2026 e i suoi limiti sono riassunti in `SECURITY-AUDIT-2026-10-19.md`.
 
 ## Autore e progetto
 

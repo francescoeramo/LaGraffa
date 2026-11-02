@@ -1,6 +1,14 @@
 name: Fetch RSS News
 
 on:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/fetch_news.yml'
+      - 'scripts/**'
+      - 'tests/**'
+      - 'api/**'
+      - 'requirements.txt'
   schedule:
     - cron: '0 * * * *'
   workflow_dispatch:

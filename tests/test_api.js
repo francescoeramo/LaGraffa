@@ -1,6 +1,28 @@
 const test = require('node:test');
 const assert = require('node:assert/strict');
+const fs = require('node:fs');
+const os = require('node:os');
+const path = require('node:path');
 const handler = require('../api/ai.js');
+
+// Keep API tests independent of the changing RSS selection, while exercising
+// the real news.json loader without touching the published archive.
+const fixtureArticles = [
+  { id: 'a'.repeat(20), title: 'Articolo italiano di prova', source: 'Test', language: 'it', content_status: 'full', body: 'Una notizia verificata descrive i fatti e il contesto della ricerca. '.repeat(20) },
+  { id: 'b'.repeat(20), title: 'Research news', source: 'Test', language: 'en', content_status: 'feed', body: 'Researchers published a study explaining their methods and findings. '.repeat(8) }
+];
+let originalCwd;
+let fixtureDir;
+test.before(() => {
+  originalCwd = process.cwd();
+  fixtureDir = fs.mkdtempSync(path.join(os.tmpdir(), 'lagraffa-api-test-'));
+  fs.writeFileSync(path.join(fixtureDir, 'news.json'), JSON.stringify({ articles: fixtureArticles }));
+  process.chdir(fixtureDir);
+});
+test.after(() => {
+  process.chdir(originalCwd);
+  fs.rmSync(fixtureDir, { recursive: true, force: true });
+});
 
 function responseMock() {
   return {
