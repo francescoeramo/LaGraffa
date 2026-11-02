@@ -1,6 +1,14 @@
-# LaGraffa
+# 🗞️ LaGraffa
 
 LaGraffa è una rassegna di notizie italiane e internazionali aggiornata ogni ora. Aggrega feed RSS pubblici, mostra anteprime attribuite alle testate e rimanda sempre all’articolo originale. Vercel serve il sito statico e l’API server-side per traduzioni e sintesi AI.
+
+**[Apri LaGraffa](https://lagraffa.vercel.app/)** · Italia e mondo · Conflitti · Tecnologia · Economia
+
+Una rassegna, più prospettive: le notizie restano collegate alle fonti originali e gli strumenti di lettura sono disponibili direttamente nel browser.
+
+## Fonti e copertura
+
+La selezione comprende testate italiane e internazionali. Per ampliare la copertura geografica sono configurati anche The Japan Times e CNA per l’Asia, Africanews e Le Monde Afrique per l’Africa, e Middle East Eye e Times of Israel per il Medio Oriente. Le fonti possono temporaneamente non essere raggiungibili: il riepilogo nell’interfaccia segnala quelle che non hanno risposto. La disponibilità di un feed non garantisce che ogni articolo superi i filtri editoriali o che il testo completo sia accessibile.
 
 ## Funzioni
 

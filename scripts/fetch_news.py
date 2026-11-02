@@ -33,6 +33,11 @@ RSS_SOURCES = [
     {"name": "The Guardian",     "url": "https://www.theguardian.com/world/rss",                             "cat": "geopolitica"},
     {"name": "Deutsche Welle",   "url": "https://rss.dw.com/rdf/rss-en-world",                               "cat": "geopolitica"},
     {"name": "Times of Israel",  "url": "https://www.timesofisrael.com/feed/",                               "cat": "conflitti"},
+    {"name": "Middle East Eye",  "url": "https://www.middleeasteye.net/rss",                                 "cat": "geopolitica"},
+    {"name": "The Japan Times",  "url": "https://www.japantimes.co.jp/feed/",                                "cat": "geopolitica"},
+    {"name": "CNA",              "url": "https://www.channelnewsasia.com/api/v1/rss-outbound-feed?_format=xml&category=6511", "cat": "geopolitica"},
+    {"name": "Africanews",       "url": "https://www.africanews.com/feed/rss",                              "cat": "geopolitica"},
+    {"name": "Le Monde Afrique", "url": "https://www.lemonde.fr/en/le-monde-africa/rss_full.xml",          "cat": "geopolitica"},
     {"name": "The Economist",    "url": "https://www.economist.com/international/rss.xml",                   "cat": "geopolitica"},
     {"name": "El Pais",          "url": "https://feeds.elpais.com/mrss-s/pages/ep/site/elpais.com/portada",  "cat": "geopolitica"},
     {"name": "Al Jazeera",       "url": "https://www.aljazeera.com/xml/rss/all.xml",                         "cat": "conflitti"},
@@ -49,7 +54,7 @@ RSS_SOURCES = [
 # Le fonti italiane restano il punto di partenza: la priorità interviene solo
 # a parità di freschezza e rilevanza, senza nascondere il necessario contesto estero.
 ITALIAN_SOURCES = {"ANSA", "AGI", "Il Post", "Facta", "Pagella Politica", "Valigia Blu", "Internazionale", "Limes", "Wired IT", "Il Post Tech", "Il Sole 24 Ore"}
-BROAD_SOURCES = {"ANSA", "AGI", "Il Post", "Facta", "Pagella Politica", "Internazionale", "BBC World", "The Guardian", "Deutsche Welle", "Times of Israel", "El Pais", "Al Jazeera"}
+BROAD_SOURCES = {"ANSA", "AGI", "Il Post", "Facta", "Pagella Politica", "Internazionale", "BBC World", "The Guardian", "Deutsche Welle", "Times of Israel", "Middle East Eye", "The Japan Times", "CNA", "Africanews", "Le Monde Afrique", "El Pais", "Al Jazeera"}
 REQUESTED_PUBLISHERS = {"Facta", "Internazionale", "Limes", "Pagella Politica"}
 PUBLISHER_DOMAINS = {
     "ANSA": {"ansa.it"}, "AGI": {"agi.it"}, "Facta": {"facta.news"},
@@ -58,6 +63,8 @@ PUBLISHER_DOMAINS = {
     "BBC World": {"bbc.co.uk", "bbc.com"}, "The Economist": {"economist.com"},
     "Il Post": {"ilpost.it"}, "The Guardian": {"theguardian.com"},
     "Deutsche Welle": {"dw.com"}, "Times of Israel": {"timesofisrael.com"},
+    "Middle East Eye": {"middleeasteye.net"}, "The Japan Times": {"japantimes.co.jp"},
+    "CNA": {"channelnewsasia.com"}, "Africanews": {"africanews.com"}, "Le Monde Afrique": {"lemonde.fr"},
     "El Pais": {"elpais.com"}, "Al Jazeera": {"aljazeera.com"},
     "The Verge": {"theverge.com"}, "Wired IT": {"wired.it"},
     "TechCrunch": {"techcrunch.com"}, "Il Post Tech": {"ilpost.it"},
