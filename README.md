@@ -37,7 +37,9 @@ Feed e pagine degli articoli condividono il downloader: ogni redirect viene veri
 
 I collegamenti pubblicati devono appartenere ai domini configurati per la testata. Ogni download viene eseguito in un processo separato, terminato allo scadere del budget anche se DNS o lettura rimangono bloccati. Le risoluzioni usate dal trasporto vengono controllate al momento della connessione; sono consentiti solo indirizzi pubblici. I proxy ereditati dall'ambiente sono disabilitati, mentre la verifica del certificato HTTPS resta attiva.
 
-`news.js` include data di generazione, numero di fonti raggiunte e nomi delle fonti fallite. L’interfaccia mostra questi dati e segnala ritardi superiori alle soglie previste. Il pulsante di aggiornamento ricarica soltanto l’ultima versione pubblicata: non avvia un workflow remoto.
+`news.js` include data di generazione, numero di fonti raggiunte e nomi delle fonti fallite. L’interfaccia mostra questi dati e segnala ritardi superiori alle soglie previste. Il pulsante verifica i dati già pubblicati e avvia la raccolta con `POST /api/refresh`, quindi segue lo stato del workflow e attende un timestamp più recente in `news.json` prima di ricaricare la pagina. I collegamenti agli articoli vengono conservati. L’attesa termina dopo 20 minuti con un messaggio in caso di ritardo.
+
+Su Vercel serve `GITHUB_REFRESH_TOKEN` come variabile sensibile solo in produzione: token fine-grained limitato a LaGraffa con Actions read/write. Repository, workflow e branch sono fissati sul server. L’API controlla l’origine e riutilizza le raccolte attive; la cronologia GitHub limita gli avvii a uno ogni 15 minuti. Un lock in memoria copre le richieste simultanee nella stessa istanza. Tra istanze resta una breve finestra prima che GitHub mostri il dispatch: la concorrenza del workflow e il controllo del timestamp, dopo il checkout aggiornato di `main`, impediscono raccolte manuali duplicate in quella finestra. Gli aggiornamenti programmati continuano ogni ora al minuto 17.
 
 ## Sintesi AI e sicurezza
 

@@ -79,6 +79,7 @@
   }
 
   function updateFeedStatus() {
+    if (refreshBtn.disabled) return;
     var generatedAt = Number(typeof NEWS_TIMESTAMP === 'undefined' ? 0 : NEWS_TIMESTAMP) * 1000;
     var ageMs = generatedAt ? Date.now() - generatedAt : Infinity;
     var meta = typeof FEED_META === 'undefined' ? null : FEED_META;
@@ -138,7 +139,6 @@
   document.querySelectorAll('.cat-btn').forEach(function (button) {
     button.addEventListener('click', function () { selectCategory(button.dataset.cat); document.getElementById('newsContent').scrollIntoView({ behavior: 'smooth' }); });
   });
-  refreshBtn.addEventListener('click', function () { location.replace(location.pathname + '?t=' + Date.now()); });
 
   function populateSources() {
     Array.from(new Set(ALL_NEWS.map(function (news) { return news.source; }))).sort(function (a, b) { return a.localeCompare(b, 'it'); }).forEach(function (source) {

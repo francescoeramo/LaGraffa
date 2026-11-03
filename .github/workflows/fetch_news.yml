@@ -31,25 +31,38 @@ jobs:
     steps:
       - name: Checkout repo
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: main
+
+      - name: Check manual refresh cooldown
+        id: cooldown
+        run: python3 scripts/check_refresh_cooldown.py
 
       - name: Set up Python
+        if: steps.cooldown.outputs.collect == 'true'
         uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7.0.0
         with:
           python-version: '3.12'
           cache: 'pip'
 
       - name: Install dependencies
+        if: steps.cooldown.outputs.collect == 'true'
         run: pip install -r requirements.txt
 
       - name: Test pipeline
+        if: steps.cooldown.outputs.collect == 'true'
         run: |
           python -m unittest discover -s tests -p 'test_*.py'
           node tests/test_api.js
+          node tests/test_refresh.js
+          node tests/test_refresh_ui.js
 
       - name: Fetch RSS and generate news.js
+        if: steps.cooldown.outputs.collect == 'true'
         run: python scripts/fetch_news.py
 
       - name: Commit e push se ci sono modifiche
+        if: steps.cooldown.outputs.collect == 'true'
         run: |
           git config user.name  "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
