@@ -10,7 +10,8 @@ on:
       - 'api/**'
       - 'requirements.txt'
   schedule:
-    - cron: '0 * * * *'
+    # Evita il picco di carico GitHub Actions a inizio ora.
+    - cron: '17 * * * *'
   workflow_dispatch:
 
 env:
